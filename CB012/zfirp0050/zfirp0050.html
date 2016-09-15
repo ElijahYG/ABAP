@@ -1,0 +1,826 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0050</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0050</h2>
+<h3> Description: 计提所得税</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZFIRP0050<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;FI-RP-0050<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;计提所得税<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;WANGJUNJIE<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/06/18&nbsp;&nbsp;&nbsp;&nbsp;WANGJUNJIE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT ZFIRP0050.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&INCLUDE<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+include <a href ="zfi_common_form.html">ZFI_COMMON_FORM</a>.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入选择屏幕表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:<br />
+&nbsp;&nbsp;SETNODE,<br />
+&nbsp;&nbsp;FAGLFLEXT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RACCT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-RACCT,&nbsp;"科目<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;DRCRK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-DRCRK,&nbsp;"借贷标识<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;HSLVT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSLVT,&nbsp;"期初余额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"期间01&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL02,&nbsp;"期间02&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL03,&nbsp;"期间03&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL04,&nbsp;"期间04&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL05,&nbsp;"期间05&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL06&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL06,&nbsp;"期间06&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL07&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL07,&nbsp;"期间07&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL08&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL08,&nbsp;"期间08&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL09,&nbsp;"期间09&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL10,&nbsp;"期间10&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL11,&nbsp;"期间11&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL12,&nbsp;"期间12&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL13,&nbsp;"期间13&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL14,&nbsp;"期间14&nbsp;发生额<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_FAG,<br />
+<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LINENO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VALUE1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;&nbsp;&nbsp;"本月数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VALUE2(16)&nbsp;&nbsp;TYPE&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"负号提前用<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+<br />
+&nbsp;&nbsp;TYT_FAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_FAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;TYT_OUT_TAB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB&nbsp;&nbsp;&nbsp;OCCURS&nbsp;0.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义常量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+CONSTANTS:<br />
+&nbsp;&nbsp;CNS_OBJID&nbsp;TYPE&nbsp;W3OBJID&nbsp;VALUE&nbsp;'ZFIRP0050'.&nbsp;&nbsp;"模板名称<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;GT_FAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_FAG,<br />
+&nbsp;&nbsp;GT_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;LW_OUT_TMP&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXT-RBUKRS&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS,&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;S_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXT-PRCTR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;S_SNAME&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;SETNODE-SETNAME,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心组<br />
+&nbsp;&nbsp;S_GJAHR&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXT-RYEAR&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS&nbsp;OBLIGATORY,&nbsp;&nbsp;&nbsp;"会计年度<br />
+&nbsp;&nbsp;S_MONAT&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXT-RPMAX&nbsp;OBLIGATORY&nbsp;NO-EXTENSION.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计期间<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&帮助<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR S_SNAME-LOW.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'K_GROUP_SELECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CCSS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_SNAME-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_SET_PICKED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR S_SNAME-HIGH.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'K_GROUP_SELECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CCSS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_SNAME-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_SET_PICKED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_CAL_DATA.<br />
+   </div>
+   <div class="codeComment">
+*负号提前<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_MINUS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按模板下载<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_DOWNLOAD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_OUT_TAB.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&数据检查<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_DATA.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.&nbsp;&nbsp;&nbsp;&nbsp;"计数器<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;检查1：限制公司代码、利润中心、利润中心组只能取一个<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_BUKRS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;L_COUNT&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;S_PRCTR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;L_COUNT&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;S_SNAME&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;L_COUNT&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计数器不等于1表示不为三选一<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;L_COUNT&nbsp;&lt;&gt;&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'公司代码、利润中心、利润中心组，只能且必须选择一个'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_RACCT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;HKONT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;LT_R_RACCT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;利润中心不为空，通过利润中心取数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_PRCTR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_PRCTR&nbsp;=&nbsp;S_PRCTR[].<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;利润中心组不为空，则取该利润中心组下所有的利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_SNAME&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_PRCTR&nbsp;USING&nbsp;S_SNAME[]&nbsp;LT_R_PRCTR&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*判断利润中心组下是否有利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_R_PRCTR&nbsp;IS&nbsp;INITIAL&nbsp;AND&nbsp;S_BUKRS&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'您输入的利润中心组下没有利润中心'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;科目数据处理<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-OPTION&nbsp;&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-HIGH&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_RACCT&nbsp;TO&nbsp;LT_R_RACCT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+ENDIF.<br />
+&nbsp;&nbsp;DF_ADD_RACCT&nbsp;:<br />
+&nbsp;&nbsp;&nbsp;'5000000000'&nbsp;'5999999999',<br />
+&nbsp;&nbsp;&nbsp;'6000000000'&nbsp;'6799999999'.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;RACCT&nbsp;&nbsp;"科目<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DRCRK&nbsp;&nbsp;"借贷标识<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSLVT&nbsp;&nbsp;"期初余额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL01&nbsp;&nbsp;"期间01&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL02&nbsp;&nbsp;"期间02&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL03&nbsp;&nbsp;"期间03&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL04&nbsp;&nbsp;"期间04&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL05&nbsp;&nbsp;"期间05&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL06&nbsp;&nbsp;"期间06&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL07&nbsp;&nbsp;"期间07&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL08&nbsp;&nbsp;"期间08&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL09&nbsp;&nbsp;"期间09&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL10&nbsp;&nbsp;"期间10&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL11&nbsp;&nbsp;"期间11&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL12&nbsp;&nbsp;"期间12&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL13&nbsp;&nbsp;"期间13&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL14&nbsp;&nbsp;"期间14&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;FAGLFLEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_FAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"插入到内表GT<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;RBUKRS&nbsp;IN&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PRCTR&nbsp;&nbsp;IN&nbsp;LT_R_PRCTR&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RYEAR&nbsp;&nbsp;IN&nbsp;S_GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计年度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RACCT&nbsp;&nbsp;IN&nbsp;LT_R_RACCT&nbsp;&nbsp;&nbsp;"科目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CAL_DATA.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS&gt;.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RACCT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-RACCT,&nbsp;"科目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DRCRK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-DRCRK,&nbsp;"借贷标识<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE0&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"期初余额<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE1&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"当期汇总值<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE2&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"当年汇总值<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_INDEX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;NUMC2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_SUM&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TMP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR100.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;STEP1：按科目、借贷标识汇总数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_FAG&nbsp;BY&nbsp;RACCT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;确定合计到哪个期间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_MONAT-HIGH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MAX&nbsp;=&nbsp;S_MONAT-HIGH.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MAX&nbsp;=&nbsp;S_MONAT-LOW.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_FSUM.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_FAG&nbsp;INTO&nbsp;LW_TMP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;防止*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FAG&nbsp;=&nbsp;LW_TMP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;按科目、借贷标识、期间汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSLVT&nbsp;=&nbsp;LW_FSUM-HSLVT&nbsp;+&nbsp;LW_FAG-HSLVT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL01&nbsp;=&nbsp;LW_FSUM-HSL01&nbsp;+&nbsp;LW_FAG-HSL01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL02&nbsp;=&nbsp;LW_FSUM-HSL02&nbsp;+&nbsp;LW_FAG-HSL02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL03&nbsp;=&nbsp;LW_FSUM-HSL03&nbsp;+&nbsp;LW_FAG-HSL03.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL04&nbsp;=&nbsp;LW_FSUM-HSL04&nbsp;+&nbsp;LW_FAG-HSL04.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL05&nbsp;=&nbsp;LW_FSUM-HSL05&nbsp;+&nbsp;LW_FAG-HSL05.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL06&nbsp;=&nbsp;LW_FSUM-HSL06&nbsp;+&nbsp;LW_FAG-HSL06.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL07&nbsp;=&nbsp;LW_FSUM-HSL07&nbsp;+&nbsp;LW_FAG-HSL07.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL08&nbsp;=&nbsp;LW_FSUM-HSL08&nbsp;+&nbsp;LW_FAG-HSL08.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL09&nbsp;=&nbsp;LW_FSUM-HSL09&nbsp;+&nbsp;LW_FAG-HSL09.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL10&nbsp;=&nbsp;LW_FSUM-HSL10&nbsp;+&nbsp;LW_FAG-HSL10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL11&nbsp;=&nbsp;LW_FSUM-HSL11&nbsp;+&nbsp;LW_FAG-HSL11.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL12&nbsp;=&nbsp;LW_FSUM-HSL12&nbsp;+&nbsp;LW_FAG-HSL12&nbsp;+&nbsp;LW_FAG-HSL13&nbsp;+&nbsp;LW_FAG-HSL14.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;RACCT.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_SUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DO&nbsp;12&nbsp;TIMES.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_INDEX&nbsp;=&nbsp;SY-INDEX.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FIELD&nbsp;=&nbsp;'LW_FSUM-HSL'&nbsp;&&&nbsp;L_INDEX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;(L_FIELD)&nbsp;TO&nbsp;&lt;FS&gt;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;合计到当月<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_INDEX&nbsp;IN&nbsp;S_MONAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE1&nbsp;=&nbsp;LW_SUM-VALUE1&nbsp;+&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;计算当年累计值<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_INDEX&nbsp;&lt;=&nbsp;L_MAX.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_SUM-VALUE2&nbsp;+&nbsp;&lt;FS&gt;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDDO.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;期初<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE0&nbsp;=&nbsp;LW_FSUM-HSLVT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;计算当月和当年的发生额<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-RACCT&nbsp;=&nbsp;LW_FAG-RACCT.&nbsp;&nbsp;"科目<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-DRCRK&nbsp;=&nbsp;LW_FAG-DRCRK.&nbsp;&nbsp;"借贷标识<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_SUM&nbsp;TO&nbsp;LT_SUM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;处理完毕，清空工作区<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FSUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;STEP2：数据匹配到输出内表中<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_SUM&nbsp;BY&nbsp;RACCT.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SUM&nbsp;INTO&nbsp;LW_SUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB&nbsp;WITH&nbsp;KEY&nbsp;LINENO&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-LINENO&nbsp;=&nbsp;1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_SUM-VALUE1&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_SUM-VALUE1&nbsp;*&nbsp;-1&nbsp;+&nbsp;LW_OUT_TAB-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;LW_OUT_TAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;汇总值<br />
+<br />
+*2行<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_OUT_TMP-LINENO&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TMP-VALUE1&nbsp;*&nbsp;25&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-LINENO&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*3<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_OUT_TMP-LINENO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TAB-VALUE1&nbsp;+&nbsp;LW_OUT_TMP-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TAB-VALUE1&nbsp;-&nbsp;LW_OUT_TMP-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-LINENO&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*4<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_OUT_TMP-LINENO&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TMP-VALUE1&nbsp;*&nbsp;10&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-LINENO&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+   </div>
+   <div class="codeComment">
+*5<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_OUT_TMP-LINENO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TAB-VALUE1&nbsp;+&nbsp;LW_OUT_TMP-VALUE1&nbsp;*&nbsp;10&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TAB-VALUE1&nbsp;-&nbsp;LW_OUT_TMP-VALUE1&nbsp;*&nbsp;10&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-LINENO&nbsp;=&nbsp;5.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+   </div>
+   <div class="codeComment">
+*6<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_OUT_TMP-LINENO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TAB-VALUE1&nbsp;+&nbsp;LW_OUT_TMP-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TAB-VALUE1&nbsp;-&nbsp;LW_OUT_TMP-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;5.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE1&nbsp;=&nbsp;LW_OUT_TAB-VALUE1&nbsp;-&nbsp;LW_OUT_TMP-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-LINENO&nbsp;=&nbsp;6.<br />
+&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM FM_MINUS.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE2&nbsp;=&nbsp;LW_OUT_TMP-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;LW_OUT_TAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;VALUE2.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_OUT_TAB-VALUE2&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-VALUE2&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CLOI_PUT_SIGN_IN_FRONT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;=&nbsp;LW_OUT_TAB-VALUE2.<br />
+&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;LW_OUT_TAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;VALUE2.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&下载<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_DOWNLOAD.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR100,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_EXCEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EXCEL&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_EXCEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取路径<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_FILEPATH&nbsp;USING&nbsp;L_PATH&nbsp;'计提所得税'.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;L_PATH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;下载模板到指定路径<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_TEMPLATE&nbsp;USING&nbsp;CNS_OBJID&nbsp;L_PATH.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;数据编辑<br />
+*&nbsp;&nbsp;&nbsp;1.编辑抬头<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_MONAT-HIGH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;S_GJAHR-LOW&nbsp;&&&nbsp;S_MONAT-HIGH+1(2)&nbsp;&&&nbsp;'01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;S_GJAHR-LOW&nbsp;&&&nbsp;S_MONAT-LOW+1(2)&nbsp;&&&nbsp;'01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;取当月最后一天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SET_LAST_DAY_OF_MONTH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_EXCEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-ROW&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-COL&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-VALUE&nbsp;=&nbsp;L_DATE+0(4)&nbsp;&&&nbsp;'年'&nbsp;&&&nbsp;L_DATE+4(2)&nbsp;&&&nbsp;'月'&nbsp;&&&nbsp;L_DATE+6(2)&nbsp;&&&nbsp;'日'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_EXCEL&nbsp;TO&nbsp;LT_EXCEL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;2.编辑编制单位<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_TEXT&nbsp;USING&nbsp;L_TEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_EXCEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-ROW&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-COL&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-VALUE&nbsp;=&nbsp;'编制单位：'&&&nbsp;L_TEXT&nbsp;&&&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单位:&nbsp;元'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_EXCEL&nbsp;TO&nbsp;LT_EXCEL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;3.编辑数据行<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_OUT_TAB-VALUE1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_EXCEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-ROW&nbsp;=&nbsp;LW_OUT_TAB-LINENO&nbsp;+&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-COL&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL-VALUE&nbsp;=&nbsp;LW_OUT_TAB-VALUE2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_EXCEL&nbsp;TO&nbsp;LT_EXCEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;数据填充<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_FILL_DATA&nbsp;USING&nbsp;L_PATH&nbsp;LT_EXCEL.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'取消下载'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取公司文本、利润中心文本或者利润中心组文本<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_TEXT USING O_TEXT.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;TYPE&nbsp;CHAR100.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取公司代码文本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_BUKRS-LOW&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUTXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BUKRS&nbsp;=&nbsp;S_BUKRS-LOW&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取利润中心文本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_PRCTR-LOW&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;LTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;CEPCT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;PRCTR&nbsp;=&nbsp;S_PRCTR-LOW&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPRAS&nbsp;=&nbsp;SY-LANGU&nbsp;&nbsp;&nbsp;&nbsp;"语言代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;&nbsp;&nbsp;"有效日期<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取利润中心组文本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_SNAME-LOW&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;DESCRIPT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETHEADERT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'&nbsp;&nbsp;"固定值标识利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SETNAME&nbsp;&nbsp;=&nbsp;S_SNAME-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LANGU&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-LANGU<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;O_TEXT&nbsp;=&nbsp;L_TEXT.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_BUKRS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_GJAHR&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_MONAT&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_PRCTR&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_SNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;利润中心组<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

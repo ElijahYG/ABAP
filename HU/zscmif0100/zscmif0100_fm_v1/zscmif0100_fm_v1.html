@@ -1,0 +1,441 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSCMIF0100_FM_V1</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZSCMIF0100_FM_V1</h2>
+<h3> Description: 下发库存数据到SCM_接口</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZSCMIF0100_FM_V1.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IM_MAX) TYPE  NUMC5 DEFAULT 5000<br />
+*"  TABLES<br />
+*"      IRT_WERKS TYPE  ZCB01_TY_RT_SITE<br />
+*"      IRT_EXTWG TYPE  ZCB01_TY_RT_EXTWG<br />
+*"      IRT_MATNR TYPE  ZCB01_TY_RT_MATNR<br />
+*"      IRT_CHARG TYPE  ZCB01_TY_RT_CHARG<br />
+*"      ET_IDOC_NUMBER TYPE  ZCB01_TY_T_DOCNUM<br />
+*"      ET_RETURN STRUCTURE  BAPIRET2<br />
+*"----------------------------------------------------------------------<br />
+<br />
+* 数据结构定义<br />
+
+<div class="codeComment">*       <a href ="global-zscmif0100_fm_v1.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LS_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;ET_RETURN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_IDOC_NUMBER&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;ET_IDOC_NUMBER.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_SYS_CONFIG&nbsp;TYPE&nbsp;ZSYS_CONFIG.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;LIKE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_CHARACTERS&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARACTERS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_SGM_INFO&nbsp;TYPE&nbsp;ZSCMIF0100_SGM_INFO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_SGM_INFO&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_SGM_INFO.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIFNR&nbsp;TYPE&nbsp;LFA1-LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT1&nbsp;TYPE&nbsp;ADRC-SORT1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_LIFNR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_LIFNR&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_LIFNR.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_STOCK&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;TYPE&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEMPB&nbsp;TYPE&nbsp;MARA-TEMPB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MTART&nbsp;TYPE&nbsp;MARA-MTART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MCHB-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;MCHB-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS&nbsp;TYPE&nbsp;MCHB-CLABS,<br />
+   </div>
+   <div class="codeComment">
+*          LGORT TYPE MCHB-lgort,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_STOCK&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_STOCK&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_STOCK.<br />
+<br />
+&nbsp;&nbsp;DATA:LT_EDIDD&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDD&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CONTROL&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;通讯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_CONTROL&nbsp;&nbsp;TYPE&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;控制记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_CONTROL1&nbsp;TYPE&nbsp;EDIDC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;控制记录<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_LINES&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_BEGIN&nbsp;TYPE&nbsp;SY-TABIX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_DATETIME&nbsp;TYPE&nbsp;ZDE_DATETIME&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  判断接口状态<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsap_get_status/zsap_get_status.html">'ZSAP_GET_STATUS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PID'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SYS_CONFIG&nbsp;=&nbsp;WA_SYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;(&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'01'&nbsp;OR&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'03'&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V1&nbsp;=&nbsp;'PID在表ZSYS_CONFIG中没有配置'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V2&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LS_RETURN-ID&nbsp;TYPE&nbsp;LS_RETURN-TYPE&nbsp;NUMBER&nbsp;LS_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_RETURN-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LS_RETURN-MESSAGE_V1&nbsp;LS_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;LS_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_RETURN&nbsp;TO&nbsp;ET_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 读取商品和库存信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;A~MATNR&nbsp;A~EXTWG&nbsp;A~MEINS&nbsp;A~TEMPB&nbsp;A~MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG&nbsp;B~WERKS&nbsp;SUM(&nbsp;B~CLABS&nbsp;)&nbsp;AS&nbsp;CLABS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_STOCK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MCHB&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;IN&nbsp;IRT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;IN&nbsp;IRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;(&nbsp;A~MTART&nbsp;=&nbsp;'Z003'&nbsp;OR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MTART&nbsp;=&nbsp;'Z009'&nbsp;OR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;A~MTART&nbsp;=&nbsp;'Z002'&nbsp;AND&nbsp;(&nbsp;A~EXTWG&nbsp;=&nbsp;'D08'&nbsp;OR&nbsp;A~EXTWG&nbsp;=&nbsp;'D09'&nbsp;)&nbsp;)&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CHARG&nbsp;IN&nbsp;IRT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;IN&nbsp;IRT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CLABS&nbsp;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;A~MATNR&nbsp;A~EXTWG&nbsp;A~MEINS&nbsp;A~TEMPB&nbsp;A~MTART&nbsp;B~CHARG&nbsp;B~WERKS&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-TYPE&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V1&nbsp;=&nbsp;'没有查询到库存!'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V2&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LS_RETURN-ID&nbsp;TYPE&nbsp;LS_RETURN-TYPE&nbsp;NUMBER&nbsp;LS_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_RETURN-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LS_RETURN-MESSAGE_V1&nbsp;LS_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;LS_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_RETURN&nbsp;TO&nbsp;ET_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"读取批次特性<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_STOCK&nbsp;TO&nbsp;LT_CHARG&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARG&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_CHARG&nbsp;COMPARING&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;LT_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;"读取供应商主数据<br />
+&nbsp;&nbsp;SELECT&nbsp;A~LIFNR&nbsp;C~SORT1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;LFA1&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ADRC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~ADDRNUMBER&nbsp;=&nbsp;A~ADRNR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"准备输出的数据<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARACTERS&nbsp;BY&nbsp;SFLY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;GET&nbsp;TIME&nbsp;.<br />
+&nbsp;&nbsp;LV_DATETIME&nbsp;=&nbsp;SY-DATUM&nbsp;&&&nbsp;SY-UZEIT&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK&nbsp;INTO&nbsp;LS_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_SGM_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;只导出联营商品的库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARACTERS&nbsp;INTO&nbsp;LS_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;SFLY&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;=&nbsp;LS_STOCK-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LS_STOCK-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_SGM_INFO-DATUM&nbsp;=&nbsp;LV_DATETIME&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK&nbsp;TO&nbsp;LS_SGM_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_CHARACTERS&nbsp;TO&nbsp;LS_SGM_INFO&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* Add by huxiaowei @2016.01.05 Start *<br />
+* 在上面的"MOVE-CORRESPONDING LS_CHARACTERS TO LS_SGM_INFO ."中，WERKS字段内容被覆盖了<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_SGM_INFO-WERKS&nbsp;=&nbsp;LS_STOCK-WERKS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* Add by huxiaowei @2016.01.05 End *<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LS_SGM_INFO-LIFNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_LIFNR&nbsp;INTO&nbsp;LS_LIFNR&nbsp;WITH&nbsp;KEY&nbsp;LIFNR&nbsp;=&nbsp;LS_CHARACTERS-ZGYSDM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_SGM_INFO-SORTL&nbsp;=&nbsp;LS_LIFNR-SORT1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"计算件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK-MEINS&nbsp;&lt;&gt;&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZKCSL&nbsp;=&nbsp;LS_STOCK-CLABS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果商品单位不为PC，例如是G<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;LS_STOCK-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;LS_SGM_INFO-ZJZ&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;件数是库存重量除以单位克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZKCSL&nbsp;=&nbsp;LS_STOCK-CLABS&nbsp;/&nbsp;LS_SGM_INFO-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果单位克重为0，则发货件数为1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZKCSL&nbsp;=&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存金额&nbsp;=&nbsp;库存件数&nbsp;*&nbsp;参考零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZKCJE&nbsp;=&nbsp;LS_SGM_INFO-ZKCSL&nbsp;*&nbsp;LS_SGM_INFO-ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZXQZSZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZLYJSYKJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZJSKL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZKCSL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&nbsp;&nbsp;LS_SGM_INFO-ZKCJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_SGM_INFO&nbsp;TO&nbsp;LT_SGM_INFO&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*      CLEAR: LS_EDIDD.<br />
+*      LS_EDIDD-SEGNAM = 'ZSCMIF0100_SGM_INFO'.<br />
+*      LS_EDIDD-SDATA  =  LS_SGM_INFO.<br />
+*      APPEND LS_EDIDD TO LT_EDIDD.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_SGM_INFO[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-TYPE&nbsp;=&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V1&nbsp;=&nbsp;'本次没有库存需要输出！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V2&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LS_RETURN-ID&nbsp;TYPE&nbsp;LS_RETURN-TYPE&nbsp;NUMBER&nbsp;LS_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_RETURN-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LS_RETURN-MESSAGE_V1&nbsp;LS_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;LS_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_RETURN&nbsp;TO&nbsp;ET_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+****************设定idoc控制记录***************************<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IM_MAX&nbsp;&lt;&nbsp;5000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IM_MAX&nbsp;=&nbsp;5000&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;LV_LINES&nbsp;=&nbsp;LINES(&nbsp;LT_SGM_INFO&nbsp;).<br />
+&nbsp;&nbsp;IF&nbsp;LV_LINES&nbsp;MOD&nbsp;IM_MAX&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINES&nbsp;DIV&nbsp;IM_MAX&nbsp;.&nbsp;"&nbsp;总共需要产生多少个IDoc<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINES&nbsp;DIV&nbsp;IM_MAX&nbsp;+&nbsp;1&nbsp;.&nbsp;"&nbsp;总共需要产生多少个IDoc<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_RETURN&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-TYPE&nbsp;=&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V1&nbsp;=&nbsp;'本次应输出'&nbsp;&&&nbsp;LV_LINES&nbsp;&&&nbsp;'条库存，应产生'&nbsp;&&&nbsp;LV_TIMES&nbsp;&&&nbsp;'个IDoc！'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V2&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LS_RETURN-ID&nbsp;TYPE&nbsp;LS_RETURN-TYPE&nbsp;NUMBER&nbsp;LS_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_RETURN-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LS_RETURN-MESSAGE_V1&nbsp;LS_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;LS_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;LS_RETURN&nbsp;TO&nbsp;ET_RETURN&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DO&nbsp;LV_TIMES&nbsp;TIMES.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_CONTROL,LS_EDIDD,LS_SGM_INFO,LS_IDOC_NUMBER&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;LT_EDIDD,LT_CONTROL&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_BEGIN&nbsp;=&nbsp;IM_MAX&nbsp;*&nbsp;(&nbsp;SY-INDEX&nbsp;-&nbsp;1&nbsp;)&nbsp;+&nbsp;1&nbsp;.&nbsp;"&nbsp;本次循环从内表LT_SGM_INFO的哪一行开始<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-INDEX&nbsp;=&nbsp;LV_TIMES&nbsp;.&nbsp;"&nbsp;最后一次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;=&nbsp;LV_LINES&nbsp;.&nbsp;"&nbsp;本次循环从内表GT_SGM_INFO的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;=&nbsp;IM_MAX&nbsp;*&nbsp;SY-INDEX&nbsp;.&nbsp;"&nbsp;本次循环从内表GT_SGM_INFO的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_CONTROL-RCVPRT&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"接收方伙伴类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_CONTROL-RCVPRN&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRN.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"接收方的合作伙伴编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_CONTROL-RCVPOR&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPOR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"接收者端口(SAP&nbsp;系统，EDI&nbsp;子系统)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_CONTROL-MESTYP&nbsp;=&nbsp;'ZSCMIF0100_MSG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"信息类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_CONTROL-IDOCTP&nbsp;=&nbsp;'ZSCMIF0100_IDOC'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;类型<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;LT_SGM_INFO&nbsp;INTO&nbsp;LS_SGM_INFO&nbsp;FROM&nbsp;LV_BEGIN&nbsp;TO&nbsp;LV_END&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_EDIDD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDD-SEGNAM&nbsp;=&nbsp;'ZSCMIF0100_SGM_INFO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;&nbsp;LS_SGM_INFO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_EDIDD&nbsp;TO&nbsp;LT_EDIDD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MASTER_IDOC_DISTRIBUTE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMUNICATION_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_WRITING_IDOC_STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDING_LOGICAL_SYSTEM_UNKNOWN&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V1&nbsp;=&nbsp;'创建IDoc失败，没有IDoc产生！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V2&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LS_RETURN-ID&nbsp;TYPE&nbsp;LS_RETURN-TYPE&nbsp;NUMBER&nbsp;LS_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_RETURN-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LS_RETURN-MESSAGE_V1&nbsp;LS_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;LS_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_RETURN&nbsp;TO&nbsp;ET_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CONTROL&nbsp;INTO&nbsp;LS_CONTROL&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_IDOC_NUMBER-DOCNUM&nbsp;=&nbsp;LS_CONTROL-DOCNUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_IDOC_NUMBER&nbsp;TO&nbsp;ET_IDOC_NUMBER&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDDO.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;ET_IDOC_NUMBER&nbsp;INTO&nbsp;LS_IDOC_NUMBER&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_IDOC_NUMBER-DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_IS_NOT_TO_DEQUEUE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-TYPE&nbsp;=&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V1&nbsp;=&nbsp;'IDoc已创建：'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V2&nbsp;=&nbsp;LS_IDOC_NUMBER-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LS_RETURN-ID&nbsp;TYPE&nbsp;LS_RETURN-TYPE&nbsp;NUMBER&nbsp;LS_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_RETURN-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LS_RETURN-MESSAGE_V1&nbsp;LS_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;LS_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_RETURN&nbsp;TO&nbsp;ET_RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_RETURN&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-TYPE&nbsp;=&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V1&nbsp;=&nbsp;'共产生'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V2&nbsp;=&nbsp;LINES(&nbsp;ET_IDOC_NUMBER&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;=&nbsp;'个Idoc！'&nbsp;.<br />
+&nbsp;&nbsp;LS_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LS_RETURN-ID&nbsp;TYPE&nbsp;LS_RETURN-TYPE&nbsp;NUMBER&nbsp;LS_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_RETURN-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LS_RETURN-MESSAGE_V1&nbsp;LS_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RETURN-MESSAGE_V3&nbsp;LS_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;LS_RETURN&nbsp;TO&nbsp;ET_RETURN&nbsp;.<br />
+<br />
+ENDFUNCTION.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+* Message class: 00<br />
+*001   &1&2&3&4&5&6&7&8<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

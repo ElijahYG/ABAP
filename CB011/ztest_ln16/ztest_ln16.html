@@ -1,0 +1,403 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTEST_LN16</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTEST_LN16</h2>
+<h3> Description: 利润中心组测试</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZTEST_LN16.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*INCLUDE&nbsp;ZFI_COMMON_FORM.<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示相关<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPE-POOLS: SLIS.               "ALV显示使用到的共享池<br />
+<br />
+DATA: L_GRID      TYPE REF TO CL_GUI_ALV_GRID.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;引用表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES: SETNODE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义结构体<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF STRU_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;&nbsp;TYPE&nbsp;FLAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择框<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROWS&nbsp;&nbsp;TYPE&nbsp;INT4,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"序号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_OUT.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义常量,定义宏<br />
+*&---------------------------------------------------------------------*<br />
+*定义ALV显示宏<br />
+   </div>
+   <div class="code">
+DEFINE ADD_ALV.<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;WA_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"中文描述字段名<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;WA_FIELDCAT-COL_POS&nbsp;=&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;=&nbsp;ABAP_TRUE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ABAP_TRUE.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度(筛选时),默认长度10<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIX_COLUMN&nbsp;&nbsp;=&nbsp;ABAP_TRUE.&nbsp;"固定列<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+*定义变量<br />
+   </div>
+   <div class="code">
+DATA: GL_CHECK TYPE CHAR1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*定义内表<br />
+   </div>
+   <div class="code">
+DATA: IT_OUT_TAB TYPE STANDARD TABLE OF STRU_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_OUT_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_OUT.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-001.<br />
+<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;&nbsp;S_DATE&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;SY-DATUM.<br />
+<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;PBO处理<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN OUTPUT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_CAL_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕结束<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+END-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_ALVSHOW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;GL_CHECK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;取数逻辑<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UP&nbsp;TO&nbsp;200&nbsp;ROWS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_OUT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BUDAT_MKPF&nbsp;IN&nbsp;S_DATE.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;计算逻辑<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CAL_DATA.<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_ALVSHOW.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_LINES&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ROWS&nbsp;&nbsp;TYPE&nbsp;INT4.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;IT_FIELDCAT[].<br />
+<br />
+&nbsp;&nbsp;ADD_ALV:<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;'FLAG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT-001,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;'MBLNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT-002,<br />
+&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;'MATNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT-003,<br />
+&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;'CHARG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT-004<br />
+&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_LAYOUT.<br />
+&nbsp;&nbsp;WA_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;WA_LAYOUT-BOX_FNAME&nbsp;=&nbsp;'FLAG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择行头按钮<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;WA_LAYOUT-SEL_MODE&nbsp;=&nbsp;'D'<br />
+<br />
+*&nbsp;管理布局结构<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LS_VARIANT.<br />
+&nbsp;&nbsp;LS_VARIANT-REPORT&nbsp;=&nbsp;SY-REPID.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LS_VARIANT-VARIANT&nbsp;=&nbsp;P_VARI&nbsp;.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;L_LINES&nbsp;=&nbsp;LINES(&nbsp;IT_OUT_TAB&nbsp;).<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'共有'&nbsp;&&&nbsp;L_LINES&nbsp;&&&nbsp;'条数据'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'FM_GUI_STATUS'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'FM_USER_COMMAND'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_OUT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设置ALV的GUI状态<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GUI_STATUS USING P_EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&RNT_PREV'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"填写不显示的功能码<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&AQW'&nbsp;)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'%SL'&nbsp;)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&INFO'&nbsp;)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&VEXCEL'&nbsp;)&nbsp;).<br />
+*&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'自己定义去'&nbsp;EXCLUDING&nbsp;P_EXTAB.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设置用户命令<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_USER_COMMAND USING RS_UCOMM    LIKE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;FREE&nbsp;L_GRID.<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;L_GRID.<br />
+*&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;L_GRID-&gt;CHECK_CHANGED_DATA.<br />
+*&nbsp;&nbsp;IF&nbsp;NOT&nbsp;L_GRID&nbsp;IS&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;L_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;CASE&nbsp;RS_UCOMM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"捕捉用户动作<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;WHER&nbsp;''.<br />
+*<br />
+*&nbsp;&nbsp;ENDCASE.<br />
+*<br />
+**设置刷新<br />
+*&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+**保证行、列位置在自动刷新时不变<br />
+*&nbsp;&nbsp;RS_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;RS_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;001&nbsp;序号<br />
+*&nbsp;002&nbsp;商品凭证<br />
+*&nbsp;003&nbsp;物料号<br />
+*&nbsp;004&nbsp;批次号<br />
+*&nbsp;005&nbsp;利润中心组描述<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

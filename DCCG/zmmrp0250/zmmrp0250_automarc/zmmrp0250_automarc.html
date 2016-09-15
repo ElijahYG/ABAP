@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0250_AUTOMARC</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMMRP0250_AUTOMARC</h2>
+<h3> Description: 自动扩展</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMMRP0250_AUTOMARC.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(P_MATNR) TYPE  MARA-MATNR OPTIONAL<br />
+*"     VALUE(P_WERKS) TYPE  T001W-WERKS OPTIONAL<br />
+*"     VALUE(P_EKGRP) TYPE  EKGRP OPTIONAL<br />
+*"     VALUE(P_DISMM) TYPE  DISMM OPTIONAL<br />
+*"     VALUE(P_BESKZ) TYPE  BESKZ OPTIONAL<br />
+*"     VALUE(P_MTVFP) TYPE  MTVFP OPTIONAL<br />
+*"     VALUE(P_LADGR) TYPE  LADGR OPTIONAL<br />
+*"     VALUE(P_BWSCL) TYPE  BWSCL OPTIONAL<br />
+*"     VALUE(P_KAUTB) TYPE  KAUTB OPTIONAL<br />
+*"     VALUE(P_PERKZ) TYPE  PERKZ OPTIONAL<br />
+*"     VALUE(P_PRCTR) TYPE  PRCTR OPTIONAL<br />
+*"     VALUE(P_LGFSB) TYPE  LGFSB OPTIONAL<br />
+*"     VALUE(P_BWTTY) TYPE  BWTTY_D OPTIONAL<br />
+*"     VALUE(P_VERPR) TYPE  VERPR OPTIONAL<br />
+*"  EXPORTING<br />
+*"     VALUE(RT_DOCNUM) TYPE  EDIDC-DOCNUM<br />
+*"     VALUE(RT_ERR) TYPE  CHAR1<br />
+*"----------------------------------------------------------------------<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zmmrp0250_automarc.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+DATA: V_SATNR TYPE E1BPE1MATHEAD-MATERIAL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V_MATNR&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V_PRCTR&nbsp;TYPE&nbsp;MARC-PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V_WERKS&nbsp;TYPE&nbsp;E1BPE1MARCRT-PLANT.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_E1BPE1MATHEAD&nbsp;TYPE&nbsp;E1BPE1MATHEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1VARKEY&nbsp;&nbsp;TYPE&nbsp;E1BPE1VARKEY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT&nbsp;&nbsp;TYPE&nbsp;E1BPE1MARCRT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX&nbsp;TYPE&nbsp;E1BPE1MARCRTX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT&nbsp;&nbsp;TYPE&nbsp;E1BPE1MBEWRT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX&nbsp;TYPE&nbsp;E1BPE1MBEWRTX.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_EDIDC&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDC&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIDD&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_DOCNUM&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDC-DOCNUM.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_EDIDC.CLEAR&nbsp;LS_EDIDS.CLEAR&nbsp;LT_EDIDC[].CLEAR&nbsp;LT_EDIDD.CLEAR&nbsp;LT_EDIDD[].CLEAR&nbsp;LT_DOCNUM.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_MATN1_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;P_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;V_MATNR.<br />
+<br />
+&nbsp;&nbsp;V_WERKS&nbsp;=&nbsp;P_WERKS.<br />
+   </div>
+   <div class="codeComment">
+*  SELECT SINGLE MATNR SATNR INTO (V_MATNR,V_SATNR) FROM MARA WHERE MATNR = V_MATNR.<br />
+*  SELECT SINGLE PRCTR INTO V_PRCTR FROM MARC WHERE MATNR = V_MATNR AND WERKS = V_WERKS.<br />
+*  IF SY-SUBRC NE 0 OR V_PRCTR IS INITIAL.<br />
+*    RT_ERR = '1'.<br />
+*    EXIT.<br />
+*  ENDIF.<br />
+<br />
+*系统根据下面4行即可与WE20设置关联起来 PROCESS CODE AFSA<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-MESTYP&nbsp;=&nbsp;'ARTMAS'.&nbsp;"Message&nbsp;Type<br />
+   </div>
+   <div class="codeComment">
+*  LS_EDIDC-IDOCTP = 'ZARTMAS02'. "IDOC Type<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-IDOCTP&nbsp;=&nbsp;'ARTMAS02'.&nbsp;"IDOC&nbsp;Type<br />
+&nbsp;&nbsp;LS_EDIDC-DIRECT&nbsp;=&nbsp;'2'.&nbsp;"<br />
+<br />
+   </div>
+   <div class="codeComment">
+*  SELECT SINGLE RCVPOR RCVPRN RCVPRT SNDPOR SNDPRT SNDPRN INTO<br />
+*             (LS_EDIDC-RCVPOR,LS_EDIDC-RCVPRN,LS_EDIDC-RCVPRT,LS_EDIDC-SNDPOR,LS_EDIDC-SNDPRT,LS_EDIDC-SNDPRN)<br />
+*       FROM ZALIST_SYS<br />
+*       WHERE PROGM = 'Z_MM_AUTOMARC1'.<br />
+<br />
+**接收方<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-RCVPRN&nbsp;=&nbsp;'REDCLNT103'.<br />
+&nbsp;&nbsp;LS_EDIDC-RCVPOR&nbsp;=&nbsp;'SAPRED'.<br />
+&nbsp;&nbsp;LS_EDIDC-RCVPRT&nbsp;=&nbsp;'LS'.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+**发出方<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-SNDPRN&nbsp;=&nbsp;'REDCLNT103'.<br />
+&nbsp;&nbsp;LS_EDIDC-SNDPOR&nbsp;=&nbsp;'A000000002'.<br />
+&nbsp;&nbsp;LS_EDIDC-SNDPRT&nbsp;=&nbsp;'LS'.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 添加行头IDOC结点<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LT_EDIDD.<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MATHEAD'."根结点名称<br />
+&nbsp;&nbsp;LT_EDIDD-DTINT2&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_E1BPE1MATHEAD.<br />
+   </div>
+   <div class="codeComment">
+*  LS_E1BPE1MATHEAD-MATERIAL = V_SATNR.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-MATERIAL&nbsp;=&nbsp;V_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-BASIC_VIEW&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-LOGDC_VIEW&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-LOGST_VIEW&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;=&nbsp;LS_E1BPE1MATHEAD.&nbsp;"根结点内容<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LT_EDIDD.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*  LT_EDIDD-SEGNAM = 'E1BPE1VARKEY'.<br />
+*  LT_EDIDD-DTINT2 = 0.<br />
+*<br />
+*  CLEAR LS_E1BPE1VARKEY.<br />
+*  LS_E1BPE1VARKEY-FUNCTION = '005'.<br />
+*  LS_E1BPE1VARKEY-MATERIAL = V_MATNR.<br />
+**  LS_E1BPE1VARKEY-MATERIAL = V_SATNR.<br />
+**  LS_E1BPE1VARKEY-VARIANT = V_MATNR.<br />
+*  LT_EDIDD-SDATA = LS_E1BPE1VARKEY.<br />
+*  APPEND LT_EDIDD.<br />
+<br />
+<br />
+* Plants View<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRT'.<br />
+&nbsp;&nbsp;LT_EDIDD-DTINT2&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-FUNCTION&nbsp;=&nbsp;'005'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-MATERIAL&nbsp;=&nbsp;V_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PLANT&nbsp;=&nbsp;V_WERKS.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PUR_GROUP&nbsp;=&nbsp;P_EKGRP.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-MRP_TYPE&nbsp;=&nbsp;P_DISMM.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PROC_TYPE&nbsp;=&nbsp;P_BESKZ.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-AVAILCHECK&nbsp;=&nbsp;P_MTVFP.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-LOADINGGRP&nbsp;=&nbsp;P_LADGR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-SUP_SOURCE&nbsp;=&nbsp;P_BWSCL.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-AUTO_P_ORD&nbsp;=&nbsp;P_KAUTB.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PERIOD_IND&nbsp;=&nbsp;P_PERKZ.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PROFIT_CTR&nbsp;=&nbsp;P_PRCTR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-SLOC_EXPRC&nbsp;=&nbsp;P_LGFSB.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-LOT_SIZE&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;=&nbsp;LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRTX'.<br />
+&nbsp;&nbsp;LT_EDIDD-DTINT2&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-FUNCTION&nbsp;=&nbsp;'005'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-MATERIAL&nbsp;=&nbsp;V_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PLANT&nbsp;=&nbsp;V_WERKS.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PUR_GROUP&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-MRP_TYPE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PROC_TYPE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-AVAILCHECK&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-LOADINGGRP&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*  ls_e1bpe1marcrtx-sup_source = 'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-AUTO_P_ORD&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PERIOD_IND&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PROFIT_CTR&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-SLOC_EXPRC&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-LOT_SIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;=&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* Plant's account view<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;P_BWTTY&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-DTINT2&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-FUNCTION&nbsp;=&nbsp;'005'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-MATERIAL&nbsp;=&nbsp;V_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_AREA&nbsp;=&nbsp;V_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_CAT&nbsp;=&nbsp;P_BWTTY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-MOVING_PR&nbsp;=&nbsp;P_VERPR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-PRICE_CTRL&nbsp;=&nbsp;'V'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;=&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRTX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-DTINT2&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-FUNCTION&nbsp;=&nbsp;'005'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MATERIAL&nbsp;=&nbsp;V_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_AREA&nbsp;=&nbsp;V_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_CAT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MOVING_PR&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-PRICE_CTRL&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;=&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'IDOC_WRITE_AND_START_INBOUND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_EDIDC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DO_COMMIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;RT_DOCNUM<br />
+   </div>
+   <div class="codeComment">
+*     ERROR_BEFORE_CALL_APPLICATION =<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_EDIDD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_NOT_SAVED&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RT_ERR&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

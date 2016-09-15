@@ -1,0 +1,638 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP0010</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP0010</h2>
+<h3> Description: 礼金卡结算报表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP0010<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;SD-RP-0010<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;礼金卡结算报表<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;YANGGANG<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/10/19&nbsp;&nbsp;&nbsp;&nbsp;YANGGANG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZSDRP0010.<br />
+<br />
+TABLES:<br />
+&nbsp;&nbsp;MARA,LFA1,VBRK,VBRP.<br />
+<br />
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT  TYPE SLIS_LAYOUT_ALV.<br />
+<br />
+DATA: LT_VBRK_ALL TYPE TABLE OF VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK_ALL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRK.<br />
+<br />
+DATA: LT_VBRK TYPE TABLE OF VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRK.<br />
+<br />
+DATA: LT_VBRK_NOT TYPE TABLE OF VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK_NOT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRK.<br />
+<br />
+DATA:LT_VBRP TYPE TABLE OF VBRP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRP&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRP.<br />
+<br />
+DATA:LT_LFA1 TYPE TABLE OF LFA1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_LFA1&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFA1.<br />
+<br />
+DATA:LT_NAME1 TYPE TABLE OF T001W,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_NAME1&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001W.<br />
+<br />
+DATA: T_CHARG      LIKE TABLE OF ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W_CHARACTERS&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARACTERS.<br />
+<br />
+DATA: LT_VBRK_ORIGIN LIKE TABLE OF LT_VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK_ORIGIN&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBRK.<br />
+<br />
+DATA: LT_VBRP_ORIGIN LIKE TABLE OF LT_VBRP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRP_ORIGIN&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBRP.<br />
+<br />
+DATA: LT_VBELN TYPE TABLE OF VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBELN&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRK.<br />
+<br />
+DATA: LT_13POSNUM TYPE TABLE OF VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_13POSNUM&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRK.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*DATA:&nbsp;LT_MATNR_ORI&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBRP,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MATNR_ORI&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRP.<br />
+<br />
+   </div>
+   <div class="code">
+DATA BEGIN OF LW_MATNR_ORI.<br />
+DATA EX_POSNUM TYPE VBRK-EX_POSNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;TYPE&nbsp;VBRP.<br />
+DATA END OF LW_MATNR_ORI.<br />
+<br />
+DATA: LT_MATNR_ORI LIKE TABLE OF LW_MATNR_ORI.<br />
+<br />
+<br />
+DATA: LT_NAME_GYS TYPE TABLE OF LFA1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_NAME_GYS&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFA1.<br />
+<br />
+DATA:LT_BMTXT TYPE TABLE OF ZMMDG0010_JSFS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_BMTXT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMDG0010_JSFS.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*最后输出表以及相应工作区<br />
+   </div>
+   <div class="code">
+DATA:BEGIN OF LW_OUT.<br />
+DATA:VKORG       TYPE VBRK-VKORG.           "公司代码Y<br />
+DATA:KUNAG       TYPE VBRK-KUNAG.           "门店Y<br />
+DATA:NAME1       TYPE T001W-NAME1.          "门店描述Y<br />
+   </div>
+   <div class="codeComment">
+*礼金卡信息<br />
+   </div>
+   <div class="code">
+DATA:VBELN       TYPE VBRK-VBELN.           "礼金卡-收入凭证Y<br />
+DATA:EX_POSNUM   TYPE VBRK-EX_POSNUM.       "礼金卡-POS单号号Y<br />
+DATA:FKDAT       TYPE VBRK-FKDAT.           "礼金卡-销售日期Y<br />
+DATA:EX_POSTYP   TYPE VBRK-EX_POSTYP.       "礼金卡-业务类型Y<br />
+DATA:YCJE        TYPE VBRP-KZWI6.           "礼金卡-应充值金额<br />
+DATA:SCJE        TYPE VBRP-KZWI1.           "礼金卡-实充值金额Y<br />
+   </div>
+   <div class="codeComment">
+*原商品信息<br />
+   </div>
+   <div class="code">
+DATA:MATNR       TYPE MARA-MATNR.           "原商品-商品编码Y<br />
+DATA:CHARG       TYPE VBRP-CHARG.           "原商品-商品批次Y<br />
+DATA:ZLYJSFS     TYPE ATNAM.                "原商品-结算类型Y<br />
+DATA:BMTXT       TYPE ZMMDG0010_JSFS-BMTXT. "原商品-结算类型描述Y<br />
+DATA:KZWI6       TYPE VBRP-KZWI6.           "原商品-销售价格（标签价）Y<br />
+DATA:KZWI1       TYPE VBRP-KZWI1.           "原商品-实际销售价格Y<br />
+   </div>
+   <div class="codeComment">
+*结算供应商信息<br />
+   </div>
+   <div class="code">
+DATA:ZGYSDM      TYPE ATNAM.                "结算供应商编号Y<br />
+DATA:NAME_GYS    TYPE LFA1-NAME1.           "结算供应商名称Y<br />
+DATA:END OF LW_OUT.<br />
+<br />
+DATA: LT_OUT LIKE TABLE OF LW_OUT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:<br />
+&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;VBRK-VKORG&nbsp;OBLIGATORY&nbsp;DEFAULT&nbsp;'8000',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;S_FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;VBRK-FKDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"日期<br />
+&nbsp;S_KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;VBRK-KUNAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店编码<br />
+&nbsp;S_ZGYSDM&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;VBRP-ZGYSDM&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商编码<br />
+&nbsp;S_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;MARA-EXTWG&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;S_POSTYP&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;VBRK-EX_POSTYP&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"业务类型<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+SELECTION-SCREEN: BEGIN OF BLOCK BK9 WITH FRAME TITLE TEXT-099.<br />
+<br />
+PARAMETERS P_VARI TYPE SLIS_VARI.                                     "布局管理变式<br />
+<br />
+SELECTION-SCREEN: END OF BLOCK BK9.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+   </div>
+   <div class="codeComment">
+*取数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA.<br />
+   </div>
+   <div class="codeComment">
+*显示ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;GET_SHOW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+   </div>
+   <div class="codeComment">
+*供应商信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_LFA1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;LFA1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;IN&nbsp;S_ZGYSDM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*商品凭证信息-抬头<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VKORG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收入凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"POS单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_POSTYP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"业务类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_POSNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"POS订单号--&gt;找原商品小票号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_VBRK_ALL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VKORG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_BUKRS&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_FKDAT&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_KUNAG&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_POSTYP&nbsp;IN&nbsp;S_POSTYP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*商品凭证信息-行项目-礼金卡<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"礼金卡-收入凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"礼金卡-商品编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"礼金卡-商品批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"礼金卡-礼金卡实充值金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBRK_ALL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBRK_ALL-VBELN&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;=&nbsp;'Y59100002'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*商品凭证信息-抬头-礼金卡<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_VBRK_NOT&nbsp;=&nbsp;LT_VBRK_ALL.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_VBRP&nbsp;INTO&nbsp;LW_VBRP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBRK_NOT&nbsp;INTO&nbsp;LW_VBRK_NOT&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBRP-VBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK&nbsp;=&nbsp;LW_VBRK_NOT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_VBRK&nbsp;TO&nbsp;LT_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_VBRK_NOT,LW_VBRK.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取门店描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_NAME1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;LT_VBRK-KUNAG+6(4).<br />
+<br />
+   </div>
+   <div class="codeComment">
+*把15位的礼金卡小票号的前13位取出，查询原商品。<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_VBRK&nbsp;INTO&nbsp;LW_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_13POSNUM-EX_POSNUM&nbsp;=&nbsp;LW_VBRK-EX_POSNUM+0(13).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_13POSNUM&nbsp;TO&nbsp;LT_13POSNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_VBRK,LW_13POSNUM.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取出原商品的发票号VBELN<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_13POSNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EX_POSNUM&nbsp;=&nbsp;LT_13POSNUM-EX_POSNUM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取出原商品的商品编码<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-商品编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-商品批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-销售价格（标签价）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-实际销售价格Y<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_MATNR_ORI<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBELN-VBELN.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:LT_MATNR_TMP LIKE TABLE OF LW_MATNR_ORI,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MATNR_TMP&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MATNR_ORI.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_POSNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_MATNR_TMP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBELN-VBELN.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_MATNR_TMP&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_MATNR_ORI&nbsp;BY&nbsp;VBELN.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MATNR_ORI&nbsp;INTO&nbsp;LW_MATNR_ORI.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MATNR_TMP&nbsp;INTO&nbsp;LW_MATNR_TMP&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_MATNR_ORI-VBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MATNR_ORI-EX_POSNUM&nbsp;=&nbsp;LW_MATNR_TMP-EX_POSNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_MATNR_ORI&nbsp;FROM&nbsp;LW_MATNR_ORI&nbsp;TRANSPORTING&nbsp;EX_POSNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_MATNR_ORI,LW_MATNR_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+<br />
+*将公司代码、门店、收入凭证、POS单号、销售日期、业务类型、POS订单号&nbsp;写入输出表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_VBRK&nbsp;TO&nbsp;LT_OUT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将礼金卡-商品编码、礼金卡-商品批次、礼金卡-礼金卡实充值金额写入输出表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_OUT&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_VBRP&nbsp;BY&nbsp;VBELN.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBRP&nbsp;INTO&nbsp;LW_VBRP&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_OUT-VBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-SCJE&nbsp;&nbsp;=&nbsp;LW_VBRP-KZWI1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"礼金卡-礼金卡实充值金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT&nbsp;TRANSPORTING&nbsp;MATNR&nbsp;CHARG&nbsp;SCJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_OUT,LW_VBRP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将原商品-商品编码、原商品-商品批次、原商品-销售价格（标签价）、原商品-实际销售价格&nbsp;写入输出表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_OUT&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MATNR_ORI&nbsp;BY&nbsp;VBELN.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MATNR_ORI&nbsp;INTO&nbsp;LW_MATNR_ORI&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_OUT-VBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MATNR_ORI&nbsp;INTO&nbsp;LW_MATNR_ORI&nbsp;WITH&nbsp;KEY&nbsp;EX_POSNUM&nbsp;=&nbsp;LW_OUT-EX_POSNUM+0(13)&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-MATNR&nbsp;=&nbsp;LW_MATNR_ORI-MATNR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-商品编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-CHARG&nbsp;=&nbsp;LW_MATNR_ORI-CHARG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-商品批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-KZWI6&nbsp;&nbsp;=&nbsp;LW_MATNR_ORI-KZWI6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-销售价格（标签价）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-KZWI1&nbsp;&nbsp;=&nbsp;LW_MATNR_ORI-KZWI1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-实际销售价格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_OUT,LW_VBRP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将门店描述写入输出表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_OUT&nbsp;BY&nbsp;KUNAG.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_NAME1&nbsp;BY&nbsp;WERKS.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_NAME1&nbsp;INTO&nbsp;LW_NAME1&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_OUT-KUNAG+6(4)&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-NAME1&nbsp;&nbsp;=&nbsp;LW_NAME1-NAME1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT&nbsp;TRANSPORTING&nbsp;NAME1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_OUT,LW_NAME1.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取供应商代码、原品结算类型<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_MATNR_ORI&nbsp;TO&nbsp;T_CHARG.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;T_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;T_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_OUT&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;SORT&nbsp;T_CHARACTERS&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;T_CHARACTERS&nbsp;INTO&nbsp;W_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_OUT-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_OUT-CHARG&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-ZLYJSFS&nbsp;=&nbsp;W_CHARACTERS-ZLYJSFS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"原商品-结算类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-ZGYSDM&nbsp;=&nbsp;W_CHARACTERS-ZGYSDM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算供应商<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_OUT,W_CHARACTERS.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取供应商描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;NAME1<br />
+&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_NAME_GYS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;LFA1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;=&nbsp;LT_OUT-ZGYSDM+0(10).<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将供应商描述写入输出表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_OUT&nbsp;BY&nbsp;ZGYSDM.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_NAME_GYS&nbsp;BY&nbsp;LIFNR.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_NAME_GYS&nbsp;INTO&nbsp;LW_NAME_GYS&nbsp;WITH&nbsp;KEY&nbsp;LIFNR&nbsp;=&nbsp;LW_OUT-ZGYSDM&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-NAME_GYS&nbsp;&nbsp;=&nbsp;LW_NAME_GYS-NAME1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT&nbsp;TRANSPORTING&nbsp;NAME_GYS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_OUT,LW_NAME_GYS.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取结算方式描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BMTXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_BMTXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMDG0010_JSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BM&nbsp;=&nbsp;LT_OUT-ZLYJSFS+0(3).<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将结算方式描述写入输出表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_OUT&nbsp;BY&nbsp;ZLYJSFS.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_BMTXT&nbsp;BY&nbsp;BM.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_BMTXT&nbsp;INTO&nbsp;LW_BMTXT&nbsp;WITH&nbsp;KEY&nbsp;BM&nbsp;=&nbsp;LW_OUT-ZLYJSFS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-BMTXT&nbsp;&nbsp;=&nbsp;LW_BMTXT-BMTXT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算方式描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT&nbsp;TRANSPORTING&nbsp;BMTXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_OUT,LW_BMTXT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*计算礼金卡-应充金额<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;800&nbsp;AND&nbsp;3499.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;200.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;3500&nbsp;AND&nbsp;5999.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;300.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;6000&nbsp;AND&nbsp;9999.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;500.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;10000&nbsp;AND&nbsp;19999.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;800.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;20000&nbsp;AND&nbsp;39999.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;1200.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;40000&nbsp;AND&nbsp;49999.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;2000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;50000&nbsp;AND&nbsp;69999.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;3000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;BETWEEN&nbsp;70000&nbsp;AND&nbsp;99999.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;4000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-KZWI6&nbsp;GE&nbsp;100000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-YCJE&nbsp;=&nbsp;5000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_OUT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示界面<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_SHOW.  "定义这个显示函数<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;=&nbsp;&2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;&nbsp;=&nbsp;&3.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'VKORG&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'公司代码&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'KUNAG&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'门店&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'NAME1&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'门店描述&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'VBELN&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'礼金卡-收入凭证&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'EX_POSNUM'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'礼金卡-POS单号号&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'FKDAT&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'礼金卡-销售日期&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'EX_POSTYP'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'礼金卡-业务类型&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'YCJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'礼金卡-应充值金额&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'SCJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'礼金卡-实充值金额&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'MATNR&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'原商品-商品编码&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'CHARG&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'原商品-商品批次&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'ZLYJSFS&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'原商品-结算类型&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'BMTXT&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'原商品-结算类型描述'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'KZWI6&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'原商品-销售价格&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'KZWI1&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'原商品-实际销售价格'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'ZGYSDM&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'结算供应商编号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;'NAME_GYS&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'结算供应商名称&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'."列宽自适应<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'."显示前导零<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------按钮---------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID&nbsp;"系统变量程序ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;&nbsp;"回掉状态集<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;"回掉用户命令<br />
+*-----------------------------按钮-----------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS&nbsp;"错误提示<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_VARI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;布局管理变式<br />
+*&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公司代码<br />
+*&nbsp;S_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品大类<br />
+*&nbsp;S_FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日期<br />
+*&nbsp;S_KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;门店编码<br />
+*&nbsp;S_POSTYP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;业务类型<br />
+*&nbsp;S_ZGYSDM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;供应商编码<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

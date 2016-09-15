@@ -1,0 +1,466 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0140_GET_SEARCH</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0140_GET_SEARCH</h2>
+<h3> Description: Include 查询结算单</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_GET_SEARCH<br />
+*&---------------------------------------------------------------------*<br />
+*取结算单数据<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------20160808&nbsp;增加排除YD单类单据的逻辑----------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;L_CHAR&nbsp;TYPE&nbsp;CHAR4,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;TYPE&nbsp;ZFIRP0140_HEADER-ZJSD_NO.<br />
+<br />
+&nbsp;&nbsp;L_CHAR&nbsp;=&nbsp;'YD'.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'%'&nbsp;L_CHAR&nbsp;'%'&nbsp;INTO&nbsp;L_TEXT.<br />
+   </div>
+   <div class="codeComment">
+*------------------end&nbsp;by&nbsp;linan---------------------<br />
+<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;RT_ZEND_DATE&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;DATUM,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ZEND_DATE&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;RT_ZEND_DATE.<br />
+*<br />
+*&nbsp;&nbsp;CLEAR&nbsp;WA_ZEND_DATE.<br />
+*&nbsp;&nbsp;WA_ZEND_DATE-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+*&nbsp;&nbsp;WA_ZEND_DATE-OPTION&nbsp;=&nbsp;'EQ'.<br />
+*&nbsp;&nbsp;IF&nbsp;NUM1&nbsp;=&nbsp;800.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ZEND_DATE-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE1-HIGH.<br />
+*&nbsp;&nbsp;ELSEIF&nbsp;NUM1&nbsp;=&nbsp;600.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ZEND_DATE-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE3-HIGH.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_ZEND_DATE&nbsp;TO&nbsp;RT_ZEND_DATE.<br />
+*根据屏幕输出相应数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CASE&nbsp;NUM1.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'800'.<br />
+   </div>
+   <div class="codeComment">
+*获取所有表头数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;S_DATE1&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_LIFNR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZPO_BUKRS&nbsp;IN&nbsp;S_BUKRS1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_GJAHR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_RAUBE1<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSZQ1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSDH1<br />
+   </div>
+   <div class="codeComment">
+*--------------20160808-----------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;NOT&nbsp;LIKE&nbsp;L_TEXT<br />
+   </div>
+   <div class="codeComment">
+*----------------END--------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_LIFNR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZPO_BUKRS&nbsp;IN&nbsp;S_BUKRS1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_GJAHR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_RAUBE1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZSTART_DATE&nbsp;&gt;=&nbsp;S_DATE1-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZEND_DATE&nbsp;&nbsp;&nbsp;&lt;=&nbsp;S_DATE1-HIGH<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSZQ1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSDH1<br />
+   </div>
+   <div class="codeComment">
+*--------------20160808-----------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;NOT&nbsp;LIKE&nbsp;L_TEXT<br />
+   </div>
+   <div class="codeComment">
+*----------------END--------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*检查结算状态<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_PAY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;P_CLEAR&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"显示已清<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TAB_HEADER&nbsp;WHERE&nbsp;ZJSZT&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;P_CLING&nbsp;=&nbsp;'X'.&nbsp;"显示未清<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TAB_HEADER&nbsp;WHERE&nbsp;ZJSZT&nbsp;=&nbsp;'3'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;P_ALL&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"显示全部<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'600'.&nbsp;&nbsp;&nbsp;&nbsp;"显示未清<br />
+   </div>
+   <div class="codeComment">
+*获取所有表头数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DATE3&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_LIFNR3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZPO_BUKRS&nbsp;IN&nbsp;S_BUKRS3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_GJAHR3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_RAUBE3<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSZQ1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSDH3<br />
+   </div>
+   <div class="codeComment">
+*--------------20160808-----------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;NOT&nbsp;LIKE&nbsp;L_TEXT<br />
+   </div>
+   <div class="codeComment">
+*----------------END--------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_LIFNR3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZPO_BUKRS&nbsp;IN&nbsp;S_BUKRS3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_GJAHR3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_RAUBE3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZSTART_DATE&nbsp;&gt;=&nbsp;S_DATE3-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZEND_DATE&nbsp;&nbsp;&nbsp;&lt;=&nbsp;S_DATE3-HIGH<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSZQ1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;&nbsp;IN&nbsp;S_ZJSDH3<br />
+   </div>
+   <div class="codeComment">
+*--------------20160808-----------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZJSD_NO&nbsp;&nbsp;NOT&nbsp;LIKE&nbsp;L_TEXT<br />
+   </div>
+   <div class="codeComment">
+*----------------END--------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*检查结算状态<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_PAY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TAB_HEADER&nbsp;WHERE&nbsp;ZJSZT&nbsp;=&nbsp;'3'.<br />
+<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*检查是否为空<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_TAB_HEADER&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*编码转描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_BMZH&nbsp;USING&nbsp;'H'.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*取行项目<br />
+   </div>
+   <div class="code">
+FORM FM_GET_ITEM1 USING I_ITEM1.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;IT_TAB_ITEM1&nbsp;IS&nbsp;INITIAL.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;EQ&nbsp;I_ITEM1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CLEAR&nbsp;WA_TMP_HEADER.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZZ&nbsp;&nbsp;+&nbsp;WA_TAB_ITEM1-ZXSKZ.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZJS&nbsp;+&nbsp;WA_TAB_ITEM1-ZXSJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZJE&nbsp;+&nbsp;WA_TAB_ITEM1-ZJSJE.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TMP_HEADER&nbsp;INDEX&nbsp;1&nbsp;TRANSPORTING&nbsp;ZZZ&nbsp;ZZJS&nbsp;ZZJE.<br />
+<br />
+*&nbsp;&nbsp;ELSEIF&nbsp;IT_TAB_ITEM1&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;NUM1&nbsp;NE&nbsp;700.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_ITEM1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_ITEM1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;EQ&nbsp;I_ITEM1.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TMP_HEADER.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZZ&nbsp;&nbsp;+&nbsp;WA_TAB_ITEM1-ZXSKZ.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZJS&nbsp;+&nbsp;WA_TAB_ITEM1-ZXSJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZJE&nbsp;+&nbsp;WA_TAB_ITEM1-ZJSJE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TMP_HEADER&nbsp;INDEX&nbsp;1&nbsp;TRANSPORTING&nbsp;ZZZ&nbsp;ZZJS&nbsp;ZZJE.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*表头校验状态转码<br />
+   </div>
+   <div class="code">
+FORM FM_HEADER_BM.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_HEADER-ZSH&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZSH1&nbsp;=&nbsp;'未审核'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_TAB_HEADER-ZSH&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZSH1&nbsp;=&nbsp;'已审核'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_HEADER-ZFK&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZFK1&nbsp;=&nbsp;'未付款'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_TAB_HEADER-ZFK&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZFK1&nbsp;=&nbsp;'已付款'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_HEADER-ZFAPIAO&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZFAPIAO1&nbsp;=&nbsp;'未收到发票'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_TAB_HEADER-ZFAPIAO&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZFAPIAO1&nbsp;=&nbsp;'已收到发票'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_HEADER-ZJSZT&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSZT1&nbsp;=&nbsp;'未结算'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_TAB_HEADER-ZJSZT&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZLIGHT&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSZT1&nbsp;=&nbsp;'已结算'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TAB_HEADER&nbsp;TRANSPORTING&nbsp;ZFK1&nbsp;ZFAPIAO1&nbsp;ZJSZT1&nbsp;ZSH1&nbsp;ZLIGHT.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*检查付款状态<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_PAY.<br />
+&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_PAY,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSD_NO&nbsp;TYPE&nbsp;ZFIRP0140_DOC-ZJSD_NO,&nbsp;&nbsp;&nbsp;&nbsp;"结算单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUKRS&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_DOC-BUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_DOC-BELNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计凭证编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_DOC-GJAHR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"财年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_HEADER-ZFK,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"付款状态<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_PAY.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_TAB_PAY&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_PAY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_PAY&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_PAY.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取结算单对应的会计凭证相关信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_PAY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_DOC&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_TAB_PAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;=&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TAB_PAY&nbsp;TO&nbsp;IT_TAB_PAY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*根据会计凭证信息判断是否付款<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_PAY&nbsp;INTO&nbsp;WA_TAB_PAY.<br />
+   </div>
+   <div class="codeComment">
+*判断是否被冲销<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;COUNT(*)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;BKPF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BUKRS&nbsp;=&nbsp;WA_TAB_PAY-BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;BELNR&nbsp;=&nbsp;WA_TAB_PAY-BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;GJAHR&nbsp;=&nbsp;WA_TAB_PAY-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;STBLG&nbsp;&lt;&gt;&nbsp;'&nbsp;'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"有值代表被冲销<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_PAY-ZFK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_PAY&nbsp;FROM&nbsp;WA_TAB_PAY&nbsp;TRANSPORTING&nbsp;ZFK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="codeComment">
+*判断凭证是否已清<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;COUNT(*)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;BSAK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BUKRS&nbsp;=&nbsp;WA_TAB_PAY-BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;BELNR&nbsp;=&nbsp;WA_TAB_PAY-BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;GJAHR&nbsp;=&nbsp;WA_TAB_PAY-GJAHR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.&nbsp;&nbsp;&nbsp;"有值代表已清<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_PAY-ZFK&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_PAY-ZFK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_PAY&nbsp;FROM&nbsp;WA_TAB_PAY&nbsp;TRANSPORTING&nbsp;ZFK.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*更新表头付款状态<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_PAY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_PAY&nbsp;INTO&nbsp;WA_TAB_PAY&nbsp;WITH&nbsp;KEY&nbsp;ZJSD_NO&nbsp;=&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZFK&nbsp;=&nbsp;WA_TAB_PAY-ZFK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TAB_HEADER&nbsp;TRANSPORTING&nbsp;ZFK.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*更新结算状态<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_HEADER-ZFK&nbsp;=&nbsp;'3'&nbsp;AND&nbsp;WA_TAB_HEADER-ZFAPIAO&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSZT&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TAB_HEADER&nbsp;TRANSPORTING&nbsp;ZJSZT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_TAB_HEADER-ZFK&nbsp;=&nbsp;'1'&nbsp;OR&nbsp;WA_TAB_HEADER-ZFAPIAO&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSZT&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TAB_HEADER&nbsp;TRANSPORTING&nbsp;ZJSZT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*将新的状态写入自建表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_HEADER&nbsp;TO&nbsp;IT_TAB_HEADER1.<br />
+&nbsp;&nbsp;MODIFY&nbsp;ZFIRP0140_HEADER&nbsp;FROM&nbsp;TABLE&nbsp;IT_TAB_HEADER1.<br />
+<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

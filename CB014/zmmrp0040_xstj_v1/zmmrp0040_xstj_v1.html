@@ -1,0 +1,1002 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0040_XSTJ_V1</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0040_XSTJ_V1</h2>
+<h3> Description: 配货规则-相似款推荐规则</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT zmmrp0040_xstj_v1.<br />
+<br />
+TYPE-POOLS: slis, vrm.<br />
+TABLES zmmex0010_mara.<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;Types<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF ty_data,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zyks&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zxsk&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj1&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj2&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj3&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj4&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj5&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj6&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj7&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj8&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj9&nbsp;&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztj10&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ty_data,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;ty_matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zyks&nbsp;TYPE&nbsp;matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zxsk&nbsp;TYPE&nbsp;matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;flg&nbsp;TYPE&nbsp;char1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ty_matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;ty_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matnr&nbsp;TYPE&nbsp;mara-matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extwg&nbsp;TYPE&nbsp;mara-extwg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ex_pz04&nbsp;TYPE&nbsp;zmmex0010_mara-ex_pz04,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ty_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;ty_tjk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matnr&nbsp;TYPE&nbsp;matnr,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;werks&nbsp;TYPE&nbsp;werks_d,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;charg&nbsp;TYPE&nbsp;charg_d,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fkimg&nbsp;TYPE&nbsp;vbrp-fkimg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clabs&nbsp;TYPE&nbsp;mchb-clabs,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ty_tjk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;ty_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zyks&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ztjk&nbsp;TYPE&nbsp;zde_mmrp0210_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fkimg&nbsp;TYPE&nbsp;vbrp-fkimg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clabs&nbsp;TYPE&nbsp;mchb-clabs,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ty_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;ty_kcd,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;werks&nbsp;TYPE&nbsp;zmm_delevlgort-werks,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lgort&nbsp;TYPE&nbsp;zmm_delevlgort-lgort,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matnr&nbsp;TYPE&nbsp;matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;charg&nbsp;TYPE&nbsp;charg_d,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ty_kcd.<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;Tables<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;gt_data&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_data,<br />
+&nbsp;&nbsp;gs_data&nbsp;TYPE&nbsp;ty_data,<br />
+&nbsp;&nbsp;g_extwg&nbsp;TYPE&nbsp;mara-extwg.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段属性内表和工作区<br />
+   </div>
+   <div class="code">
+DATA: gt_fieldcat TYPE slis_t_fieldcat_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_fieldcat&nbsp;TYPE&nbsp;slis_fieldcat_alv,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV屏幕布局工作区<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_layout&nbsp;TYPE&nbsp;slis_layout_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gt_events&nbsp;&nbsp;&nbsp;TYPE&nbsp;slis_t_event,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_events&nbsp;&nbsp;&nbsp;TYPE&nbsp;slis_alv_event.<br />
+DATA: gr_grid TYPE REF TO cl_gui_alv_grid.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;Parameters<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK b01 WITH FRAME TITLE text-t01.<br />
+SELECT-OPTIONS  s_extwg FOR  g_extwg OBLIGATORY.<br />
+PARAMETERS      p_monat TYPE monat.<br />
+SELECT-OPTIONS: s_gjs   FOR  zmmex0010_mara-ex_gjs,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_pz01&nbsp;&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-ex_pz01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_pz02&nbsp;&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-ex_pz02,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_pz03&nbsp;&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-ex_pz03,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_pz04&nbsp;&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-ex_pz04,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_zt01&nbsp;&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-ex_zt01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_zt02&nbsp;&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-ex_zt02,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_zt03&nbsp;&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-ex_zt03,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_matnr&nbsp;FOR&nbsp;&nbsp;zmmex0010_mara-matnr.<br />
+SELECTION-SCREEN END OF BLOCK b01.<br />
+SELECTION-SCREEN BEGIN OF BLOCK b02 WITH FRAME TITLE text-t02.<br />
+PARAMETERS: rb_1 RADIOBUTTON GROUP a1 DEFAULT 'X',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rb_2&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;a1.<br />
+SELECTION-SCREEN END OF BLOCK b02.<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;At&nbsp;SELECTION-SCREEN<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN.<br />
+&nbsp;&nbsp;IF&nbsp;&nbsp;rb_2&nbsp;IS&nbsp;NOT&nbsp;INITIAL<br />
+&nbsp;&nbsp;AND&nbsp;p_monat&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'请输入销售统计月数'&nbsp;TYPE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;Start&nbsp;of&nbsp;Selection<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取得数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;frm_get_data.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;展示报表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;frm_dis_alv.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_get_data .<br />
+&nbsp;&nbsp;REFRESH&nbsp;gt_data.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;rb_1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_get_xsk.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;rb_2&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_get_tjk.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_DIS_ALV<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_dis_alv .<br />
+&nbsp;&nbsp;IF&nbsp;gt_data&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'没有数据'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;gt_data&nbsp;BY&nbsp;zyks.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;frm_build_fieldcat.&nbsp;&nbsp;&nbsp;"&nbsp;设置显示字段属性<br />
+&nbsp;&nbsp;PERFORM&nbsp;frm_build_layout.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;设置屏幕布局<br />
+&nbsp;&nbsp;PERFORM&nbsp;frm_alv_display.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;ALV显示<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_FIELDCAT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置显示字段属性<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_build_fieldcat .<br />
+&nbsp;&nbsp;REFRESH&nbsp;gt_fieldcat.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;rb_1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZYKS'&nbsp;'原款'&nbsp;&nbsp;&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZXSK'&nbsp;'相似款'&nbsp;30.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZYKS'&nbsp;&nbsp;'原款'&nbsp;&nbsp;&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ1'&nbsp;&nbsp;'推荐款1'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ2'&nbsp;&nbsp;'推荐款2'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ3'&nbsp;&nbsp;'推荐款3'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ4'&nbsp;&nbsp;'推荐款4'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ5'&nbsp;&nbsp;'推荐款5'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ6'&nbsp;&nbsp;'推荐款6'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ7'&nbsp;&nbsp;'推荐款7'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ8'&nbsp;&nbsp;'推荐款8'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ9'&nbsp;&nbsp;'推荐款9'&nbsp;30.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;sub_set_fields&nbsp;USING&nbsp;'ZTJ10'&nbsp;'推荐款10'&nbsp;30.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.                    " FRM_BUILD_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_SET_FIELDS<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM sub_set_fields USING i_fieldname TYPE slis_fieldname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_reptext&nbsp;TYPE&nbsp;dd03p-reptext<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_outputlen&nbsp;TYPE&nbsp;dd03p-outputlen.<br />
+&nbsp;&nbsp;gs_fieldcat-fieldname&nbsp;=&nbsp;i_fieldname.<br />
+&nbsp;&nbsp;gs_fieldcat-reptext_ddic&nbsp;=&nbsp;i_reptext.<br />
+&nbsp;&nbsp;gs_fieldcat-no_zero&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;gs_fieldcat-outputlen&nbsp;=&nbsp;i_outputlen.<br />
+&nbsp;&nbsp;IF&nbsp;i_fieldname&nbsp;=&nbsp;'BOX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_fieldcat-checkbox&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_fieldcat-edit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;APPEND&nbsp;gs_fieldcat&nbsp;TO&nbsp;gt_fieldcat.<br />
+&nbsp;&nbsp;CLEAR&nbsp;gs_fieldcat.<br />
+ENDFORM.                    "SUB_SET_FIELDS<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_LAYOUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置屏幕布局<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_build_layout .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;输出长度的最优化设计<br />
+*&nbsp;&nbsp;gs_layout-colwidth_optimize&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;gs_layout-box_fieldname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BOX'.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.                    " FRM_BUILD_LAYOUT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_ALV_DISPLAY<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALV显示<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_alv_display .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV&nbsp;FUNCTION<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_callback_program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_callback_pf_status_set&nbsp;=&nbsp;'FRM_PF_STATUS_SET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_callback_user_command&nbsp;&nbsp;=&nbsp;'FRM_USER_COMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is_layout&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gs_layout<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it_fieldcat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_fieldcat<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_outtab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_data.<br />
+<br />
+ENDFORM.                    " FRM_ALV_DISPLAY<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PF_STATUS_SET<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置状态栏<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_pf_status_set USING rt_extab TYPE slis_t_extab.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STANDARD'.<br />
+<br />
+ENDFORM.                    " FRM_PF_STATUS_SET<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_USER_COMMAND<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;定义按钮功能<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_user_command  USING r_ucomm LIKE sy-ucomm<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rs_selfield&nbsp;TYPE&nbsp;slis_selfield.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;g_grid&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_gui_alv_grid.&nbsp;"&nbsp;刷新数据<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e_grid&nbsp;=&nbsp;g_grid.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;g_grid-&gt;check_changed_data.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;g_grid&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;g_grid-&gt;refresh_table_display.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;r_ucomm.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_update_data.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;rs_selfield-refresh&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.                    " FRM_USER_COMMAND<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_XSK<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_get_xsk .<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_mara&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_mara&nbsp;TYPE&nbsp;ty_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_all&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_all&nbsp;&nbsp;TYPE&nbsp;mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_zmm&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmex0010_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_zmm1&nbsp;TYPE&nbsp;zmmex0010_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_zmm2&nbsp;TYPE&nbsp;zmmex0010_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_pp&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmrp0040_xskpp,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_pp&nbsp;&nbsp;&nbsp;TYPE&nbsp;zmmrp0040_xskpp,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_zyks&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_zyks&nbsp;TYPE&nbsp;ty_matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_batch&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmrp0210_batch,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_b1&nbsp;TYPE&nbsp;zmmrp0210_batch,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_b2&nbsp;TYPE&nbsp;zmmrp0210_batch,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;&nbsp;&nbsp;TYPE&nbsp;char1.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;mara~matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mara~extwg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zmmex0010_mara~ex_pz04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mara<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mara&nbsp;INNER&nbsp;JOIN&nbsp;zmmex0010_mara<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;mara~matnr&nbsp;=&nbsp;zmmex0010_mara~matnr<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;mara~extwg&nbsp;IN&nbsp;s_extwg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;mara~matnr&nbsp;IN&nbsp;s_matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_gjs&nbsp;&nbsp;IN&nbsp;s_gjs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz01&nbsp;IN&nbsp;s_pz01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz02&nbsp;IN&nbsp;s_pz02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz03&nbsp;IN&nbsp;s_pz03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz04&nbsp;IN&nbsp;s_pz04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_zt01&nbsp;IN&nbsp;s_zt01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_zt02&nbsp;IN&nbsp;s_zt02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_zt03&nbsp;IN&nbsp;s_zt03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz04&nbsp;&lt;&gt;&nbsp;''.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_all<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mara.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_zmm<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmex0010_mara.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_pp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0040_xskpp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_mara<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;ex_pz04&nbsp;=&nbsp;lt_mara-ex_pz04.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_mara&nbsp;INTO&nbsp;ls_mara.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_zmm&nbsp;INTO&nbsp;ls_zmm1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;matnr&nbsp;=&nbsp;ls_mara-matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ex_pz04&nbsp;=&nbsp;ls_mara-ex_pz04.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_pp&nbsp;INTO&nbsp;ls_pp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;ex_pz04&nbsp;=&nbsp;ls_mara-ex_pz04.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_zmm&nbsp;INTO&nbsp;ls_zmm2&nbsp;WHERE&nbsp;matnr&nbsp;&lt;&gt;&nbsp;ls_mara-matnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;l_flg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_all&nbsp;INTO&nbsp;ls_all<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;matnr&nbsp;=&nbsp;ls_zmm2-matnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp01&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_mara-extwg&nbsp;&lt;&gt;&nbsp;ls_all-extwg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp02&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_gjs&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_gjs.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;ls_pp-zp02.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;ls_pp-zp03.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp04&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_pz01&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_pz01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp05&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_pz02&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_pz02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp06&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_pz03&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_pz03.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp07&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_pz04&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_pz04.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp08&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_pz&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_pz.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp09&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_zt01&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_zt01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp10&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_zt02&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_zt02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp11&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_zt03&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_zt03.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp12&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_ta01&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_ta01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp13&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_ta02&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_ta02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp14&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_xz&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_xz.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;ls_pp-zp15.<br />
+<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp16&nbsp;=&nbsp;'X'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_zq&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_zq.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_pp-zp17&nbsp;=&nbsp;'X'.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_zmm1-ex_kzfw&nbsp;&lt;&gt;&nbsp;ls_zmm2-ex_kzfw.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_flg&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;l_flg&nbsp;&lt;&gt;&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_zyks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_zyks-zyks&nbsp;=&nbsp;ls_mara-matnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_zyks-zxsk&nbsp;=&nbsp;ls_zmm2-matnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ls_pp-zp16&nbsp;=&nbsp;'X'&nbsp;OR&nbsp;ls_pp-zp17&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_zyks-flg&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_zyks&nbsp;TO&nbsp;lt_zyks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;lt_zyks&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;lt_batch.<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0210_batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_zyks<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;lt_zyks-zyks.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPENDING&nbsp;TABLE&nbsp;lt_batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0210_batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_zyks<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;lt_zyks-zxsk.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;lt_batch&nbsp;BY&nbsp;matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ex_xnkh&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;lt_batch&nbsp;COMPARING&nbsp;matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ex_xnkh&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_zyks&nbsp;INTO&nbsp;ls_zyks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;gs_data.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_batch&nbsp;INTO&nbsp;ls_b1&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;ls_zyks-zyks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-zyks&nbsp;=&nbsp;ls_b1-ex_xnkh.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_batch&nbsp;INTO&nbsp;ls_b2&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;ls_zyks-zxsk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-zxsk&nbsp;=&nbsp;ls_b2-ex_xnkh.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;ls_zyks-flg&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ls_b1-ex_kcode&nbsp;&lt;&gt;&nbsp;ls_b2-ex_kcode.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;gs_data-zyks&nbsp;&lt;&gt;&nbsp;gs_data-zxsk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_data&nbsp;TO&nbsp;gt_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;SORT&nbsp;gt_data.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;gt_data.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_TJK<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_get_tjk .<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_mara&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_mara&nbsp;TYPE&nbsp;ty_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_zmm&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmex0010_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_zmm&nbsp;&nbsp;TYPE&nbsp;zmmex0010_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_batch&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmrp0210_batch,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_batch_xsk&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmrp0210_batch,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_batch&nbsp;TYPE&nbsp;zmmrp0210_batch,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_xsk&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmrp0040_xsk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_xsk&nbsp;&nbsp;TYPE&nbsp;zmmrp0040_xsk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_vbrp&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;vbrp,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_vbrp&nbsp;TYPE&nbsp;vbrp,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_mchb&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;mchb,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_mchb&nbsp;TYPE&nbsp;mchb,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_tjk&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_tjk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_tjk&nbsp;&nbsp;TYPE&nbsp;ty_tjk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_final&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final&nbsp;TYPE&nbsp;ty_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_count&nbsp;TYPE&nbsp;i,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_monat&nbsp;TYPE&nbsp;numc3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_kcd&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_kcd,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_kcd&nbsp;TYPE&nbsp;ty_kcd,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_delevlgort&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmm_delevlgort,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_delevlgort&nbsp;TYPE&nbsp;zmm_delevlgort,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_marab&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_marab&nbsp;TYPE&nbsp;mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_datum&nbsp;TYPE&nbsp;sy-datum.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;l_datum.<br />
+&nbsp;&nbsp;l_monat&nbsp;=&nbsp;p_monat.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CCM_GO_BACK_MONTHS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currdate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-datum<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;backmonths&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_monat<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newdate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_datum.<br />
+&nbsp;&nbsp;IF&nbsp;l_datum&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'销售起始日期取得错误'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;mara~matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mara<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mara&nbsp;INNER&nbsp;JOIN&nbsp;zmmex0010_mara<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;mara~matnr&nbsp;=&nbsp;zmmex0010_mara~matnr<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;mara~extwg&nbsp;IN&nbsp;s_extwg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;mara~matnr&nbsp;IN&nbsp;s_matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_gjs&nbsp;&nbsp;IN&nbsp;s_gjs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz01&nbsp;IN&nbsp;s_pz01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz02&nbsp;IN&nbsp;s_pz02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz03&nbsp;IN&nbsp;s_pz03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz04&nbsp;IN&nbsp;s_pz04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_zt01&nbsp;IN&nbsp;s_zt01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_zt02&nbsp;IN&nbsp;s_zt02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_zt03&nbsp;IN&nbsp;s_zt03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmex0010_mara~ex_pz04&nbsp;&lt;&gt;&nbsp;''.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'物料不存在'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;lt_batch.<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0210_batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_mara<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;lt_mara-matnr.<br />
+&nbsp;&nbsp;SORT&nbsp;lt_batch&nbsp;BY&nbsp;matnr&nbsp;ex_xnkh.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;lt_batch&nbsp;COMPARING&nbsp;matnr&nbsp;ex_xnkh.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'虚拟料号不存在'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_xsk<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0040_xsk<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_batch<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;zyks&nbsp;=&nbsp;lt_batch-ex_xnkh.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'相似款不存在'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_batch_xsk<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0210_batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_xsk<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;ex_xnkh&nbsp;=&nbsp;lt_xsk-zxsk.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'相似款的虚拟料号不存在'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;相似款销售数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;REFRESH:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_vbrp,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_tjk.<br />
+&nbsp;&nbsp;SELECT&nbsp;vbrp~vbeln<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vbrp~posnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vbrp~matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vbrp~werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vbrp~charg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vbrp~fkimg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_vbrp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;vbrk&nbsp;INNER&nbsp;JOIN&nbsp;vbrp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;vbrk~vbeln&nbsp;=&nbsp;vbrp~vbeln<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_batch_xsk<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;vbrk~fkdat&nbsp;BETWEEN&nbsp;l_datum&nbsp;AND&nbsp;sy-datum<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;vbrk~fkart&nbsp;IN&nbsp;('ZF2','FP')<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;vbrp~matnr&nbsp;=&nbsp;lt_batch_xsk-matnr<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;vbrp~werks&nbsp;=&nbsp;lt_batch_xsk-werks<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;vbrp~charg&nbsp;=&nbsp;lt_batch_xsk-charg.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_vbrp&nbsp;INTO&nbsp;ls_vbrp.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;ls_vbrp&nbsp;TO&nbsp;ls_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;ls_tjk&nbsp;INTO&nbsp;lt_tjk.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;相似款库存<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;REFRESH:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_marab,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_kcd.<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_marab<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mara<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_batch_xsk<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;lt_batch_xsk-matnr.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_batch_xsk&nbsp;INTO&nbsp;ls_batch.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_marab&nbsp;INTO&nbsp;ls_marab<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;matnr&nbsp;=&nbsp;ls_batch-matnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REFRESH&nbsp;lt_delevlgort.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_delevlgort<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmm_delevlgort<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;extwg&nbsp;=&nbsp;ls_marab-extwg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;werks&nbsp;=&nbsp;'DC80'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;kcdflg&nbsp;=&nbsp;'01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_delevlgort&nbsp;INTO&nbsp;ls_delevlgort.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_kcd.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_kcd-matnr&nbsp;=&nbsp;ls_batch-matnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_kcd-lgort&nbsp;=&nbsp;ls_delevlgort-lgort.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_kcd-charg&nbsp;=&nbsp;ls_batch-charg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_kcd&nbsp;TO&nbsp;lt_kcd.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;lt_kcd&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;lt_kcd<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;lt_kcd-matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;werks&nbsp;=&nbsp;'DC80'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;lgort&nbsp;=&nbsp;lt_kcd-lgort<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;charg&nbsp;=&nbsp;lt_kcd-charg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_mchb&nbsp;INTO&nbsp;ls_mchb.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;ls_mchb&nbsp;TO&nbsp;ls_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;ls_tjk&nbsp;INTO&nbsp;lt_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;合计<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;REFRESH&nbsp;lt_final.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_batch_xsk&nbsp;INTO&nbsp;ls_batch.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_xsk.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_xsk&nbsp;INTO&nbsp;ls_xsk<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;zxsk&nbsp;=&nbsp;ls_batch-ex_xnkh.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final-zyks&nbsp;=&nbsp;ls_xsk-zyks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_final-ztjk&nbsp;=&nbsp;ls_batch-ex_xnkh.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_tjk&nbsp;INTO&nbsp;ls_tjk&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;ls_batch-matnr<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;werks&nbsp;=&nbsp;ls_batch-werks<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;charg&nbsp;=&nbsp;ls_batch-charg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final-fkimg&nbsp;=&nbsp;ls_final-fkimg&nbsp;+&nbsp;ls_tjk-fkimg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_final-clabs&nbsp;=&nbsp;ls_final-clabs&nbsp;+&nbsp;ls_tjk-clabs.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;ls_final&nbsp;INTO&nbsp;lt_final.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;lt_final&nbsp;BY&nbsp;zyks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clabs&nbsp;DESCENDING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fkimg&nbsp;DESCENDING.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;lt_final&nbsp;COMPARING&nbsp;zyks&nbsp;ztjk.<br />
+*&nbsp;编辑报表数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;REFRESH&nbsp;gt_data.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_batch&nbsp;INTO&nbsp;ls_batch.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_data-zyks&nbsp;=&nbsp;ls_batch-ex_xnkh.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_count&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_final&nbsp;INTO&nbsp;ls_final&nbsp;WHERE&nbsp;zyks&nbsp;=&nbsp;gs_data-zyks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_count&nbsp;=&nbsp;l_count&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;l_count.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj1&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj2&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj3&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj4&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;5.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj5&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj6&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;7.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj7&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;8.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj8&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;9.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj9&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-ztj10&nbsp;=&nbsp;ls_final-ztjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;l_count&nbsp;&gt;=&nbsp;10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_data&nbsp;TO&nbsp;gt_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_UPDATE_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_update_data .<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_xsk&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmrp0040_xsk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_xsk&nbsp;TYPE&nbsp;zmmrp0040_xsk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_tjk&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmrp0040_tjk,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_tjk&nbsp;TYPE&nbsp;zmmrp0040_tjk.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;rb_1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_xsk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;gs_data&nbsp;TO&nbsp;ls_xsk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_xsk&nbsp;TO&nbsp;lt_xsk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;FROM&nbsp;zmmrp0040_xsk<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;zyks&nbsp;=&nbsp;ls_xsk-zyks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;zmmrp0040_xsk&nbsp;FROM&nbsp;TABLE&nbsp;lt_xsk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'保存成功'&nbsp;TYPE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'保存失败'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;rb_2&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;gs_data&nbsp;TO&nbsp;ls_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_tjk&nbsp;TO&nbsp;lt_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;zmmrp0040_tjk&nbsp;FROM&nbsp;TABLE&nbsp;lt_tjk.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'保存成功'&nbsp;TYPE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'保存失败'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;选择条件<br />
+*&nbsp;T02&nbsp;动作<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_MONAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;销售统计月数<br />
+*&nbsp;RB_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;相似款<br />
+*&nbsp;RB_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;推荐款<br />
+*&nbsp;S_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品大类<br />
+*&nbsp;S_GJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;贵金属材质<br />
+*&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品编码<br />
+*&nbsp;S_PZ01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;品种一级<br />
+*&nbsp;S_PZ02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;品种二级<br />
+*&nbsp;S_PZ03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;品种三级<br />
+*&nbsp;S_PZ04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;品种四级<br />
+*&nbsp;S_ZT01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;主题一级<br />
+*&nbsp;S_ZT02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;主题二级<br />
+*&nbsp;S_ZT03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;主题三级<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;Hard&nbsp;coded<br />
+*&nbsp;&nbsp;&nbsp;请输入销售统计月数<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

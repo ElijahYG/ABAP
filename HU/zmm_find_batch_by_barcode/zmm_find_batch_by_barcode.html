@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_FIND_BATCH_BY_BARCODE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMM_FIND_BATCH_BY_BARCODE</h2>
+<h3> Description: 根据条形码查找商品批次</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZMM_FIND_BATCH_BY_BARCODE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;数据结构定义<br />
+   </div>
+   <div class="code">
+DATA: GV_BARCODE TYPE ZDE_ZSPTM .<br />
+<br />
+DATA: GS_BATCH TYPE ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_BATCH&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;GS_BATCH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_CHARG&nbsp;TYPE&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_CHARG&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;GS_CHARG.<br />
+<br />
+DATA: GV_ATINN TYPE AUSP-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_ATZHL&nbsp;TYPE&nbsp;AUSP-ATZHL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_MAFID&nbsp;TYPE&nbsp;AUSP-MAFID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_KLART&nbsp;TYPE&nbsp;AUSP-KLART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_ADZHL&nbsp;TYPE&nbsp;AUSP-ADZHL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_LINES&nbsp;TYPE&nbsp;I.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段属性内表和工作区<br />
+   </div>
+   <div class="code">
+DATA: GT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT&nbsp;TYPE&nbsp;SLIS_FIELDCAT_ALV,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV屏幕布局工作区<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_LAYOUT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_EVENTS&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_EVENT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_EVENTS&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_ALV_EVENT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;选择屏幕<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01 .<br />
+SELECT-OPTIONS: S_BCODE FOR GV_BARCODE OBLIGATORY .<br />
+SELECTION-SCREEN END OF BLOCK B1 .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;查询执行<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION .<br />
+&nbsp;&nbsp;GV_ATZHL&nbsp;=&nbsp;'1'&nbsp;.<br />
+&nbsp;&nbsp;GV_MAFID&nbsp;=&nbsp;'O'&nbsp;.<br />
+&nbsp;&nbsp;GV_KLART&nbsp;=&nbsp;'023'&nbsp;.<br />
+&nbsp;&nbsp;GV_ADZHL&nbsp;=&nbsp;''&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;'ZSPTM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;GV_ATINN.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;M~MATNR&nbsp;M~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;AUSP&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MCH1&nbsp;AS&nbsp;M&nbsp;ON&nbsp;A~OBJEK&nbsp;=&nbsp;M~CUOBJ_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~ATINN&nbsp;=&nbsp;GV_ATINN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ATZHL&nbsp;=&nbsp;GV_ATZHL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MAFID&nbsp;=&nbsp;GV_MAFID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~KLART&nbsp;=&nbsp;GV_KLART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ADZHL&nbsp;=&nbsp;GV_ADZHL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ATWRT&nbsp;IN&nbsp;S_BCODE&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有找到对应的SAP批次！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;GT_BATCH.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_BATCH[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;GT_BATCH&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GV_LINES&nbsp;=&nbsp;LINES(&nbsp;GT_BATCH&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'找到'&nbsp;GV_LINES&nbsp;'条SAP批次！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_DIS_ALV&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_DIS_ALV<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_DIS_ALV .<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_FIELDCAT.&nbsp;&nbsp;&nbsp;"&nbsp;设置显示字段属性<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_LAYOUT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;设置屏幕布局<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_ALV_DISPLAY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;ALV显示<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_FIELDCAT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置显示字段属性<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_FIELDCAT .<br />
+&nbsp;&nbsp;REFRESH&nbsp;GT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_FIELDCATALOG_MERGE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PROGRAM_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_INTERNAL_TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_STRUCTURE_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMM_CHARACTERS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CLIENT_NEVER_DISPLAY&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_INCLNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BYPASSING_BUFFER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BUFFER_ACTIVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCONSISTENT_INTERFACE&nbsp;=&nbsp;1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Implement&nbsp;suitable&nbsp;error&nbsp;handling&nbsp;here<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;GS_FIELDCAT&gt;&nbsp;LIKE&nbsp;GS_FIELDCAT&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_FIELDCAT&nbsp;ASSIGNING&nbsp;&lt;GS_FIELDCAT&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'MATNR'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'CHARG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZJSZBM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'检测站编码'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;20.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZCT1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'抽屉1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;13.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZCT2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'抽屉2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;13.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'SFLY'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'是否联营'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.                    " FRM_BUILD_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_SET_FIELDS<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SUB_SET_FIELDS USING I_FIELDNAME TYPE SLIS_FIELDNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_TABLENAME&nbsp;TYPE&nbsp;SLIS_TABNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_ROLLNAME&nbsp;&nbsp;TYPE&nbsp;DD03P-ROLLNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_REPTEXT&nbsp;TYPE&nbsp;DD03P-REPTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_NO_ZERO&nbsp;TYPE&nbsp;CHAR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_OUTPUTLEN&nbsp;TYPE&nbsp;DD03P-OUTPUTLEN.<br />
+&nbsp;&nbsp;GS_FIELDCAT-FIELDNAME&nbsp;=&nbsp;I_FIELDNAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;I_TABLENAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-ROLLNAME&nbsp;&nbsp;&nbsp;=&nbsp;I_ROLLNAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-REPTEXT_DDIC&nbsp;=&nbsp;I_REPTEXT&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;=&nbsp;I_NO_ZERO&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_KEY&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;I_OUTPUTLEN&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-OUTPUTLEN&nbsp;=&nbsp;I_OUTPUTLEN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELDCAT&nbsp;TO&nbsp;GT_FIELDCAT.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GS_FIELDCAT.<br />
+ENDFORM.                    "SUB_SET_FIELDS<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_LAYOUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置屏幕布局<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_LAYOUT .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;输出长度的最优化设计<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;gs_layout-box_fieldname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BOX'.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.                    " FRM_BUILD_LAYOUT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_ALV_DISPLAY<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALV显示<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_ALV_DISPLAY .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV&nbsp;FUNCTION<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'FRM_PF_STATUS_SET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'FRM_USER_COMMAND'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GS_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_BATCH.<br />
+<br />
+ENDFORM.                    " FRM_ALV_DISPLAY<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PF_STATUS_SET<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置状态栏<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PF_STATUS_SET USING RT_EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STANDARD'.<br />
+<br />
+ENDFORM.                    " FRM_PF_STATUS_SET<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_USER_COMMAND<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;定义按钮功能<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_USER_COMMAND  USING R_UCOMM TYPE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;G_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.&nbsp;"&nbsp;刷新数据<br />
+&nbsp;&nbsp;DATA:LT_RSPAR&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RSPAR&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_RSPAR.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;G_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;G_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE'.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.                    " FRM_USER_COMMAND<br />
+<br />
+FORM HTML_TOP_OF_PAGE USING CL_DD TYPE REF TO CL_DD_DOCUMENT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;DATA&nbsp;LV_TEXT&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;255&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_MSG&nbsp;INTO&nbsp;GS_MSG&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;GS_MSG-ID&nbsp;TYPE&nbsp;GS_MSG-TYPE&nbsp;NUMBER&nbsp;GS_MSG-NUMBER<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LV_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;GS_MSG-MESSAGE_V1&nbsp;GS_MSG-MESSAGE_V2&nbsp;GS_MSG-MESSAGE_V3&nbsp;GS_MSG-MESSAGE_V4&nbsp;&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;NEW_LINE&nbsp;.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM .<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_BCODE&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

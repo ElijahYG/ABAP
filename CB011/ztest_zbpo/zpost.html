@@ -1,0 +1,730 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZPOST</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZPOST</h2>
+<h3> Description: Include ZPOST</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZPOST<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_MOV_POST.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_STATUS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;准备工作:取需要调拨的商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_ITEM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STEP1：生成STO<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_STATUS.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_ME21N_ZSUB&nbsp;USING&nbsp;L_STATUS.<br />
+&nbsp;&nbsp;IF&nbsp;L_STATUS&nbsp;&lt;&gt;&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-DN_POST&nbsp;=&nbsp;'STO失败'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STEP2：生成DN<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_STATUS.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_VL10B_ZSUB&nbsp;USING&nbsp;L_STATUS.<br />
+&nbsp;&nbsp;IF&nbsp;L_STATUS&nbsp;&lt;&gt;&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-DN_POST&nbsp;=&nbsp;'DN失败'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STEP3：DN发货<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_STATUS.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_VL02N&nbsp;USING&nbsp;L_STATUS.<br />
+&nbsp;&nbsp;IF&nbsp;L_STATUS&nbsp;&lt;&gt;&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-DN_POST&nbsp;=&nbsp;'发货失败'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+***************************<br />
+*&nbsp;1.取商品信息<br />
+***************************<br />
+   </div>
+   <div class="code">
+FORM FM_GET_ITEM.<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+***************************<br />
+*&nbsp;2.ME21N创建ZSUB<br />
+***************************<br />
+   </div>
+   <div class="code">
+FORM FM_ME21N_ZSUB USING E_STATUS TYPE CHAR1.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_POHEADTEXT&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOTEXTHEADER&nbsp;OCCURS&nbsp;0,&nbsp;"抬头文本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POHEADTEXT&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOTEXTHEADER,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"抬头文本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR200,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;T_ITEM,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_EBELP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;EBELP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_PO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOHEADER-PO_NUMBER,&nbsp;&nbsp;&nbsp;&nbsp;"PO号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POHEADER&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOHEADER,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购抬头<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POHEADERX&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOHEADERX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购抬头确认<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOITEM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购行项目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_POITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOITEM&nbsp;OCCURS&nbsp;0,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购行项目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOITEMX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购行项目确认<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_POITEMX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOITEMX&nbsp;OCCURS&nbsp;0,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购行项目确认<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOCOND,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CONDITION&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOCOND&nbsp;OCCURS&nbsp;0,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONX&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOCONDX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件确认<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CONDITIONX&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOCONDX&nbsp;OCCURS&nbsp;0,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件确认<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULE&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOSCHEDULE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_POSCHEDULE&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOSCHEDULE&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULEX&nbsp;TYPE&nbsp;BAPIMEPOSCHEDULX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_POSCHEDULEX&nbsp;TYPE&nbsp;BAPIMEPOSCHEDULX&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIRET2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIRET2&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_POSHIPPING&nbsp;&nbsp;TYPE&nbsp;BAPIITEMSHIP&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPING&nbsp;&nbsp;TYPE&nbsp;BAPIITEMSHIP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPINGX&nbsp;TYPE&nbsp;&nbsp;BAPIITEMSHIPX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_POSHIPPINGX&nbsp;TYPE&nbsp;&nbsp;BAPIITEMSHIPX&nbsp;OCCURS&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+***************抬头***************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LW_POHEADER-DOC_TYPE&nbsp;&nbsp;&nbsp;=&nbsp;'ZSUB'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证类型<br />
+&nbsp;&nbsp;LW_POHEADER-SUPPL_PLNT&nbsp;=&nbsp;S_WERKS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货地点<br />
+<br />
+&nbsp;&nbsp;LW_POHEADER-PURCH_ORG&nbsp;&nbsp;=&nbsp;'8000'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购组织<br />
+&nbsp;&nbsp;LW_POHEADER-PUR_GROUP&nbsp;&nbsp;=&nbsp;'110'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购组<br />
+&nbsp;&nbsp;LW_POHEADER-COMP_CODE&nbsp;&nbsp;=&nbsp;'8000'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购公司代码<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LW_POHEADER-OUR_REF&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LW_POHEADER-CREATED_BY&nbsp;=&nbsp;SY-UNAME.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建人<br />
+&nbsp;&nbsp;LW_POHEADER-CREAT_DATE&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建日期<br />
+&nbsp;&nbsp;LW_POHEADER-DOC_DATE&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证日期<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LW_POHEADER-COLLECT_NO&nbsp;=&nbsp;I_HEAD-SUBMI.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"汇总号<br />
+*&nbsp;————确认————<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LW_POHEADERX-DOC_TYPE&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证类型<br />
+&nbsp;&nbsp;LW_POHEADERX-SUPPL_PLNT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货地点<br />
+&nbsp;&nbsp;LW_POHEADERX-PURCH_ORG&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购组织<br />
+&nbsp;&nbsp;LW_POHEADERX-PUR_GROUP&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购组<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LW_POHEADERX-OUR_REF&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LW_POHEADERX-COMP_CODE&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;LW_POHEADERX-CREATED_BY&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建人<br />
+&nbsp;&nbsp;LW_POHEADERX-CREAT_DATE&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建日期<br />
+&nbsp;&nbsp;LW_POHEADERX-DOC_DATE&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证日期<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LW_POHEADERX-COLLECT_NO&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"汇总号<br />
+***************行项目***************<br />
+<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LT_T_ITEM&nbsp;LIKE&nbsp;T_ITEM[],<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MBEW,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MBEW-MATNR,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;TYPE&nbsp;MBEW-BWKEY,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTAR&nbsp;TYPE&nbsp;MBEW-BWTAR,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTTY&nbsp;TYPE&nbsp;MBEW-BWTTY,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MBEW,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LT_MBEW&nbsp;LIKE&nbsp;LW_MBEW&nbsp;OCCURS&nbsp;0.<br />
+*&nbsp;&nbsp;LT_T_ITEM&nbsp;=&nbsp;T_ITEM[].<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_T_ITEM&nbsp;BY&nbsp;MATNR.<br />
+*&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_T_ITEM&nbsp;COMPARING&nbsp;MATNR.<br />
+*&nbsp;&nbsp;IF&nbsp;LT_T_ITEM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTAR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTTY<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MBEW<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_T_ITEM<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LT_T_ITEM-MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BWKEY&nbsp;=&nbsp;I_HEAD-WERKST<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BWTAR&nbsp;=&nbsp;''<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_MBEW&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_EBELP.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ITEM&nbsp;INTO&nbsp;WA_ITEM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_EBELP&nbsp;=&nbsp;L_EBELP&nbsp;+&nbsp;10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-PO_ITEM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_EBELP.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_ITEM-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LW_POITEM-MATERIAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_WERK2-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-STGE_LOC&nbsp;&nbsp;&nbsp;=&nbsp;'0001'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-SUPPL_STLOC&nbsp;=&nbsp;S_WERKS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货库存地点<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-QUANTITY&nbsp;&nbsp;&nbsp;=&nbsp;WA_ITEM-MENGE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-PO_UNIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ITEM-MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ITEM-CHARG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEM-VAL_TYPE&nbsp;&nbsp;&nbsp;=&nbsp;WA_ITEM-CHARG.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_POITEM&nbsp;TO&nbsp;LT_POITEM.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;————确认————<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-PO_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_EBELP.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-STGE_LOC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-SUPPL_STLOC&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-QUANTITY&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-PO_UNIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_POITEMX-VAL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_POITEMX&nbsp;TO&nbsp;LT_POITEMX.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPINGX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPING-PO_ITEM&nbsp;&nbsp;&nbsp;=&nbsp;L_EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPING-UNLOAD_PT&nbsp;=&nbsp;'101'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPINGX-PO_ITEM&nbsp;&nbsp;&nbsp;=&nbsp;L_EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSHIPPINGX-UNLOAD_PT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_POSHIPPING&nbsp;&nbsp;TO&nbsp;LT_POSHIPPING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_POSHIPPINGX&nbsp;TO&nbsp;LT_POSHIPPINGX.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULEX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULE-PO_ITEM&nbsp;=&nbsp;L_EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULE-DELIVERY_DATE&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULE-QUANTITY&nbsp;=&nbsp;WA_ITEM-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_POSCHEDULE&nbsp;TO&nbsp;LT_POSCHEDULE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULEX-PO_ITEM&nbsp;=&nbsp;L_EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULEX-DELIVERY_DATE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_POSCHEDULEX-QUANTITY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_POSCHEDULEX&nbsp;TO&nbsp;LT_POSCHEDULEX.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+************ME21N&nbsp;Z11**********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_PO_CREATE1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POHEADER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_POHEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POHEADERX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_POHEADERX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPPURCHASEORDER&nbsp;=&nbsp;L_PO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSCHEDULE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_POSCHEDULE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSCHEDULEX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_POSCHEDULEX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_RETURN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_POITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POITEMX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_POITEMX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSHIPPING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_POSHIPPING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSHIPPINGX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_POSHIPPINGX.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;状态判定<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_TEXT.<br />
+&nbsp;&nbsp;CLEAR&nbsp;E_STATUS.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_RETURN&nbsp;INTO&nbsp;LW_RETURN&nbsp;WHERE&nbsp;TYPE&nbsp;=&nbsp;'A'&nbsp;OR&nbsp;TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_STATUS&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TEXT&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;LW_RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;L_TEXT&nbsp;LW_RETURN-MESSAGE&nbsp;INTO&nbsp;L_TEXT&nbsp;SEPARATED&nbsp;BY&nbsp;'//'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;结果处理<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;E_STATUS&nbsp;=&nbsp;'E'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;'E:'&nbsp;&&&nbsp;L_TEXT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;'S:采购订单'&nbsp;&&&nbsp;L_PO&nbsp;&&&nbsp;'已保存'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_STATUS&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-STO&nbsp;=&nbsp;L_PO.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+***************************<br />
+*&nbsp;3.VL10B创建交货单<br />
+***************************<br />
+   </div>
+   <div class="code">
+FORM FM_VL10B_ZSUB USING E_STATUS TYPE CHAR1.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR200,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;T_ITEM,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEMS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIDLVREFTOSTO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_RETURN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIRET2&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_RETURN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIRET2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DELIVERY&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPISHPDELIVNUMB-DELIV_NUMB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ITEMS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIDLVREFTOSTO&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_SHIP_POINT&nbsp;TYPE&nbsp;BAPIDLVCREATEHEADER-SHIP_POINT.&nbsp;&nbsp;"装运点<br />
+   </div>
+   <div class="codeComment">
+**装运点*************************8888<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;VSTEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_SHIP_POINT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKPV<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;EBELN&nbsp;=&nbsp;WA_NUM-STO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*********LT_ITEMS****************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_STO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;TYPE&nbsp;EKPO-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP&nbsp;TYPE&nbsp;EKPO-EBELP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;TYPE&nbsp;EKPO-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;TYPE&nbsp;EKPO-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_STO.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_STO&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_STO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STO&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_STO.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;EBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKPO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_STO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EBELN&nbsp;EQ&nbsp;WA_NUM-STO.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STO&nbsp;INTO&nbsp;LS_STO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_ITEMS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEMS-REF_DOC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_STO-EBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEMS-REF_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_STO-EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEMS-DLV_QTY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_STO-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEMS-SALES_UNIT&nbsp;&nbsp;&nbsp;=&nbsp;LS_STO-MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_ITEMS&nbsp;TO&nbsp;LT_ITEMS.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_OUTB_DELIVERY_CREATE_STO'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHIP_POINT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_SHIP_POINT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELIVERY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DELIVERY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STOCK_TRANS_ITEMS&nbsp;=&nbsp;LT_ITEMS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_RETURN.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;状态判定<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_TEXT.<br />
+&nbsp;&nbsp;CLEAR&nbsp;E_STATUS.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_RETURN&nbsp;INTO&nbsp;LW_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_RETURN-TYPE&nbsp;=&nbsp;'E'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_RETURN-TYPE&nbsp;=&nbsp;'A'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_STATUS&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TEXT&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;LW_RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;L_TEXT&nbsp;LW_RETURN-MESSAGE&nbsp;INTO&nbsp;L_TEXT&nbsp;SEPARATED&nbsp;BY&nbsp;'//'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;结果处理<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;E_STATUS&nbsp;=&nbsp;'E'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;'E:'&nbsp;&&&nbsp;L_TEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;'S:交货单'&nbsp;&&&nbsp;L_DELIVERY&nbsp;&&&nbsp;'已保存'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_STATUS&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-DN&nbsp;=&nbsp;L_DELIVERY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+***************************<br />
+*&nbsp;4.VL02N交货单过账<br />
+***************************<br />
+   </div>
+   <div class="code">
+FORM FM_VL02N USING E_STATUS TYPE CHAR1.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BUDAT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BLDAT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_BDCDATA&nbsp;TYPE&nbsp;BDCDATA&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR100,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_BDCDATA&nbsp;TYPE&nbsp;BDCDATA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OPTION&nbsp;&nbsp;TYPE&nbsp;CTU_PARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BDCMSGCOLL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BDCMSGCOLL&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MESSAGE&nbsp;&nbsp;TYPE&nbsp;CHAR200,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR200,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_CHAR14&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR14,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LIKP&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LIKP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_LIPS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LIPS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LIPS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LIPS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_VBKOK&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBKOK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_PROT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;PROTT&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_PROT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;PROTT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_PORT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;PROTT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_VBPOK&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBPOK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_VBPOK&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBPOK&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DELIVERY&nbsp;TYPE&nbsp;LIKP-VBELN.<br />
+   </div>
+   <div class="codeComment">
+***************抬头信息*******************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;L_DELIVERY&nbsp;=&nbsp;WA_NUM-DN.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货单号<br />
+<br />
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_BDCDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_BDCDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_BDCDATA-PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_BDCDATA-DYNPRO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_BDCDATA-DYNBEGIN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_BDCDATA-FNAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_BDCDATA-FVAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_BDCDATA&nbsp;TO&nbsp;LT_BDCDATA.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LW_LIKP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;LIKP<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;L_DELIVERY.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LW_VBKOK-VBELN_VL&nbsp;=&nbsp;L_DELIVERY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货单号<br />
+*&nbsp;&nbsp;LW_VBKOK-WABUC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AUTOMATIC&nbsp;PGI<br />
+*&nbsp;&nbsp;LW_VBKOK-WADAT_IST&nbsp;=&nbsp;LW_LIKP-BLDAT.&nbsp;&nbsp;"过账日期<br />
+***************行项目信息*****************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_LIPS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;LIPS<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;L_DELIVERY.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_LIPS&nbsp;INTO&nbsp;LW_LIPS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBPOK.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_VBPOK-VBELN_VL&nbsp;=&nbsp;LW_LIPS-VBELN.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_VBPOK-POSNR_VL&nbsp;=&nbsp;LW_LIPS-POSNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_VBPOK-VBELN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LIPS-VBELN.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_VBPOK-POSNN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LIPS-POSNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_VBPOK-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LIPS-MATNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;L_CHAR14&nbsp;=&nbsp;LW_LIPS-LFIMG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;L_CHAR14.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_VBPOK-PIKMG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_CHAR14.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_VBPOK&nbsp;TO&nbsp;LT_VBPOK.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+**************过账<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;COUNT(*)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBUK<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;WA_NUM-DN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WBSTK&nbsp;=&nbsp;'C'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;找到了，则表示该交货单已经发货过账<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-DN_POST&nbsp;=&nbsp;'发货成功'.<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BUDAT&nbsp;=&nbsp;SY-DATUM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BLDAT&nbsp;=&nbsp;SY-DATUM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;使用bdc发货过账<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DF_ADD_BDCDATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'T'&nbsp;'VL02N'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'BS&nbsp;AA&nbsp;X&nbsp;&nbsp;&nbsp;F',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAPMV50A'&nbsp;'4004'&nbsp;'X'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'BDC_OKCODE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'/00',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'LIKP-VBELN'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-DN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAPMV50A'&nbsp;'1000'&nbsp;'X'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'BDC_OKCODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'=T\01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAPMV50A'&nbsp;'1000'&nbsp;'X'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'BDC_OKCODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'=T\02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'LIKP-WADAT_IST'&nbsp;&nbsp;&nbsp;&nbsp;L_BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'LIKP-BLDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;L_BLDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAPMV50A'&nbsp;'1000'&nbsp;'X'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_LIPS&nbsp;INTO&nbsp;LW_LIPS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_CHAR14&nbsp;=&nbsp;LW_LIPS-LFIMG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;L_CHAR14.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DF_ADD_BDCDATA:<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'BDC_OKCODE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'=POPO_T',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAPMV50A'&nbsp;'0111'&nbsp;'X'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'BDC_OKCODE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'=WEIT',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'RV50A-POSNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_LIPS-POSNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAPMV50A'&nbsp;'1000'&nbsp;'X'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'LIPS-LGORT(01)'&nbsp;&nbsp;&nbsp;&nbsp;S_LGORT-LOW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'LIPSD-PIKMG(01)'&nbsp;&nbsp;&nbsp;L_CHAR14.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DF_ADD_BDCDATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;'&nbsp;'&nbsp;'BDC_OKCODE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'=WABU_T'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OPTION-UPDMODE&nbsp;&nbsp;=&nbsp;'S'.&nbsp;&nbsp;"更新模式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OPTION-DISMODE&nbsp;&nbsp;=&nbsp;'N'.&nbsp;&nbsp;"显示模式<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;TRANSACTION&nbsp;'VL02N'&nbsp;USING&nbsp;LT_BDCDATA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OPTIONS&nbsp;FROM&nbsp;LW_OPTION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGES&nbsp;INTO&nbsp;LT_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MSG&nbsp;INTO&nbsp;LW_MSG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MSGID&nbsp;=&nbsp;'VL'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MSGNR&nbsp;=&nbsp;'311'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_STATUS&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'WS_DELIVERY_UPDATE'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBKOK_WA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_VBKOK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货单抬头<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELIVERY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DELIVERY<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE_PICKING&nbsp;=&nbsp;'X'<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBPOK_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_VBPOK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"交货单行项目<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_PROT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"返回消息<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;状态判定<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_TEXT.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSG&nbsp;INTO&nbsp;LW_MSG&nbsp;WHERE&nbsp;MSGTYP&nbsp;=&nbsp;'A'&nbsp;OR&nbsp;MSGTYP&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LW_MSG-MSGID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LW_MSG-MSGTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;LW_MSG-MSGNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LW_MSG-MSGV1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MSG-MSGV2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MSG-MSGV3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MSG-MSGV4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_MSG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TEXT&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;L_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;L_TEXT&nbsp;L_MSG&nbsp;INTO&nbsp;L_TEXT&nbsp;SEPARATED&nbsp;BY&nbsp;'//'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CLEAR&nbsp;L_TEXT.<br />
+*&nbsp;&nbsp;CLEAR&nbsp;E_STATUS.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_PROT&nbsp;INTO&nbsp;LW_PROT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_PROT-MSGTY&nbsp;=&nbsp;'E'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_PROT-MSGTY&nbsp;=&nbsp;'A'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_STATUS&nbsp;=&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+**&nbsp;&nbsp;&nbsp;消息<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_MESSAGE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;LW_PROT-MSGID<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LW_PROT-MSGTY<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;LW_PROT-MSGNO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;LW_PROT-MSGV1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_PROT-MSGV2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_PROT-MSGV3<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_PROT-MSGV4<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_MESSAGE.<br />
+**&nbsp;&nbsp;&nbsp;消息<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TEXT&nbsp;IS&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;L_MESSAGE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;L_TEXT&nbsp;L_MESSAGE&nbsp;INTO&nbsp;L_TEXT&nbsp;SEPARATED&nbsp;BY&nbsp;'//'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;结果处理<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;E_STATUS&nbsp;=&nbsp;'E'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;'E:'&nbsp;&&&nbsp;L_TEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;=&nbsp;'S:交货单'&nbsp;&&&nbsp;WA_NUM-DN&nbsp;&&&nbsp;'已过账发货'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_STATUS&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NUM-DN_POST&nbsp;=&nbsp;'发货成功'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;WA_NUM-DBNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;XBLNR&nbsp;EQ&nbsp;WA_NUM-DN.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'DB1'&nbsp;FIELD&nbsp;WA_NUM-DBNO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

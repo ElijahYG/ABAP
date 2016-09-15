@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTEST_LY02</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTEST_LY02</h2>
+<h3> Description: 屏幕上显示多个ALV</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZTEST_LY02.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*实现这样的需求关键是以下几点（举例：在屏幕上显示4个alv）：<br />
+*1.需要定义4个alv&nbsp;control<br />
+*2.因为有4个alv&nbsp;control，于是就需要定义4个容器装这4个控件<br />
+*3.为了合理布局这4个容器，就要将这4个容器嵌入另外一个splitter&nbsp;容器中<br />
+*4.但是splitter容器又只能置入其他容器中，那么就需要再定义一个容器<br />
+*总之，需要3层容器和1层控件，总共要定义6个容器和4个控件<br />
+*5.最里面的容器应该是cl_gui_custom_container类型，基于屏幕容器区域创建该容器<br />
+*6.再在最底层容器里面嵌入splitter&nbsp;容器<br />
+*7.根据splitter容器创建4个镶嵌在其内的alv容器<br />
+*8.再在alv容器中创建alv控件<br />
+*9.调用alv的方法现实内表数据<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+TYPE-POOLS: SLIS, ICON.<br />
+<br />
+TABLES: SFLIGHT, SPFLI, SCARR, SBOOK.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Define&nbsp;okcode<br />
+   </div>
+   <div class="code">
+DATA: OK_CODE TYPE SY-UCOMM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Define&nbsp;objects&nbsp;used&nbsp;in&nbsp;screen<br />
+   </div>
+   <div class="code">
+DATA: GO_SPLIT_CONTAINER TYPE REF TO CL_GUI_SPLITTER_CONTAINER.<br />
+DATA: GO_CONTAINER TYPE REF TO CL_GUI_CUSTOM_CONTAINER.<br />
+DATA: GO_CONTAINER1 TYPE REF TO CL_GUI_CONTAINER.<br />
+DATA: GO_CONTAINER2 TYPE REF TO CL_GUI_CONTAINER.<br />
+DATA: GO_CONTAINER3 TYPE REF TO CL_GUI_CONTAINER.<br />
+DATA: GO_CONTAINER4 TYPE REF TO CL_GUI_CONTAINER.<br />
+DATA: GO_ALV_CONTROL1 TYPE REF TO CL_GUI_ALV_GRID.<br />
+DATA: GO_ALV_CONTROL2 TYPE REF TO CL_GUI_ALV_GRID.<br />
+DATA: GO_ALV_CONTROL3 TYPE REF TO CL_GUI_ALV_GRID.<br />
+DATA: GO_ALV_CONTROL4 TYPE REF TO CL_GUI_ALV_GRID.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Define&nbsp;internal&nbsp;tables&nbsp;and&nbsp;structures<br />
+   </div>
+   <div class="code">
+DATA: BEGIN OF GS_SFLIGHT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CARRID&nbsp;TYPE&nbsp;SFLIGHT-CARRID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONNID&nbsp;TYPE&nbsp;SFLIGHT-CONNID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLDATE&nbsp;TYPE&nbsp;SFLIGHT-FLDATE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRICE&nbsp;&nbsp;TYPE&nbsp;SFLIGHT-PRICE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;&nbsp;&nbsp;OF&nbsp;GS_SFLIGHT.<br />
+<br />
+DATA: BEGIN OF GS_SPFLI,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CARRID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SPFLI-CARRID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONNID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SPFLI-CONNID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CITYFROM&nbsp;TYPE&nbsp;SPFLI-CITYFROM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CITYTO&nbsp;&nbsp;&nbsp;TYPE&nbsp;SPFLI-CITYTO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;&nbsp;&nbsp;OF&nbsp;GS_SPFLI.<br />
+<br />
+DATA: BEGIN OF GS_SCARR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CARRID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SCARR-CARRID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CARRNAME&nbsp;TYPE&nbsp;SCARR-CARRNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;&nbsp;&nbsp;OF&nbsp;GS_SCARR.<br />
+<br />
+DATA: BEGIN OF GS_SBOOK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CARRID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SBOOK-CARRID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONNID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SBOOK-CONNID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BOOKID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SBOOK-BOOKID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CUSTOMID&nbsp;TYPE&nbsp;SBOOK-CUSTOMID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;&nbsp;&nbsp;OF&nbsp;GS_SBOOK.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Define&nbsp;alv&nbsp;components<br />
+   </div>
+   <div class="code">
+DATA: GS_FIELD_CAT1 TYPE LVC_S_FCAT.<br />
+DATA: GS_FIELD_CAT2 TYPE LVC_S_FCAT.<br />
+DATA: GS_FIELD_CAT3 TYPE LVC_S_FCAT.<br />
+DATA: GS_FIELD_CAT4 TYPE LVC_S_FCAT.<br />
+DATA: GT_FIELD_CAT1 TYPE LVC_T_FCAT.<br />
+DATA: GT_FIELD_CAT2 TYPE LVC_T_FCAT.<br />
+DATA: GT_FIELD_CAT3 TYPE LVC_T_FCAT.<br />
+DATA: GT_FIELD_CAT4 TYPE LVC_T_FCAT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Define&nbsp;displayed&nbsp;data<br />
+   </div>
+   <div class="code">
+DATA: GT_SFLIGHT LIKE STANDARD TABLE OF GS_SFLIGHT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_SPFLI&nbsp;&nbsp;&nbsp;LIKE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;GS_SPFLI,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_SCARR&nbsp;&nbsp;&nbsp;LIKE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;GS_SCARR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_SBOOK&nbsp;&nbsp;&nbsp;LIKE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;GS_SBOOK.<br />
+<br />
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_RETRIEVE_DATA.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_ALV_DATA.<br />
+&nbsp;&nbsp;CALL&nbsp;SCREEN&nbsp;9100.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_RETRIEVE_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SUB_RETRIEVE_DATA .<br />
+<br />
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CARRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONNID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FLDATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PRICE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_SFLIGHT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SFLIGHT.<br />
+<br />
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CARRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONNID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CITYFROM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CITYTO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_SPFLI<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SPFLI.<br />
+<br />
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CARRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CARRNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_SCARR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SCARR.<br />
+<br />
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CARRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONNID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BOOKID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CUSTOMID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_SBOOK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SBOOK.<br />
+ENDFORM.                    " SUB_RETRIEVE_DATA<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_ALV_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SUB_ALV_DATA .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Build&nbsp;field&nbsp;catelog&nbsp;1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_FIELD_CAT1-COL_POS&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-FIELDNAME&nbsp;=&nbsp;'CARRID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-SCRTEXT_M&nbsp;=&nbsp;'airline&nbsp;code'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT1&nbsp;TO&nbsp;GT_FIELD_CAT1.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-COL_POS&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-FIELDNAME&nbsp;=&nbsp;'CONNID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-SCRTEXT_M&nbsp;=&nbsp;'connection&nbsp;number'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT1&nbsp;TO&nbsp;GT_FIELD_CAT1.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-COL_POS&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-FIELDNAME&nbsp;=&nbsp;'FLDATE'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-SCRTEXT_M&nbsp;=&nbsp;'flight&nbsp;date'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT1&nbsp;TO&nbsp;GT_FIELD_CAT1.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-COL_POS&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-FIELDNAME&nbsp;=&nbsp;'PRICE'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT1-SCRTEXT_M&nbsp;=&nbsp;'flight&nbsp;price'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT1&nbsp;TO&nbsp;GT_FIELD_CAT1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Build&nbsp;field&nbsp;catelog&nbsp;2<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_FIELD_CAT2-COL_POS&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-FIELDNAME&nbsp;=&nbsp;'CARRID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-SCRTEXT_M&nbsp;=&nbsp;'airline&nbsp;code'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT2&nbsp;TO&nbsp;GT_FIELD_CAT2.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-COL_POS&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-FIELDNAME&nbsp;=&nbsp;'CONNID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-SCRTEXT_M&nbsp;=&nbsp;'connection&nbsp;number'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT2&nbsp;TO&nbsp;GT_FIELD_CAT2.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-COL_POS&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-FIELDNAME&nbsp;=&nbsp;'CITYFROM'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-SCRTEXT_M&nbsp;=&nbsp;'city&nbsp;from'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT2&nbsp;TO&nbsp;GT_FIELD_CAT2.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-COL_POS&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-FIELDNAME&nbsp;=&nbsp;'CITYTO'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT2-SCRTEXT_M&nbsp;=&nbsp;'city&nbsp;to'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT2&nbsp;TO&nbsp;GT_FIELD_CAT2.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Build&nbsp;field&nbsp;catelog&nbsp;3<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_FIELD_CAT3-COL_POS&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;GS_FIELD_CAT3-FIELDNAME&nbsp;=&nbsp;'CARRID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT3-SCRTEXT_M&nbsp;=&nbsp;'airline&nbsp;code'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT3&nbsp;TO&nbsp;GT_FIELD_CAT3.<br />
+&nbsp;&nbsp;GS_FIELD_CAT3-COL_POS&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;GS_FIELD_CAT3-FIELDNAME&nbsp;=&nbsp;'CONNID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT3-SCRTEXT_M&nbsp;=&nbsp;'connection&nbsp;number'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT3&nbsp;TO&nbsp;GT_FIELD_CAT3.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Build&nbsp;field&nbsp;catelog&nbsp;4<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_FIELD_CAT4-COL_POS&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-FIELDNAME&nbsp;=&nbsp;'CARRID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-SCRTEXT_M&nbsp;=&nbsp;'airline&nbsp;code'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT4&nbsp;TO&nbsp;GT_FIELD_CAT4.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-COL_POS&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-FIELDNAME&nbsp;=&nbsp;'CONNID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-SCRTEXT_M&nbsp;=&nbsp;'connection&nbsp;number'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT4&nbsp;TO&nbsp;GT_FIELD_CAT4.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-COL_POS&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-FIELDNAME&nbsp;=&nbsp;'BOOKID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-SCRTEXT_M&nbsp;=&nbsp;'book&nbsp;id'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT4&nbsp;TO&nbsp;GT_FIELD_CAT4.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-COL_POS&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-FIELDNAME&nbsp;=&nbsp;'CUSTOMID'.<br />
+&nbsp;&nbsp;GS_FIELD_CAT4-SCRTEXT_M&nbsp;=&nbsp;'custom&nbsp;id'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELD_CAT4&nbsp;TO&nbsp;GT_FIELD_CAT4.<br />
+ENDFORM.                    " SUB_ALV_DATA<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;ALV_DISPLAY&nbsp;&nbsp;OUTPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE ALV_DISPLAY OUTPUT.<br />
+&nbsp;&nbsp;IF&nbsp;GO_SPLIT_CONTAINER&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER_NAME&nbsp;=&nbsp;'GO_CONTAINER'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_SPLIT_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LINK_DYNNR&nbsp;=&nbsp;SY-DYNNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LINK_REPID&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GO_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROWS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMNS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'GO_SPLIT_CONTAINER'.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_SPLIT_CONTAINER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;GO_CONTAINER1.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_SPLIT_CONTAINER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;GO_CONTAINER2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_SPLIT_CONTAINER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;GO_CONTAINER3.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_SPLIT_CONTAINER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;GO_CONTAINER4.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_ALV_CONTROL1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;GO_CONTAINER1.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_ALV_CONTROL2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;GO_CONTAINER2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_ALV_CONTROL3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;GO_CONTAINER3.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_ALV_CONTROL4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;GO_CONTAINER4.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL1-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_SFLIGHT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;=&nbsp;GT_FIELD_CAT1.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL2-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_SPFLI<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;=&nbsp;GT_FIELD_CAT2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL3-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_SCARR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;=&nbsp;GT_FIELD_CAT3.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL4-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_SBOOK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;=&nbsp;GT_FIELD_CAT4.<br />
+<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL1-&gt;REFRESH_TABLE_DISPLAY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL2-&gt;REFRESH_TABLE_DISPLAY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL3-&gt;REFRESH_TABLE_DISPLAY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL4-&gt;REFRESH_TABLE_DISPLAY.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDMODULE.                 " ALV_DISPLAY  OUTPUT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;STATUS_9100&nbsp;&nbsp;OUTPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE STATUS_9100 OUTPUT.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STATUS9100'.<br />
+ENDMODULE.                 " STATUS_9100  OUTPUT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;USER_COMMAND_9100&nbsp;&nbsp;INPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE USER_COMMAND_9100 INPUT.<br />
+&nbsp;&nbsp;CASE&nbsp;OK_CODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'PBAK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL1-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL2-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL3-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_CONTROL4-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_CONTAINER1-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_CONTAINER2-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_CONTAINER3-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_CONTAINER4-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_SPLIT_CONTAINER-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_CONTAINER-&gt;FREE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;PROGRAM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+ENDMODULE.                 " USER_COMMAND_9100  INPUT<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

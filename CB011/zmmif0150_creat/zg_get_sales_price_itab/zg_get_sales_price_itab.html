@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZG_GET_SALES_PRICE_ITAB</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZG_GET_SALES_PRICE_ITAB</h2>
+<h3> Description: 公用函数：取得销售价格</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZG_GET_SALES_PRICE_ITAB.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IV_PRICE_DATE) TYPE  PRSDT OPTIONAL<br />
+*"  TABLES<br />
+*"      IT_BATCH TYPE  ZCB01_TY_T_ZSD_BATCH_PRICE_KEY<br />
+*"      ET_BATCH_PRICE TYPE  ZCB01_TY_T_ZSD_BATCH_PRICE<br />
+*"  EXCEPTIONS<br />
+*"      ITEM_WITHOUT_WERKS<br />
+*"      CANNOT_FIND_IN_ZMMRP0210_BATCH<br />
+*"----------------------------------------------------------------------<br />
+**********************************************************************<br />
+*                           使用说明<br />
+* 1. 传入表IT_BATCH中有三个字段：商品（MATNR），批次（CHARG），地点（WERKS），<br />
+*    这三个字段都是必填的。因为贵金属商品的基础金价与地点有关，所以地点必须填。<br />
+*    如果你只是取批次的价格，并不关心批次在具体地点的价格，那地点可以填DC80 。在本<br />
+*    函数中，地点只是取基础金价，本函数并不检查商品+批次是否在地点中存在。<br />
+* 2. 如果传入表中任一条记录的WERKS为空，则返回异常ITEM_WITHOUT_WERKS<br />
+* 3. 如果传入表中所有的批次在表ZMMRP0210_BATCH中都不存在，则返回异常<br />
+*    CANNOT_FIND_IN_ZMMRP0210_BATCH<br />
+* 4. 如果返回异常，则返回结果表ET_BATCH_PRICE为空<br />
+* 5. 返回结果中字段KGETR_MJDJ是指每件商品的价格，无论该商品是按G销售还是按件销售，<br />
+*    本函数都会计算每件单价。<br />
+*    5.1 按G销售的商品，每件单价 = 批次单品金重 * （基础金价 + 克工费 + 克附加费），<br />
+*        并舍分。<br />
+*    5.2 按PC销售的商品，每件单价 = 批次参考零售价，本函数不会舍分<br />
+**********************************************************************<br />
+**********************************************************************<br />
+* Changed by huxiaowei @2016.02.17<br />
+*  关于舍分的说明<br />
+*  舍分不是先四舍五入到小数点后两位再舍分，而是在计算结果上直接舍分<br />
+*  假如计算结果是511.498，则舍分结果是511.4<br />
+**********************************************************************<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zg_get_sales_price_itab.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LS_BATCH&nbsp;TYPE&nbsp;ZCB01_TY_ZSD_BATCH_PRICE_KEY&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_BATCH_PRICE&nbsp;LIKE&nbsp;ET_BATCH_PRICE&nbsp;OCCURS&nbsp;100,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_BATCH_PRICE.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZT001W-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_SITE&nbsp;TYPE&nbsp;ZT001W-EX_SITE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_WERKS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_WERKS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_PRICE&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;16&nbsp;DECIMALS&nbsp;5&nbsp;.&nbsp;"&nbsp;数量小数点后3位，单价小数点后2位，相乘结果小数点后最多5位<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_BATCH[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BATCH&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;ITEM_WITHOUT_WERKS&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 取得价格相关主数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IV_PRICE_DATE&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_DATUM&nbsp;=&nbsp;SY-DATUM&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_DATUM&nbsp;=&nbsp;IV_PRICE_DATE&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_ZB00&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_ZTJJ&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_ZKSG&nbsp;.&nbsp;"&nbsp;注意在这个之前要运行PERFORM&nbsp;FRM_GET_ZTJJ<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 取得商品和批次相关主数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_BATCH[]&nbsp;TO&nbsp;LT_BATCH_PRICE[]&nbsp;.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_BATCH_PRICE&nbsp;.<br />
+&nbsp;&nbsp;MODIFY&nbsp;LT_BATCH_PRICE&nbsp;FROM&nbsp;LS_BATCH_PRICE&nbsp;TRANSPORTING&nbsp;WERKS&nbsp;WHERE&nbsp;MATNR&nbsp;&lt;&gt;&nbsp;''&nbsp;.&nbsp;"清空地点，只保留商品和批次<br />
+&nbsp;&nbsp;SORT&nbsp;LT_BATCH_PRICE&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_BATCH_PRICE&nbsp;COMPARING&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;SELECT&nbsp;Z~MATNR&nbsp;Z~CHARG&nbsp;Z~ZSPTM&nbsp;Z~ZXSKGFD&nbsp;Z~ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z~ZXSKFJGF&nbsp;Z~ZJZ&nbsp;Z~ZXSJGJLDW&nbsp;Z~ZCKLSJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~EXTWG&nbsp;A~RAUBE&nbsp;A~MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_BATCH_PRICE&nbsp;&nbsp;"&nbsp;注意:LT_BATCH_PRICE&nbsp;中只是商品+批次的信息，没有地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;Z~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_BATCH_PRICE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;Z~MATNR&nbsp;=&nbsp;LT_BATCH_PRICE-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;LT_BATCH_PRICE-CHARG&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;CANNOT_FIND_IN_ZMMRP0210_BATCH&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 取得地点和价格参考地点<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;EX_SITE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZT001W&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 开始计算批次价格<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_BATCH_PRICE&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZKSG&nbsp;BY&nbsp;ZXSKGFD&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZB00&nbsp;BY&nbsp;EX_SITE&nbsp;EXTWG&nbsp;RAUBE&nbsp;EX_GJS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZTJJ&nbsp;BY&nbsp;EXTWG&nbsp;RAUBE&nbsp;EX_GJS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_WERKS&nbsp;BY&nbsp;WERKS&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_BATCH&nbsp;INTO&nbsp;LS_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_BATCH_PRICE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_BATCH_PRICE&nbsp;INTO&nbsp;LS_BATCH_PRICE&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_BATCH-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LS_BATCH-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-WERKS&nbsp;=&nbsp;LS_BATCH-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_BATCH&nbsp;TO&nbsp;LS_BATCH_PRICE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_BATCH_PRICE&nbsp;TO&nbsp;ET_BATCH_PRICE&nbsp;.&nbsp;"&nbsp;保证传进来多少条数据，传出去多少条数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH_PRICE-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;按克销售的商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取投资商品的金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH_PRICE-EXTWG&nbsp;=&nbsp;'D04'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZTJJ&nbsp;INTO&nbsp;GS_ZTJJ&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;LS_BATCH_PRICE-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;LS_BATCH_PRICE-RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;=&nbsp;LS_BATCH_PRICE-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-KBETR_JJ&nbsp;=&nbsp;GS_ZTJJ-KBETR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取得地点的基础金价参考地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LS_BATCH_PRICE-WERKS&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-PRICE_REF_SITE&nbsp;=&nbsp;LS_WERKS-EX_SITE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取一般贵金属商品的金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZB00&nbsp;INTO&nbsp;GS_ZB00&nbsp;WITH&nbsp;KEY&nbsp;EX_SITE&nbsp;=&nbsp;LS_BATCH_PRICE-PRICE_REF_SITE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LS_BATCH_PRICE-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;&nbsp;=&nbsp;LS_BATCH_PRICE-RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;&nbsp;=&nbsp;LS_BATCH_PRICE-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-KBETR_JJ&nbsp;=&nbsp;GS_ZB00-KBETR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"取得工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZKSG&nbsp;INTO&nbsp;GS_ZKSG&nbsp;WITH&nbsp;KEY&nbsp;ZXSKGFD&nbsp;=&nbsp;LS_BATCH_PRICE-ZXSKGFD&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-KBETR_GF&nbsp;=&nbsp;GS_ZKSG-KBETR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;克单价&nbsp;=&nbsp;克金价&nbsp;+&nbsp;克工费&nbsp;+&nbsp;克附加费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-KBETR_KDJ&nbsp;=&nbsp;LS_BATCH_PRICE-KBETR_JJ&nbsp;+&nbsp;LS_BATCH_PRICE-KBETR_GF&nbsp;+&nbsp;LS_BATCH_PRICE-ZXSKFJGF&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;每件售价&nbsp;=&nbsp;克单价&nbsp;*&nbsp;克金重&nbsp;，并舍分<br />
+   </div>
+   <div class="codeComment">
+* Changed by huxiaowei @2016.02.17 Start<br />
+* 舍分规则是在计算结果上直接舍分，而不是四舍五入到小数点后两位再舍分<br />
+*      LS_BATCH_PRICE-KBETR_MJJG = LS_BATCH_PRICE-KBETR_KDJ * LS_BATCH_PRICE-ZJZ .<br />
+*      LS_BATCH_PRICE-KBETR_MJJG = LS_BATCH_PRICE-KBETR_MJJG * 10 DIV 1 / 10 . " 舍分<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LV_PRICE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_PRICE&nbsp;=&nbsp;LS_BATCH_PRICE-KBETR_KDJ&nbsp;*&nbsp;LS_BATCH_PRICE-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_PRICE&nbsp;=&nbsp;LV_PRICE&nbsp;*&nbsp;10&nbsp;DIV&nbsp;1&nbsp;/&nbsp;10&nbsp;.&nbsp;"&nbsp;舍分<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-KBETR_MJJG&nbsp;=&nbsp;LV_PRICE&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* Changed by huxiaowei @2016.02.17 End<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LS_BATCH_PRICE-ZXSJGJLDW&nbsp;=&nbsp;'PC'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_PRICE-KBETR_MJJG&nbsp;=&nbsp;LS_BATCH_PRICE-ZCKLSJ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_BATCH_PRICE&nbsp;TO&nbsp;ET_BATCH_PRICE&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

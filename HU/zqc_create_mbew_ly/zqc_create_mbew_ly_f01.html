@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZQC_CREATE_MBEW_LY_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZQC_CREATE_MBEW_LY_F01</h2>
+<h3> Description: ZQC_CREATE_MBEW_LY_F01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_LY_BATCH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_get_ly_batch .<br />
+&nbsp;&nbsp;DATA:&nbsp;ls_mbew&nbsp;LIKE&nbsp;gs_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_mbew&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ls_mbew.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;ls_mbew_matnr&nbsp;LIKE&nbsp;gs_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_mbew_matnr&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ls_mbew_matnr.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;取得所有联营的批次<br />
+&nbsp;&nbsp;SELECT&nbsp;a~matnr&nbsp;a~charg&nbsp;a~zlyjsfs&nbsp;b~sfly<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;gt_alv<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0210_batch&nbsp;AS&nbsp;a<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;zmmdg0010_jsfs&nbsp;AS&nbsp;b&nbsp;ON&nbsp;b~bm&nbsp;=&nbsp;a~zlyjsfs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;a~matnr&nbsp;IN&nbsp;s_matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;a~charg&nbsp;IN&nbsp;s_charg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;b~sfly&nbsp;=&nbsp;'X'&nbsp;.&nbsp;"&nbsp;必须是联营的批次<br />
+&nbsp;&nbsp;"&nbsp;取得分割评估的商品<br />
+&nbsp;&nbsp;SELECT&nbsp;matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mbew_matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mbew<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;IN&nbsp;s_matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;bwtar&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;bwkey&nbsp;=&nbsp;p_werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;bwtty&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;"&nbsp;取得联营分割评估的批次，并且在地点有MBEW记录的批次<br />
+&nbsp;&nbsp;SELECT&nbsp;a~matnr&nbsp;a~charg&nbsp;a~zlyjsfs&nbsp;b~sfly&nbsp;w~lbkum&nbsp;w~salk3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mbew<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmrp0210_batch&nbsp;AS&nbsp;a<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;zmmdg0010_jsfs&nbsp;AS&nbsp;b&nbsp;ON&nbsp;b~bm&nbsp;=&nbsp;a~zlyjsfs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;mbew&nbsp;AS&nbsp;w&nbsp;ON&nbsp;&nbsp;w~matnr&nbsp;=&nbsp;a~matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;w~bwtar&nbsp;=&nbsp;a~charg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;w~bwkey&nbsp;=&nbsp;p_werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;w~bwtty&nbsp;=&nbsp;'X'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;必须是批次分割评估的商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;a~matnr&nbsp;IN&nbsp;s_matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;a~charg&nbsp;IN&nbsp;s_charg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;b~sfly&nbsp;=&nbsp;'X'&nbsp;.&nbsp;"&nbsp;必须是联营的批次<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;gt_alv&nbsp;BY&nbsp;matnr&nbsp;charg&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;lt_mbew&nbsp;BY&nbsp;matnr&nbsp;charg&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;lt_mbew_matnr&nbsp;BY&nbsp;matnr&nbsp;.<br />
+&nbsp;&nbsp;"&nbsp;找到在指定地点没有MBEW记录的批次<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_alv&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;fs_alv&gt;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_mbew_matnr&nbsp;INTO&nbsp;ls_mbew_matnr&nbsp;WITH&nbsp;KEY&nbsp;matnr&nbsp;=&nbsp;&lt;fs_alv&gt;-matnr&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-charg&nbsp;=&nbsp;''&nbsp;.&nbsp;"&nbsp;商品不是批次分割评估的，不需要做这个调整<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_mbew&nbsp;INTO&nbsp;ls_mbew&nbsp;WITH&nbsp;KEY&nbsp;matnr&nbsp;=&nbsp;&lt;fs_alv&gt;-matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;charg&nbsp;=&nbsp;&lt;fs_alv&gt;-charg&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-charg&nbsp;=&nbsp;''&nbsp;.&nbsp;"&nbsp;能找到MBEW的批次，将批次号清空<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;DELETE&nbsp;gt_alv&nbsp;WHERE&nbsp;charg&nbsp;=&nbsp;''&nbsp;.&nbsp;"&nbsp;将批次号为空的记录删除，剩余的就是在MBEW中没有记录的批次<br />
+&nbsp;&nbsp;gv_total&nbsp;=&nbsp;lines(&nbsp;gt_alv&nbsp;).<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CREATE_MBEW<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_create_mbew .<br />
+&nbsp;&nbsp;DATA:&nbsp;ls_headdata&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;bapie1mathead,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdata&nbsp;&nbsp;TYPE&nbsp;bapie1mbewrt,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_valuationdata&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ls_valuationdata,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdatax&nbsp;TYPE&nbsp;bapie1mbewrtx,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_valuationdatax&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ls_valuationdatax,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_return&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;bapireturn1.<br />
+&nbsp;&nbsp;DATA:&nbsp;lv_lines&nbsp;TYPE&nbsp;i&nbsp;.<br />
+&nbsp;&nbsp;CONSTANTS:&nbsp;c_icon_green&nbsp;TYPE&nbsp;icon-id&nbsp;VALUE&nbsp;'@08@'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c_icon_red&nbsp;TYPE&nbsp;icon-id&nbsp;VALUE&nbsp;'@0A@'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;lv_lines&nbsp;=&nbsp;lines(&nbsp;gt_alv&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;s000(zcb)&nbsp;WITH&nbsp;'共有'&nbsp;lv_lines&nbsp;'条记录需要更新！'.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_alv&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;fs_alv&gt;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;ls_headdata,&nbsp;ls_return,&nbsp;ls_valuationdata,&nbsp;ls_valuationdatax&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;lt_valuationdata,&nbsp;lt_valuationdatax&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"填写LS_HEADDATA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_headdata-material&nbsp;=&nbsp;&lt;fs_alv&gt;-matnr&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_headdata-logdc_view&nbsp;=&nbsp;'X'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"填写调整地点的LT_VALUATIONDATA和LT_VALUATIONDATAX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdata-material&nbsp;=&nbsp;&lt;fs_alv&gt;-matnr&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-werks&nbsp;=&nbsp;p_werks&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdata-val_area&nbsp;=&nbsp;&lt;fs_alv&gt;-werks&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdata-val_type&nbsp;=&nbsp;&lt;fs_alv&gt;-charg&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdata-moving_pr&nbsp;=&nbsp;0&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;联营商品批次移动平均价为0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdata-mov_pr_pp&nbsp;=&nbsp;0&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;联营商品批次移动平均价(前期)为0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdata-mov_pr_py&nbsp;=&nbsp;0&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;联营商品批次移动平均价（去年）为0<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdatax-material&nbsp;=&nbsp;&lt;fs_alv&gt;-matnr&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdatax-val_area&nbsp;=&nbsp;p_werks&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdatax-val_type&nbsp;=&nbsp;&lt;fs_alv&gt;-charg&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdatax-moving_pr&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdatax-mov_pr_pp&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_valuationdatax-mov_pr_py&nbsp;=&nbsp;'X'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_valuationdata&nbsp;TO&nbsp;lt_valuationdata&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_valuationdatax&nbsp;TO&nbsp;lt_valuationdatax&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_MATERIAL_MAINTAINDATA_RT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headdata&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_headdata<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_return<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VARIANTSKEYS&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARACTERISTICVALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARACTERISTICVALUEX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLIENTDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLIENTDATAX&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLIENTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLIENTEXTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADDNLCLIENTDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADDNLCLIENTDATAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATERIALDESCRIPTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANTDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANTDATAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANTEXTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORECASTPARAMETERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORECASTPARAMETERSX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORECASTVALUES&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TOTALCONSUMPTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNPLNDCONSUMPTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANNINGDATA&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANNINGDATAX&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGELOCATIONDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGELOCATIONDATAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGELOCATIONEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGELOCATIONEXTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNITSOFMEASURE&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNITSOFMEASUREX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNITOFMEASURETEXTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERNATIONALARTNOS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VENDOREAN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LAYOUTMODULEASSGMT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LAYOUTMODULEASSGMTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TAXCLASSIFICATIONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valuationdata&nbsp;&nbsp;=&nbsp;lt_valuationdata<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valuationdatax&nbsp;=&nbsp;lt_valuationdatax<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUATIONEXT&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUATIONEXTX&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAREHOUSENUMBERDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAREHOUSENUMBERDATAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAREHOUSENUMBEREXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAREHOUSENUMBEREXTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGETYPEDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGETYPEDATAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGETYPEEXT&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGETYPEEXTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALESDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALESDATAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALESEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALESEXTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSDATAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSEXTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATERIALLONGTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANTKEYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGELOCATIONKEYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DISTRCHAINKEYS&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAREHOUSENOKEYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STORAGETYPEKEYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUATIONTYPEKEYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXTILECOMPONENTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIBERCODES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEGSALESSTATUS&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEGWEIGHTVOLUME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEGVALUATIONTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEASONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEGWAREHOUSENUMBERDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEGSTORAGETYPEDATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ls_return-type&nbsp;=&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait&nbsp;=&nbsp;'X'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gv_right&nbsp;=&nbsp;gv_right&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-upd_flg&nbsp;=&nbsp;c_icon_green&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gv_wrong&nbsp;=&nbsp;gv_wrong&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-upd_flg&nbsp;=&nbsp;c_icon_red&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ls_return-message&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-message&nbsp;=&nbsp;ls_return-message&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;ls_return-id&nbsp;TYPE&nbsp;ls_return-type&nbsp;NUMBER&nbsp;ls_return-number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;&lt;fs_alv&gt;-message<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;ls_return-message_v1&nbsp;ls_return-message_v2&nbsp;ls_return-message_v3&nbsp;ls_return-message_v4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;创建完成后，对创建成功的记录，检查其MBEW记录是否真的存在，并且移动平均价真的是0<br />
+&nbsp;&nbsp;DATA:&nbsp;ls_mbew&nbsp;TYPE&nbsp;mbew,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_mbew&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ls_mbew.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;matnr&nbsp;bwkey&nbsp;bwtar&nbsp;verpr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mbew<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mbew<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;gt_alv<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;gt_alv-matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;bwkey&nbsp;=&nbsp;gt_alv-werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;bwtar&nbsp;=&nbsp;gt_alv-charg&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;lt_mbew&nbsp;BY&nbsp;matnr&nbsp;bwkey&nbsp;bwtar&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_alv&nbsp;ASSIGNING&nbsp;&lt;fs_alv&gt;&nbsp;WHERE&nbsp;upd_flg&nbsp;=&nbsp;c_icon_green&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_mbew&nbsp;INTO&nbsp;ls_mbew&nbsp;WITH&nbsp;KEY&nbsp;matnr&nbsp;=&nbsp;&lt;fs_alv&gt;-matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bwkey&nbsp;=&nbsp;&lt;fs_alv&gt;-werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bwtar&nbsp;=&nbsp;&lt;fs_alv&gt;-charg&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-chk_flg&nbsp;=&nbsp;c_icon_red&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-message&nbsp;=&nbsp;'该联营商品的MBEW记录不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;ls_mbew-verpr&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-chk_flg&nbsp;=&nbsp;c_icon_red&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-message&nbsp;=&nbsp;'该联营商品的MBEW记录移动平均价不为0！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_alv&gt;-chk_flg&nbsp;=&nbsp;c_icon_green&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_AUTH_CHECK<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_auth_check .<br />
+&nbsp;&nbsp;AUTHORITY-CHECK&nbsp;OBJECT&nbsp;'M_MATE_MAN'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'ACTVT'&nbsp;FIELD&nbsp;'01'.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'您权限不足，权限对象：M_MATE_MAN，ACTVT=01！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;AUTHORITY-CHECK&nbsp;OBJECT&nbsp;'M_MATE_STA'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'ACTVT'&nbsp;FIELD&nbsp;'01'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'STATM'&nbsp;DUMMY&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'您权限不足，权限对象：M_MATE_STA，ACTVT=01！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;AUTHORITY-CHECK&nbsp;OBJECT&nbsp;'M_MATE_WRK'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'ACTVT'&nbsp;FIELD&nbsp;'01'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'WERKS'&nbsp;FIELD&nbsp;p_werks&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'您权限不足，权限对象：M_MATE_WRK，ACTVT=01，WERKS='&nbsp;P_WERKS&nbsp;'!'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

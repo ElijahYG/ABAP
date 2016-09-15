@@ -1,0 +1,1577 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZQCKC_PUB_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZQCKC_PUB_F01</h2>
+<h3> Description: 期初库存导入-公用程序</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZQCKC_PUB_F01.<br />
+<br />
+TYPE-POOLS: ole2.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*搜索帮助相关<br />
+   </div>
+   <div class="code">
+DATA: BEGIN OF it_interface OCCURS 0 ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shlpfield(30)&nbsp;&nbsp;&nbsp;TYPE&nbsp;c,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valfield(132)&nbsp;&nbsp;&nbsp;TYPE&nbsp;c,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;it_interface.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+****************************&nbsp;公&nbsp;用&nbsp;Form&nbsp;或&nbsp;宏&nbsp;***************************<br />
+************************************************************************<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;f4_help<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;F4&nbsp;Search&nbsp;Help<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;AT_VALUE&nbsp;&nbsp;&nbsp;为SEARCH&nbsp;HELP的选择的内表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_RETFIELD&nbsp;at_value内表中默认返回的字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_DYNFIELD&nbsp;默认返回到屏幕上的字段名称<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM f4_help TABLES at_value<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;u_retfield&nbsp;TYPE&nbsp;dfies-fieldname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_dynfield&nbsp;TYPE&nbsp;help_info-dynprofld.<br />
+&nbsp;&nbsp;DATA:&nbsp;ret_tab&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ddshretval&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'F4IF_INT_TABLE_VALUE_REQUEST'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retfield&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_retfield<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynpprog&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynpnr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-dynnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynprofield&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_dynfield<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value_org&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'S'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callback_program&nbsp;=&nbsp;sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callback_form&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'F4_HELP_CALLBACK_FORM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value_tab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;at_value[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return_tab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ret_tab<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter_error&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_values_found&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "f4_help<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+**格式：PERFORM&nbsp;add_f4_field&nbsp;USING&nbsp;'1'&nbsp;'要返回到屏幕的字段名'.<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;add_f4_field<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;往表中添加数据，以返回至屏幕多个字段<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FIELDXH&nbsp;&nbsp;Search&nbsp;Help&nbsp;中字段的序号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_VALFIELD&nbsp;屏幕上的字段名称<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM add_f4_field USING u_fieldxh u_valfield.<br />
+&nbsp;&nbsp;CLEAR&nbsp;it_interface.<br />
+&nbsp;&nbsp;it_interface-shlpfield&nbsp;=&nbsp;u_fieldxh.<br />
+&nbsp;&nbsp;it_interface-valfield&nbsp;=&nbsp;u_valfield.<br />
+&nbsp;&nbsp;APPEND&nbsp;it_interface.<br />
+ENDFORM. "add_f4_field<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;f4_help_callback_form<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;此FORM是F4搜索帮助的回调函数，不需要手动调用<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;RECORD_TAB&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;SHLP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;CALLCONTROL&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM f4_help_callback_form TABLES record_tab STRUCTURE seahlpres<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;shlp&nbsp;TYPE&nbsp;shlp_descr_t<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callcontrol&nbsp;LIKE&nbsp;ddshf4ctrl.<br />
+&nbsp;&nbsp;DATA:&nbsp;interface&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;shlp-interface,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_len&nbsp;TYPE&nbsp;i.<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;shlp-interface&nbsp;INTO&nbsp;interface&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;it_interface.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;i_len&nbsp;=&nbsp;strlen(&nbsp;it_interface-shlpfield&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;i_len.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interface-shlpfield+4(1)&nbsp;=&nbsp;it_interface-shlpfield.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interface-shlpfield+3(2)&nbsp;=&nbsp;it_interface-shlpfield.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interface-shlpfield+2(3)&nbsp;=&nbsp;it_interface-shlpfield.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interface-shlpfield+1(4)&nbsp;=&nbsp;it_interface-shlpfield.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;interface-valfield&nbsp;=&nbsp;it_interface-valfield.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;interface&nbsp;TO&nbsp;shlp-interface&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;REFRESH:&nbsp;it_interface,&nbsp;it_interface[].<br />
+ENDFORM. "f4_help_callback_form<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;get_dyn_fieldvalue<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;动态取得屏幕上的字段内容<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FIELDNAME&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_FIELDVALUE&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM get_dyn_fieldvalue USING u_repid TYPE sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_dynnr&nbsp;TYPE&nbsp;sy-dynnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_fieldname&nbsp;CHANGING&nbsp;c_fieldvalue.<br />
+&nbsp;&nbsp;DATA:&nbsp;dynpfields&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;dynpread&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;c_fieldvalue.<br />
+&nbsp;&nbsp;REFRESH:&nbsp;dynpfields,&nbsp;dynpfields[].<br />
+<br />
+&nbsp;&nbsp;dynpfields-fieldname&nbsp;=&nbsp;u_fieldname.<br />
+&nbsp;&nbsp;APPEND&nbsp;dynpfields.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DYNP_VALUES_READ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dyname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynumb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_dynnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;translate_to_upper&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynpfields&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;dynpfields[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_abapworkarea&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_dynprofield&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_dynproname&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_dynpronummer&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_request&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_fielddescription&nbsp;&nbsp;=&nbsp;6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_parameter&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;undefind_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;8<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double_conversion&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;9<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stepl_not_found&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;10<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;11.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;dynpfields&nbsp;WITH&nbsp;KEY&nbsp;fieldname&nbsp;=&nbsp;u_fieldname.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;c_fieldvalue&nbsp;=&nbsp;dynpfields-fieldvalue.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "get_dyn_fieldvalue<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;set_dyn_fieldvalue<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;动态更新屏幕上的字段内容<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FIELDNAME&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FIELDVALUE&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM set_dyn_fieldvalue USING u_repid TYPE sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_dynnr&nbsp;TYPE&nbsp;sy-dynnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_fieldname&nbsp;TYPE&nbsp;dynfnam<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_fieldvalue.<br />
+&nbsp;&nbsp;DATA:&nbsp;dynpfields&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;dynpread&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+&nbsp;&nbsp;REFRESH:&nbsp;dynpfields,&nbsp;dynpfields[].<br />
+&nbsp;&nbsp;dynpfields-fieldname&nbsp;=&nbsp;u_fieldname.<br />
+&nbsp;&nbsp;dynpfields-fieldvalue&nbsp;=&nbsp;u_fieldvalue.<br />
+&nbsp;&nbsp;APPEND&nbsp;dynpfields.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DYNP_VALUES_UPDATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dyname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynumb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_dynnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynpfields&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;dynpfields[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_abapworkarea&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_dynprofield&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_dynproname&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_dynpronummer&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_request&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_fielddescription&nbsp;&nbsp;=&nbsp;6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;undefind_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;8.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "set_dyn_fieldvalue<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;get_next_num<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_OBJECT&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_RANGE_NO&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_NEXT_NUM&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM get_next_num USING u_object u_range_no CHANGING c_next_num.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'NUMBER_GET_NEXT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nr_range_nr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_range_no<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_object<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QUANTITY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'1'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBOBJECT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TOYEAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0000'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IGNORE_BUFFER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_next_num<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QUANTITY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURNCODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interval_not_found&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number_range_not_intern&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object_not_found&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quantity_is_0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quantity_is_not_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interval_overflow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buffer_overflow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;8.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM. "get_next_num<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;conv_output<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;去0输出<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_FIELD&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM conv_output CHANGING c_field.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;&nbsp;=&nbsp;c_field<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;=&nbsp;c_field.<br />
+ENDFORM. "conv_output<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;conv_input<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;加0输入<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_FIELD&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM conv_input CHANGING c_field.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;&nbsp;=&nbsp;c_field<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;=&nbsp;c_field.<br />
+ENDFORM. "conv_input<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;conv_output_unit<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_FIELD&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM conv_output_unit CHANGING c_field.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_CUNIT_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_field<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;language&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-langu<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;long_text&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_field<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHORT_TEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unit_not_found&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Implement&nbsp;suitable&nbsp;error&nbsp;handling&nbsp;here<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM. "conv_output_unit<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;conv_input_unit<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_FIELD&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM conv_input_unit CHANGING c_field.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_CUNIT_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_field<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;language&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-langu<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_field<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unit_not_found&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SHOW_SYS<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "conv_input_unit<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;CONV_DATE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM conv_date USING u_date TYPE sy-datum<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;c_date.<br />
+&nbsp;&nbsp;CLEAR&nbsp;c_date.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERT_DATE_TO_EXTERNAL'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date_internal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_date<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date_external&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_date<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date_internal_is_invalid&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "CONV_DATE<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;add_rg_field<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;AT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_OPTION&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_HIGH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM add_rg_field TABLES at_tab<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;u_sign&nbsp;u_option&nbsp;u_low&nbsp;u_high.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;CLEAR&nbsp;at_tab.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'SIGN'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_sign.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'OPTION'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_option.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'LOW'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_low.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'HIGH'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_high.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;APPEND&nbsp;at_tab.<br />
+ENDFORM. "add_rg_field<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;clt_rg_field<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;AT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_OPTION&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_HIGH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM clt_rg_field TABLES at_tab<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;u_sign&nbsp;u_option&nbsp;u_low&nbsp;u_high.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;CLEAR&nbsp;at_tab.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'SIGN'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_sign.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'OPTION'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_option.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'LOW'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_low.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;'HIGH'&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_high.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;COLLECT&nbsp;at_tab.<br />
+ENDFORM. "clt_rg_field<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;con_cur_display<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;数据库里的值转换成屏幕上显示的值<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_WAERS&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_AMOUNT&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM con_cur_display USING u_waers TYPE tcurc-waers<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;c_amount.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_amount&nbsp;TYPE&nbsp;bapicurr-bapicurr.<br />
+&nbsp;&nbsp;l_amount&nbsp;=&nbsp;c_amount.<br />
+&nbsp;&nbsp;CLEAR&nbsp;c_amount.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_CURRENCY_CONV_TO_EXTERNAL'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currency&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_waers<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount_internal&nbsp;=&nbsp;l_amount<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount_external&nbsp;=&nbsp;l_amount.<br />
+&nbsp;&nbsp;c_amount&nbsp;=&nbsp;l_amount.<br />
+ENDFORM. "con_cur_display<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;con_cur_waers<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;币别转换<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM con_cur_waers USING u_date TYPE sy-datum<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_amount<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_waers_s&nbsp;TYPE&nbsp;waers<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_waers_d&nbsp;TYPE&nbsp;waers<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;c_amount.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERT_TO_LOCAL_CURRENCY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-mandt<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_date<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreign_amount&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_amount<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreign_currency&nbsp;&nbsp;=&nbsp;u_waers_s<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local_currency&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_waers_d<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;0<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE_OF_RATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'M'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ_TCURR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCHANGE_RATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOREIGN_FACTOR&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local_amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_amount<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOCAL_FACTOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCHANGE_RATEX&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIXED_RATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DERIVED_RATE_TYPE&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_rate_found&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;overflow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_factors_found&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_spread_found&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;derived_2_times&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "con_cur_waers<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;load_excel<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;加载excel的时候，如果数值型小于1，加载后可能会变<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;AT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FIELDNAME&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM load_excel TABLES at_tab TYPE STANDARD TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;u_filename&nbsp;TYPE&nbsp;rlgrap-filename.<br />
+&nbsp;&nbsp;TYPE-POOLS:&nbsp;sydes.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;dyn_table&gt;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE,&nbsp;"内表结构<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dyn_wa&gt;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"表头<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_f1&gt;,&nbsp;&lt;fs_f2&gt;,&nbsp;&lt;fs_line&gt;.<br />
+&nbsp;&nbsp;DATA:&nbsp;dy_table&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;data,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it_fcat&nbsp;&nbsp;TYPE&nbsp;lvc_t_fcat,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列结构表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fcat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;lvc_s_fcat.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;it_raw&nbsp;&nbsp;&nbsp;TYPE&nbsp;truxs_t_text_data.<br />
+&nbsp;&nbsp;DATA:&nbsp;td&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;sydes_desc.<br />
+&nbsp;&nbsp;DATA:&nbsp;lt_types&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;sydes_typeinfo&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_names&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;sydes_nameinfo&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;根据传进来的内表结构，创建一个全部是字符型的内表，用来临时加载excel中的内容<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;add_field.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;clear&nbsp;fcat.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;fcat-fieldname&nbsp;=&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;fcat-datatype&nbsp;=&nbsp;'CHAR'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;fcat-intlen&nbsp;=&nbsp;1024.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;append&nbsp;fcat&nbsp;to&nbsp;it_fcat.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DESCRIBE&nbsp;FIELD&nbsp;at_tab&nbsp;INTO&nbsp;td.<br />
+&nbsp;&nbsp;lt_types[]&nbsp;=&nbsp;td-types[].<br />
+&nbsp;&nbsp;lt_names[]&nbsp;=&nbsp;td-names[].<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_types&nbsp;WHERE&nbsp;idx_name&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_names&nbsp;INDEX&nbsp;lt_types-idx_name.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_field&nbsp;lt_names-name.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;cl_alv_table_create=&gt;create_dynamic_table<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it_fieldcatalog&nbsp;=&nbsp;it_fcat<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ep_table&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;dy_table.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;dy_table-&gt;*&nbsp;TO&nbsp;&lt;dyn_table&gt;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;导EXCEL文件<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'TEXT_CONVERT_XLS_TO_SAP'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_FIELD_SEPERATOR&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_line_header&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_tab_raw_data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;it_raw&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"WORK&nbsp;TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_filename<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_tab_converted_data&nbsp;=&nbsp;&lt;dyn_table&gt;&nbsp;&nbsp;&nbsp;&nbsp;"ACTUAL&nbsp;DATA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conversion_failed&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&lt;dyn_table&gt;&nbsp;ASSIGNING&nbsp;&lt;dyn_wa&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;at_tab.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs_line&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;it_fcat&nbsp;INTO&nbsp;fcat.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;fcat-fieldname&nbsp;OF&nbsp;STRUCTURE&nbsp;&lt;fs_line&gt;&nbsp;TO&nbsp;&lt;fs_f1&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;fcat-fieldname&nbsp;OF&nbsp;STRUCTURE&nbsp;&lt;dyn_wa&gt;&nbsp;TO&nbsp;&lt;fs_f2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHECK&nbsp;&lt;fs_f1&gt;&nbsp;IS&nbsp;ASSIGNED&nbsp;AND&nbsp;&lt;fs_f2&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs_f1&gt;&nbsp;=&nbsp;&lt;fs_f2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;at_tab.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&lt;dyn_table&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "load_excel<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;itab_to_file<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;*内表保存至文件<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;DATA_TAB&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;FILENAME&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM itab_to_file TABLES data_tab TYPE STANDARD TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;filename&nbsp;TYPE&nbsp;string.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GUI_DOWNLOAD'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;filename&nbsp;&nbsp;"C:Filesini'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filetype&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'DAT'&nbsp;"'ASC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_auth_check&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;codepage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'8400'"'8404'&nbsp;"'8400'&nbsp;&nbsp;表示&nbsp;GB2312&nbsp;代码页&nbsp;'4100'&nbsp;&nbsp;表示&nbsp;UTF-8...<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data_tab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;data_tab<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_write_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_batch&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gui_refuse_filetransfer&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid_type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_authority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unknown_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;header_not_allowed&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;separator_not_allowed&nbsp;&nbsp;&nbsp;=&nbsp;8<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filesize_not_allowed&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;9<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;header_too_long&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;10<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp_error_create&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;11<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp_error_send&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;12<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp_error_write&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;13<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unknown_dp_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;14<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access_denied&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;15<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp_out_of_memory&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;16<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;disk_full&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;17<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dp_timeout&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;18<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_not_found&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;19<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dataprovider_exception&nbsp;&nbsp;=&nbsp;20<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;control_flush_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;21<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;22.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "itab_to_file<br />
+<br />
+   </div>
+   <div class="codeComment">
+******************************DOI操作EXCEL******************************<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;show_sys_msg<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;显示系统消息<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM show_sys_msg.<br />
+&nbsp;&nbsp;CHECK&nbsp;sy-subrc&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+ENDFORM. "SHOW_SYS_MSG<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;excel_download<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;下载模板<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_OBJ_NAME&nbsp;模板名称<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FILENAME&nbsp;下载的路径<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_download USING u_obj_name TYPE wwwdatatab-objid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;c_filename&nbsp;TYPE&nbsp;rlgrap-filename.<br />
+&nbsp;&nbsp;DATA:&nbsp;wa_objdata&nbsp;&nbsp;TYPE&nbsp;wwwdatatab.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_obj_name&nbsp;&nbsp;TYPE&nbsp;wwwdatatab-objid.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_filename&nbsp;&nbsp;TYPE&nbsp;string,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_pathname&nbsp;&nbsp;TYPE&nbsp;string,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_fullname&nbsp;&nbsp;TYPE&nbsp;string,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_subrc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;sy-subrc.<br />
+<br />
+&nbsp;&nbsp;l_obj_name&nbsp;=&nbsp;u_obj_name.<br />
+&nbsp;&nbsp;SEARCH&nbsp;l_obj_name&nbsp;FOR&nbsp;'.XLS'&nbsp;IN&nbsp;CHARACTER&nbsp;MODE.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_obj_name&nbsp;=&nbsp;l_obj_name&nbsp;&&&nbsp;'.XLS'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;relid&nbsp;objid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;wa_objdata<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;wwwdata<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;srtf2&nbsp;=&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;relid&nbsp;=&nbsp;'MI'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;objid&nbsp;=&nbsp;l_obj_name.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;e000(zpub_msg)&nbsp;WITH&nbsp;'模板文件：'&nbsp;l_obj_name&nbsp;'不存在！'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;调用保存对话框<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;l_filename&nbsp;=&nbsp;c_filename.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;cl_gui_frontend_services=&gt;file_save_dialog&nbsp;"调用保存对话框<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default_extension&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'XLS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default_file_name&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_filename<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_filename<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_pathname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fullpath&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_fullname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cntl_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error_no_gui&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_supported_by_gui&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;c_filename&nbsp;=&nbsp;l_fullname.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CHECK&nbsp;c_filename&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DOWNLOAD_WEB_OBJECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;wa_objdata<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;=&nbsp;c_filename<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_subrc.<br />
+&nbsp;&nbsp;IF&nbsp;l_subrc&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;e000(zpub_msg)&nbsp;WITH&nbsp;'模板文件：'&nbsp;u_obj_name&nbsp;'下载失败！'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "excel_download<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;excel_open<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;打开EXCEL<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FILENAME&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_open USING u_excel_obj TYPE ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_workbook_obj&nbsp;&nbsp;TYPE&nbsp;ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_sheet_obj&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_filename&nbsp;TYPE&nbsp;rlgrap-filename<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_visible&nbsp;&nbsp;TYPE&nbsp;xchar.<br />
+<br />
+&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;u_excel_obj&nbsp;'Excel.Application'.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;e000(zpub_msg)&nbsp;WITH&nbsp;'不能创建Excel对象！'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;OF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_excel_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'Workbooks'&nbsp;=&nbsp;u_workbook_obj.<br />
+&nbsp;&nbsp;PERFORM&nbsp;show_sys_msg.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;OF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_workbook_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'Open'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_workbook_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_filename.<br />
+&nbsp;&nbsp;PERFORM&nbsp;show_sys_msg.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;u_visible&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PROPERTY&nbsp;OF&nbsp;u_excel_obj&nbsp;'Visible'&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PROPERTY&nbsp;OF&nbsp;u_excel_obj&nbsp;'Visible'&nbsp;&nbsp;&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;GET&nbsp;PROPERTY&nbsp;OF&nbsp;u_excel_obj&nbsp;'ACTIVESHEET'&nbsp;=&nbsp;u_sheet_obj.<br />
+&nbsp;&nbsp;PERFORM&nbsp;show_sys_msg.<br />
+ENDFORM. "open_excel<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;EXCEL_SAVE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_WORKBOOK_OBJ&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_save USING u_workbook_obj TYPE ole2_object.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;OF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_workbook_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAVE'.<br />
+ENDFORM. "EXCEL_SAVE<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;EXCEL_CLOSE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_EXCEL_OBJ&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_close USING u_excel_obj TYPE ole2_object.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;OF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_excel_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'QUIT'.<br />
+ENDFORM. "EXCEL_CLOSE<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;excel_get_cell<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_CELL_OBJ&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_get_cell USING u_sheet_obj TYPE ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_cell_obj&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_col&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;OF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_sheet_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'Cells'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_cell_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_row<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_col.<br />
+ENDFORM. "excel_get_cell<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;write_excel_cell<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;填充<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_EXCEL_OBJ&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_write_cell USING u_sheet_obj TYPE ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_col&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_value.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_cell&nbsp;&nbsp;TYPE&nbsp;ole2_object.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;excel_get_cell&nbsp;USING&nbsp;u_sheet_obj&nbsp;l_cell&nbsp;u_row&nbsp;u_col.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PROPERTY&nbsp;OF&nbsp;l_cell&nbsp;'Value'&nbsp;=&nbsp;u_value.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;excel_free_obj&nbsp;USING&nbsp;l_cell.<br />
+ENDFORM. "write_excel_cell<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;EXCEL_GET_CELL_VALUE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_SHEET_OBJ&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_get_cell_value USING u_sheet_obj TYPE ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_col&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;c_value.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_cell&nbsp;&nbsp;TYPE&nbsp;ole2_object.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;excel_get_cell&nbsp;USING&nbsp;u_sheet_obj&nbsp;l_cell&nbsp;u_row&nbsp;u_col.<br />
+<br />
+&nbsp;&nbsp;GET&nbsp;PROPERTY&nbsp;OF&nbsp;l_cell&nbsp;'Value'&nbsp;=&nbsp;c_value.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;excel_free_obj&nbsp;USING&nbsp;l_cell.<br />
+ENDFORM. "EXCEL_GET_CELL_VALUE<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;set_cell_color<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_CELL_OBJ&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_COLOR&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_PATTERN&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_set_cell_color USING u_cell_obj TYPE ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_color<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_pattern.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_int&nbsp;&nbsp;&nbsp;TYPE&nbsp;ole2_object.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;OF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_cell_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'INTERIOR'&nbsp;=&nbsp;l_int.<br />
+&nbsp;&nbsp;SET&nbsp;PROPERTY&nbsp;OF&nbsp;l_int&nbsp;'ColorIndex'&nbsp;=&nbsp;u_color.<br />
+&nbsp;&nbsp;SET&nbsp;PROPERTY&nbsp;OF&nbsp;l_int&nbsp;'Pattern'&nbsp;=&nbsp;u_pattern.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;excel_free_obj&nbsp;USING&nbsp;l_int.<br />
+ENDFORM. "set_cell_color<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SET_CELL_FONT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_CELL_OBJ&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_BOLD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_SIZE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_set_cell_font USING u_cell_obj TYPE ole2_object<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_bold<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_size.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_font&nbsp;&nbsp;TYPE&nbsp;ole2_object.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;OF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_cell_obj<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'FONT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_font.<br />
+&nbsp;&nbsp;SET&nbsp;PROPERTY&nbsp;OF&nbsp;l_font&nbsp;'BOLD'&nbsp;=&nbsp;u_bold.<br />
+&nbsp;&nbsp;SET&nbsp;PROPERTY&nbsp;OF&nbsp;l_font&nbsp;'SIZE'&nbsp;=&nbsp;u_size.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;excel_free_obj&nbsp;USING&nbsp;l_font.<br />
+ENDFORM. "SET_CELL_FONT<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;excel_free_obj<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_OBJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM excel_free_obj USING u_obj TYPE ole2_object.<br />
+&nbsp;&nbsp;FREE&nbsp;OBJECT&nbsp;u_obj.<br />
+ENDFORM. "excel_free_obj<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;set_seq<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;AT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;需要设置序号的内表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_SEQ_FIELD&nbsp;&nbsp;&nbsp;&nbsp;序号字段<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM set_seq TABLES at_tab TYPE STANDARD TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;u_seq_field&nbsp;TYPE&nbsp;name_komp.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;fs&gt;.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;at_tab.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;u_seq_field&nbsp;OF&nbsp;STRUCTURE&nbsp;at_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;sy-tabix.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;at_tab.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM. "set_seq<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;f4_month<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;年月搜索帮助<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FIELDNAME&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM f4_month USING u_repid TYPE sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_dynnr&nbsp;TYPE&nbsp;sy-dynnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_fieldname&nbsp;TYPE&nbsp;dynfnam.<br />
+&nbsp;&nbsp;DATA:&nbsp;lt_fields&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;rpy_dyfatc&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_line&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_col&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;int4.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;l_month&nbsp;LIKE&nbsp;isellist-month,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_return&nbsp;LIKE&nbsp;sy-subrc.<br />
+&nbsp;&nbsp;PERFORM&nbsp;get_dyn_fieldvalue&nbsp;USING&nbsp;u_repid&nbsp;u_dynnr&nbsp;u_fieldname&nbsp;CHANGING&nbsp;l_month.<br />
+&nbsp;&nbsp;IF&nbsp;l_month&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_month&nbsp;=&nbsp;sy-datum(6).<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'RPY_DYNPRO_READ'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;progname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_repid<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynnr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_dynnr<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUPPRESS_EXIST_CHECKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUPPRESS_CORR_CHECKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+**&nbsp;&nbsp;&nbsp;IMPORTING<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HEADER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fields_to_containers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_fields<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLOW_LOGIC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARAMS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+**&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CANCELLED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERMISSION_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+**&nbsp;Implement&nbsp;suitable&nbsp;error&nbsp;handling&nbsp;here<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_fields&nbsp;WITH&nbsp;KEY&nbsp;name&nbsp;=&nbsp;u_fieldname.<br />
+*&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;l_line&nbsp;=&nbsp;lt_fields-line.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;l_col&nbsp;=&nbsp;lt_fields-column.<br />
+*&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;l_line&nbsp;=&nbsp;5.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;l_col&nbsp;=&nbsp;8.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_SELECT_MONTH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;actual_month&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_month<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FACTORY_CALENDAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HOLIDAY_CALENDAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;language&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sy-langu<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start_column&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;42<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start_row&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selected_month&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_month<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return_code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_return<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory_calendar_not_found&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;holiday_calendar_not_found&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;month_not_found&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;l_return&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;set_dyn_fieldvalue&nbsp;USING&nbsp;u_repid&nbsp;u_dynnr&nbsp;u_fieldname&nbsp;l_month.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "f4_month<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;f4_fielname<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_REPID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_DYNNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FIELDNAME&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM f4_filename USING u_repid TYPE sy-repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_dynnr&nbsp;TYPE&nbsp;sy-dynnr<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_fieldname&nbsp;TYPE&nbsp;dynfnam.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;value(u_fieldname)&nbsp;LIKE&nbsp;rlgrap-filename."&nbsp;TYPE&nbsp;dynfnam.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;DATA:&nbsp;l_path&nbsp;TYPE&nbsp;ibipparms-path.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;get_dyn_fieldvalue&nbsp;USING&nbsp;u_repid&nbsp;u_dynnr&nbsp;u_fieldname&nbsp;CHANGING&nbsp;l_path.<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'F4_FILENAME'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;program_name&nbsp;&nbsp;=&nbsp;u_repid<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynpro_number&nbsp;=&nbsp;u_dynnr<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;field_name&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_fieldname<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_path.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;set_dyn_fieldvalue&nbsp;USING&nbsp;u_repid&nbsp;u_dynnr&nbsp;u_fieldname&nbsp;l_path.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'KD_GET_FILENAME_ON_F4'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;program_name&nbsp;&nbsp;=&nbsp;u_repid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dynpro_number&nbsp;=&nbsp;u_dynnr<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD_NAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STATIC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILEOPERATION&nbsp;=&nbsp;'R'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_fieldname<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOCATION_FLAG&nbsp;=&nbsp;'P'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mask_too_long&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;show_sys_msg.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM. "f4_fielname<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SPLIT_FILENAME<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FULL_NAME&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_FILEPATH&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_FILENAME&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM split_filename USING u_full_name<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;c_filepath<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c_filename.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;c_filepath,&nbsp;c_filename.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'SO_SPLIT_FILE_AND_PATH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_full_name<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stripped_name&nbsp;=&nbsp;c_filename<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_path&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_filepath<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;show_sys_msg.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM. "SPLIT_FILENAME<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;get_and_clear<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_SOURCE&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_TARGET&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM get_and_clear CHANGING c_source c_target.<br />
+&nbsp;&nbsp;c_target&nbsp;=&nbsp;c_source.<br />
+&nbsp;&nbsp;CLEAR&nbsp;c_source.<br />
+ENDFORM. "get_and_clear<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SET_TITLE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_TITLE&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM set_title USING u_title.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'RECA_GUI_SET_TITLEBAR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id_text1&nbsp;=&nbsp;u_title.<br />
+ENDFORM. "SET_TITLE<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;set_listitems<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;设置下拉列表<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_FNAME&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;UT_ITEMS&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM set_listitems USING u_fname TYPE vrm_id<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ut_items&nbsp;TYPE&nbsp;vrm_values.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'VRM_SET_VALUES'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_fname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ut_items[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id_illegal_name&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;show_sys_msg.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "POP_LIST<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;QUERY_DIALOG<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;询问确认对话框&nbsp;J:是&nbsp;N:否&nbsp;A:取消<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_TITLE&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_LINE1&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_LINE2&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_ANSWER&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM query_dialog USING u_title<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_line1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_line2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;c_answer.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_CONFIRM_STEP'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULTOPTION&nbsp;&nbsp;=&nbsp;'Y'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;textline1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_line1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;textline2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_line2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;titel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_title<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;START_COLUMN&nbsp;&nbsp;&nbsp;=&nbsp;25<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;START_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancel_display&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;answer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;c_answer.<br />
+ENDFORM. "QUERY_DIALOG<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;add_msg<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;IT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_MSG1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_MSG2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_MSG3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;U_MSG4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM add_msg TABLES it_tab TYPE STANDARD TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;u_type&nbsp;&nbsp;TYPE&nbsp;bapiret2-type<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_id&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;bapiret2-id<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_no&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;bapiret2-number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_msg1&nbsp;&nbsp;"TYPE&nbsp;bapiret2-message_v1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_msg2&nbsp;&nbsp;"TYPE&nbsp;bapiret2-message_v2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_msg3&nbsp;&nbsp;"TYPE&nbsp;bapiret2-message_v3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u_msg4.&nbsp;&nbsp;"TYPE&nbsp;bapiret2-message_v4<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_fname(50).<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;it_tab.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'TYPE'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_type.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'ID'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_id.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'NUMBER'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_no.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'MESSAGE_V1'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_msg1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'MESSAGE_V2'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_msg2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'MESSAGE_V3'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_msg3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'MESSAGE_V4'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;fs&gt;&nbsp;=&nbsp;u_msg4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;l_fname&nbsp;=&nbsp;'MESSAGE'.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;l_fname&nbsp;OF&nbsp;STRUCTURE&nbsp;it_tab&nbsp;TO&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;IF&nbsp;&lt;fs&gt;&nbsp;IS&nbsp;ASSIGNED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MESSAGE_TEXT_BUILD'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msgid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_id<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msgnr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_no<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msgv1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_msg1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msgv2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_msg2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msgv3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_msg3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msgv4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;u_msg4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message_text_output&nbsp;=&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UNASSIGN&nbsp;&lt;fs&gt;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;it_tab.<br />
+ENDFORM. "add_msg<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;GET_USER_NAME<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;I_UNAME&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM get_user_name USING i_uname CHANGING c_name.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_uname&nbsp;TYPE&nbsp;sy-uname,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_name&nbsp;&nbsp;TYPE&nbsp;adrp-name_last.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;c_name.<br />
+&nbsp;&nbsp;l_uname&nbsp;=&nbsp;i_uname.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;adrp~name_last&nbsp;INTO&nbsp;l_name<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;usr21<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;adrp&nbsp;ON&nbsp;adrp~persnumber&nbsp;=&nbsp;usr21~persnumber<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;usr21~bname&nbsp;=&nbsp;l_uname.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;c_name&nbsp;=&nbsp;l_name.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM. "GET_USER_NAME<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;bdc_field<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;IT_BDCDATA&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;FNAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;FVAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM bdc_field TABLES it_bdcdata STRUCTURE bdcdata<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;fnam&nbsp;fval.<br />
+&nbsp;&nbsp;DATA:&nbsp;wa_bdcdata&nbsp;TYPE&nbsp;bdcdata.<br />
+&nbsp;&nbsp;wa_bdcdata-fnam&nbsp;=&nbsp;fnam.<br />
+&nbsp;&nbsp;wa_bdcdata-fval&nbsp;=&nbsp;fval.<br />
+&nbsp;&nbsp;APPEND&nbsp;wa_bdcdata&nbsp;TO&nbsp;it_bdcdata.<br />
+ENDFORM. "bdc_dynpro<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;bdc_dynpro<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;IT_BDCDATA&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;DYNPRO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM bdc_dynpro TABLES it_bdcdata STRUCTURE bdcdata<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;program&nbsp;dynpro.<br />
+&nbsp;&nbsp;DATA:&nbsp;wa_bdcdata&nbsp;TYPE&nbsp;bdcdata.<br />
+&nbsp;&nbsp;wa_bdcdata-program&nbsp;&nbsp;&nbsp;=&nbsp;program.<br />
+&nbsp;&nbsp;wa_bdcdata-dynpro&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;dynpro.<br />
+&nbsp;&nbsp;wa_bdcdata-dynbegin&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;wa_bdcdata&nbsp;TO&nbsp;it_bdcdata.<br />
+ENDFORM. "bdc_dynpro<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

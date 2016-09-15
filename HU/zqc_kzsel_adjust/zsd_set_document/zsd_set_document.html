@@ -1,0 +1,515 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSD_SET_DOCUMENT</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZSD_SET_DOCUMENT</h2>
+<h3> Description: 记录物料变价</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZSD_SET_DOCUMENT.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     REFERENCE(IM_MARA) TYPE  MARA OPTIONAL<br />
+*"     REFERENCE(IM_NUMBER) TYPE  NUM10 OPTIONAL<br />
+*"     REFERENCE(IM_FLG) TYPE  CHAR1 OPTIONAL<br />
+*"  TABLES<br />
+*"      T_CHARG STRUCTURE  ZMM_CHARG OPTIONAL<br />
+*"      T_CHARACTERS STRUCTURE  ZMM_CHARACTERS OPTIONAL<br />
+*"      IDOC_STATUS STRUCTURE  BDIDOCSTAT OPTIONAL<br />
+*"----------------------------------------------------------------------<br />
+
+<div class="codeComment">*       <a href ="global-zsd_set_document.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;C,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_KONP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KONP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_A908&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;A908,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_A908&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;A908,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0020_CAL&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSDRP0090,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090_TMP&nbsp;TYPE&nbsp;ZSDRP0090,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0090&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0090<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;T_CHARG&nbsp;INTO&nbsp;LS_CHARG&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;T_CHARACTERS&nbsp;INTO&nbsp;LS_CHARACTERS&nbsp;INDEX&nbsp;1.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_CHARACTERS&nbsp;TO&nbsp;LS_ZSDRP0090.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*  IF  im_flg = 'X'.<br />
+<br />
+<br />
+*1. 获取采购成本<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-WERKS&nbsp;=&nbsp;'DC80'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-FKDAT&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-MATNR&nbsp;=&nbsp;LS_CHARG-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-CHARG&nbsp;=&nbsp;LS_CHARG-CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IM_MARA-MEINS&nbsp;=&nbsp;'ST'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-FKIMG&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&nbsp;IM_MARA-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-FKIMG&nbsp;=&nbsp;LS_CHARACTERS-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IM_MARA-EXTWG&nbsp;=&nbsp;'D04'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;&nbsp;LT_A908&nbsp;FROM&nbsp;A908<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;&nbsp;KSCHL&nbsp;=&nbsp;'ZTJJ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;EXTWG&nbsp;=&nbsp;'D04'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;DATBI&nbsp;=&nbsp;'99991231'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_A908&nbsp;BY&nbsp;DATAB&nbsp;DESCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_A908&nbsp;INTO&nbsp;LS_A908&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;LS_KONP&nbsp;FROM&nbsp;KONP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;KNUMH&nbsp;=&nbsp;LS_A908-KNUMH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZTZKJCJ_IN&nbsp;=&nbsp;LS_KONP-KBETR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+******* start by liquan 2015.11.27 ***************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZJSKL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZJSKL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZCKLSJ_IN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZLYJSYKJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZLYJSYKJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZJSJJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZJSJJ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZJSKGF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZJSKGF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZJZ&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZJSDKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZJSDKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0020_CAL-ZXSKGFD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_CHARACTERS-ZXSKGFD.<br />
+   </div>
+   <div class="codeComment">
+******* end   by liquan 2015.11.27 ***************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_ZSDRP0020_CAL.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsdrp0020_fm/zsdrp0020_fm.html">'ZSDRP0020_FM'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_TABLE&nbsp;=&nbsp;LT_ZSDRP0020_CAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_ZSDRP0020_CAL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZSDRP0020_CAL&nbsp;INTO&nbsp;LT_ZSDRP0020_CAL&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090-ZPUR_COST&nbsp;=&nbsp;LT_ZSDRP0020_CAL-ZPUR_COST.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 2  获取记录<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;FLG_CK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZSDRP0090&nbsp;FROM&nbsp;ZSDRP0090<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LS_CHARG-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;LS_CHARG-CHARG.<br />
+<br />
+   </div>
+   <div class="codeComment">
+***** MODIFY BY LIQUAN  2015.11.27 START **************<br />
+*   SORT LT_ZSDRP0090 BY  DATAB  UZEIT.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_ZSDRP0090&nbsp;BY&nbsp;&nbsp;DATAB&nbsp;DESCENDING&nbsp;UZEIT&nbsp;DESCENDING.<br />
+   </div>
+   <div class="codeComment">
+***** MODIFY BY LIQUAN  2015.11.27 END   **************<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZSDRP0090&nbsp;INTO&nbsp;LS_ZSDRP0090_TMP&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZLYJSFS&nbsp;=&nbsp;LS_ZSDRP0090-ZLYJSFS&nbsp;."结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZJZ&nbsp;=&nbsp;LS_ZSDRP0090-ZJZ."单件克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZJSJJ&nbsp;=&nbsp;LS_ZSDRP0090-ZJSJJ&nbsp;."结算克金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZJSKGF&nbsp;=&nbsp;LS_ZSDRP0090-ZJSKGF&nbsp;."结算克工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZCKLSJ&nbsp;=&nbsp;LS_ZSDRP0090-ZCKLSJ&nbsp;."参考零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZJSDKZ&nbsp;=&nbsp;LS_ZSDRP0090-ZJSDKZ&nbsp;."结算倒扣值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZXSKFJGF&nbsp;=&nbsp;LS_ZSDRP0090-ZXSKFJGF&nbsp;."销售克付加工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZXSJFJGF&nbsp;=&nbsp;LS_ZSDRP0090-ZXSJFJGF&nbsp;."销售件付加工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZLYJSYKJ&nbsp;=&nbsp;LS_ZSDRP0090-ZLYJSYKJ&nbsp;."联营结算一口价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZJSKL&nbsp;=&nbsp;LS_ZSDRP0090-ZJSKL&nbsp;."结算扣率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090_TMP-ZPUR_COST&nbsp;=&nbsp;LS_ZSDRP0090-ZPUR_COST&nbsp;&nbsp;."联营结算价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*      ELSE.<br />
+*        FLG_CK = ''.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ENDIF.<br />
+<br />
+<br />
+* 创建 价格条件<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:ERROR_IND&nbsp;&nbsp;TYPE&nbsp;CHAR1.<br />
+&nbsp;&nbsp;DATA:WA_EDIDC&nbsp;&nbsp;&nbsp;TYPE&nbsp;EDIDC.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_CONTROL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;通讯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL&nbsp;TYPE&nbsp;EDIDC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;控制记录<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_EDIDD_DN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDI_DD40,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_DN&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_EDIDD_DN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDC_DN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDI_DC40,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_EDIDC_DN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_IDOC_NUMBER&nbsp;TYPE&nbsp;EDIDC-DOCNUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_LOGSYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;T000-LOGSYS.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_E1KOMG&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;E1KOMG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E1KOMG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_E1KONH&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;E1KONH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONH&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E1KONH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_E1KONP&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;E1KONP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E1KONP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LS_ZSDRP0090-ZCKLSJ&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG-KVEWE&nbsp;=&nbsp;'A'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG-KOTABNR&nbsp;=&nbsp;'904'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG-KAPPL&nbsp;=&nbsp;'V'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG-KSCHL&nbsp;=&nbsp;'ZPR1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG-VAKEY_LONG+0(4)&nbsp;=&nbsp;'8000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG-VAKEY_LONG+4(18)&nbsp;=&nbsp;LS_ZSDRP0090-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KOMG-VAKEY_LONG+22(10)&nbsp;=&nbsp;LS_ZSDRP0090-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONH-DATAB&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONH-DATBI&nbsp;=&nbsp;'99991231'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KSCHL&nbsp;=&nbsp;'ZPR1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KRECH&nbsp;=&nbsp;'C'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IM_MARA-MEINS&nbsp;=&nbsp;'ST'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KBETR&nbsp;=&nbsp;LS_ZSDRP0090-ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;IM_MARA-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KBETR&nbsp;=&nbsp;LS_ZSDRP0090-ZCKLSJ&nbsp;/&nbsp;LS_ZSDRP0090-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KONWA&nbsp;=&nbsp;'CNY'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KPEIN&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KMEIN&nbsp;=&nbsp;IM_MARA-MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-PRSCH&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KUMZA&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_E1KONP-KUMNE&nbsp;=&nbsp;'1'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_E1KOMG&nbsp;TO&nbsp;IT_E1KOMG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_E1KONH&nbsp;TO&nbsp;IT_E1KONH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_E1KONP&nbsp;TO&nbsp;IT_E1KONP.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_EDIDD_DN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_DN-SEGNAM&nbsp;=&nbsp;'E1KOMG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_DN-SDATA&nbsp;&nbsp;=&nbsp;WA_E1KOMG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD_DN&nbsp;TO&nbsp;IT_EDIDD_DN.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_EDIDD_DN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_DN-SEGNAM&nbsp;=&nbsp;'E1KONH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_DN-SDATA&nbsp;&nbsp;=&nbsp;WA_E1KONH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD_DN&nbsp;TO&nbsp;IT_EDIDD_DN.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_EDIDD_DN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_DN-SEGNAM&nbsp;=&nbsp;'E1KONP'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_DN-SDATA&nbsp;&nbsp;=&nbsp;WA_E1KONP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD_DN&nbsp;TO&nbsp;IT_EDIDD_DN.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;产生IDOC控制信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN-DIRECT&nbsp;=&nbsp;'2'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"WA_EDIDC-DOCREL&nbsp;=&nbsp;'702'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN-DOCREL&nbsp;=&nbsp;SY-SAPRL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN-IDOCTYP&nbsp;=&nbsp;'COND_A01'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN-MESTYP&nbsp;=&nbsp;'COND_A'&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*RCVPOR 1 类型  EDI4RCVPOR  CHAR  10  0 接收方端口<br />
+*RCVPRT 1 类型  EDI4RCVPRT  CHAR  2 0 接收方伙伴类型<br />
+*RCVPFC 1 类型  EDI4RCVPFC  CHAR  2 0 接收方伙伴功能<br />
+*RCVPRN 1 类型  EDI4RCVPRN  CHAR  10  0 接收方的合作伙伴编号<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;WA_SYS_CONFIG&nbsp;TYPE&nbsp;ZSYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsap_get_status/zsap_get_status.html">'ZSAP_GET_STATUS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'RET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SYS_CONFIG&nbsp;=&nbsp;WA_SYS_CONFIG.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'SAP'&nbsp;SY-SYSID&nbsp;INTO&nbsp;WA_EDIDC_DN-RCVPOR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN-RCVPRN&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN-RCVPOR&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPOR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC_DN-RCVPRT&nbsp;=&nbsp;'LS'&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*    WA_EDIDC_DN-SNDPOR = WA_EDIDC-SNDPOR .<br />
+*    WA_EDIDC_DN-SNDPRN = WA_EDIDC-SNDPRN .<br />
+*    WA_EDIDC_DN-SNDPRT = 'LS' .<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"期初暂且注释<br />
+   </div>
+   <div class="codeComment">
+*    CALL FUNCTION 'IDOC_INBOUND_SINGLE'<br />
+*      EXPORTING<br />
+*        PI_IDOC_CONTROL_REC_40  = WA_EDIDC_DN<br />
+*        PI_DO_COMMIT            = 'X'<br />
+*      IMPORTING<br />
+*        PE_IDOC_NUMBER          = LV_IDOC_NUMBER<br />
+*      TABLES<br />
+*        PT_IDOC_DATA_RECORDS_40 = IT_EDIDD_DN<br />
+*      EXCEPTIONS<br />
+*        IDOC_NOT_SAVED          = 1<br />
+*        OTHERS                  = 2.<br />
+*<br />
+*    IF SY-SUBRC = 0 AND LV_IDOC_NUMBER IS NOT INITIAL .<br />
+*      CALL FUNCTION 'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+*        EXPORTING<br />
+*          DOCNUM = LV_IDOC_NUMBER.<br />
+*      CLEAR IDOC_STATUS .<br />
+*      IDOC_STATUS-DOCNUM = WA_EDIDC-DOCNUM.<br />
+*      IDOC_STATUS-STATUS = '53'.<br />
+*      IDOC_STATUS-MSGTY  = 'S'.<br />
+*      IDOC_STATUS-MSGID  = 'ZCB' .<br />
+*      IDOC_STATUS-MSGNO  = '000' .<br />
+*      IDOC_STATUS-MSGV1  = '变价成功：'.<br />
+*      IDOC_STATUS-MSGV2  = ''.<br />
+*      IDOC_STATUS-MSGV3  = ''.<br />
+*      IDOC_STATUS-MSGV4  = ''.<br />
+*      IDOC_STATUS-SEGNUM = ''.<br />
+*      IDOC_STATUS-SEGFLD = ''.<br />
+*      IDOC_STATUS-UNAME  = SY-UNAME.<br />
+*      APPEND IDOC_STATUS.<br />
+*<br />
+*      CLEAR IDOC_STATUS.<br />
+*      IDOC_STATUS-DOCNUM = WA_EDIDC-DOCNUM.<br />
+*      IDOC_STATUS-STATUS = '53'.<br />
+*      IDOC_STATUS-MSGTY  = 'S'.<br />
+*      IDOC_STATUS-MSGID  = 'ZCB' .<br />
+*      IDOC_STATUS-MSGNO  = '000' .<br />
+*      IDOC_STATUS-MSGV1  = '产生后续发货IDOC成功：'.<br />
+*      IDOC_STATUS-MSGV2  = LV_IDOC_NUMBER.<br />
+*      IDOC_STATUS-MSGV3  = ''.<br />
+*      IDOC_STATUS-MSGV4  = ''.<br />
+*      IDOC_STATUS-SEGNUM = ''.<br />
+*      IDOC_STATUS-SEGFLD = ''.<br />
+*      IDOC_STATUS-UNAME  = SY-UNAME.<br />
+*      APPEND IDOC_STATUS.<br />
+*    ELSE.<br />
+*<br />
+*      CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK' .<br />
+*<br />
+*      CLEAR IDOC_STATUS.<br />
+*      IDOC_STATUS-DOCNUM = WA_EDIDC-DOCNUM.<br />
+*      IDOC_STATUS-STATUS = '51'.<br />
+*      IDOC_STATUS-MSGTY  = 'E'.<br />
+*      IDOC_STATUS-MSGID  = 'ZCB' .<br />
+*      IDOC_STATUS-MSGNO  = '000' .<br />
+*      IDOC_STATUS-MSGV1  = '变价失败'.<br />
+*      IDOC_STATUS-MSGV2  = ''.<br />
+*      IDOC_STATUS-MSGV3  = ''.<br />
+*      IDOC_STATUS-MSGV4  = ''.<br />
+*      IDOC_STATUS-SEGNUM = ''.<br />
+*      IDOC_STATUS-SEGFLD = ''.<br />
+*      IDOC_STATUS-UNAME  = SY-UNAME.<br />
+*      APPEND IDOC_STATUS.<br />
+*<br />
+*      CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'<br />
+*        EXPORTING<br />
+*          WAIT = 'X'.<br />
+*<br />
+*    ENDIF.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;&nbsp;FLG_CK&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090-DATAB&nbsp;=&nbsp;sy-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090-UZEIT&nbsp;=&nbsp;sy-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090-UNAME&nbsp;=&nbsp;sy-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090-IDOCNUM&nbsp;=&nbsp;LV_IDOC_NUMBER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090-BNUM&nbsp;=&nbsp;IM_NUMBER.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZSDRP0090&nbsp;FROM&nbsp;LS_ZSDRP0090.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

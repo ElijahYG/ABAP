@@ -1,0 +1,860 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP0160</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP0160</h2>
+<h3> Description: ZSDRP0160-加盟业务销售报表(经销)</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP0160<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;SD-RP-0160<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;加盟业务销售报表<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;LIYAN<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/11/03&nbsp;&nbsp;&nbsp;LIYAN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZSDRP0160.<br />
+<br />
+TYPE-POOLS:SLIS.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入选择屏幕表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:VBRP,VBRK,MARA,KNA1,LIKP,VBFA,VBAK.<br />
+<br />
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV. "定义ALV显示字段的内表<br />
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.   "定义ALV显示字段的工作区<br />
+DATA: WA_LAYOUT   TYPE SLIS_LAYOUT_ALV.     "定义ALV显示格式的工作区<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&ALV显示使用的数据结构及内表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF TY_OUT,   "汇总<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REGIO&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;KNA1-REGIO,&nbsp;"地区编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORT01&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;KNA1-ORT01,&nbsp;"城市<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-KUNAG,&nbsp;"加盟门店编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;KNA1-NAME1,&nbsp;"加盟门店名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUART&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBAK-AUART,&nbsp;"订单类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT_S&nbsp;TYPE&nbsp;&nbsp;VBRK-FKDAT,&nbsp;"销售起始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT_H&nbsp;TYPE&nbsp;&nbsp;VBRK-FKDAT,&nbsp;"销售截至日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;"销售件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;"销售重量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;MARA-EXTWG,&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI1,&nbsp;"销售商品金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI2,&nbsp;"销售商品成本<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-VBELN,&nbsp;"开票凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-FKDAT,&nbsp;"日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-VBTYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT.<br />
+<br />
+DATA: IT_ALV TYPE STANDARD TABLE OF TY_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ALV&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_OUT.<br />
+<br />
+TYPES:BEGIN OF LW_OUT,   "明细<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-KUNAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"加盟门店编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;KNA1-NAME1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"加盟门店名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBAK-ERDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-FKDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"开票日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBAK-AUART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"订单类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBFA-VBELV,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售订单单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WADAT_IST&nbsp;TYPE&nbsp;&nbsp;LIKP-WADAT_IST,&nbsp;"发货日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELV1&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBFA-VBELV,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发货单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-VBELN,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"开票凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-POSNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;MARA-RAUBE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品小类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品款式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARKTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-ARKTX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"款式名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-CHARG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售重量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI6,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售价格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售商品金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售商品成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGYSDM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;LFA1-LIFNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"联营供应商<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-VBTYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_OUT.<br />
+<br />
+DATA: LT_OUT TYPE STANDARD TABLE OF LW_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUT&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;LW_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT.<br />
+<br />
+TYPES:BEGIN OF ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;VBRP-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;VBRP-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ZMM_CHARG.<br />
+<br />
+DATA: IT_ZMM_CHARG      TYPE STANDARD TABLE OF ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMM_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ZMM_CHARACTERS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;WA_ZMM_CHARACTERS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*汇总结构<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF STRU_OUT,  "汇总<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRK-KUNAG,&nbsp;"加盟门店编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;"销售件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;"销售重量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI1,&nbsp;"销售商品金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI2,&nbsp;"销售商品成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUART&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;VBAK-AUART,&nbsp;"订单类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REGIO&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;KNA1-REGIO,&nbsp;"地区编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;KNA1-NAME1,&nbsp;"加盟门店名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT_S&nbsp;TYPE&nbsp;&nbsp;VBRK-FKDAT,&nbsp;"销售起始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT_H&nbsp;TYPE&nbsp;&nbsp;VBRK-FKDAT,&nbsp;"销售截至日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;MARA-EXTWG,&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORT01&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;KNA1-ORT01,&nbsp;"加盟门店区域<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_OUT.<br />
+<br />
+DATA: IT_OUT_ITEM TYPE STANDARD TABLE OF STRU_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_OUT_ITEM&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_OUT.<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------*<br />
+*&nbsp;查询条件<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_BUKRS&nbsp;&nbsp;FOR&nbsp;VBRK-BUKRS&nbsp;OBLIGATORY&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS&nbsp;DEFAULT&nbsp;8000,&nbsp;"公司代码<br />
+&nbsp;&nbsp;S_KUNAG&nbsp;&nbsp;FOR&nbsp;VBRK-KUNAG&nbsp;NO-EXTENSION&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"加盟门店<br />
+&nbsp;&nbsp;S_FKDAT&nbsp;&nbsp;FOR&nbsp;VBRK-FKDAT&nbsp;OBLIGATORY&nbsp;NO-EXTENSION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"开票日期<br />
+&nbsp;&nbsp;S_EXTWG&nbsp;&nbsp;FOR&nbsp;MARA-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;S_AUART&nbsp;&nbsp;FOR&nbsp;VBAK-AUART.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"订单类型<br />
+SELECTION-SCREEN BEGIN OF LINE."设置以下按钮在一行上<br />
+PARAMETERS:  P_1 TYPE C RADIOBUTTON GROUP G1 DEFAULT 'X' USER-COMMAND RADIO. "P_1代表汇总<br />
+SELECTION-SCREEN COMMENT (10)  FOR FIELD P_1."  格式说明P_2距离P_1:10.<br />
+PARAMETERS:  P_2 TYPE C RADIOBUTTON GROUP G1.                                "P_2代表明细<br />
+SELECTION-SCREEN COMMENT (10)  FOR FIELD P_2.<br />
+SELECTION-SCREEN END OF LINE.<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_OUT_ITEM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_OUT.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.  "开始事件操作<br />
+&nbsp;&nbsp;IF&nbsp;P_1&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA1."取数（汇总）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;P_2&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA2."取数（明细）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW2.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数（汇总）<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA1.<br />
+&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;TY_COLLECT,&nbsp;&nbsp;&nbsp;"最后汇总<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;TYPE&nbsp;&nbsp;VBRK-KUNAG,&nbsp;"加盟门店编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;TYPE&nbsp;&nbsp;MARA-EXTWG,&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJS&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;"销售件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSKZ&nbsp;TYPE&nbsp;&nbsp;VBRP-ZXSJS,&nbsp;"销售重量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI1,&nbsp;"销售商品金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;TYPE&nbsp;&nbsp;VBRP-KZWI2,&nbsp;"销售商品成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUART&nbsp;TYPE&nbsp;&nbsp;VBAK-AUART,&nbsp;"订单类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORT01&nbsp;TYPE&nbsp;&nbsp;KNA1-ORT01,&nbsp;"城市<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;TYPE&nbsp;&nbsp;KNA1-NAME1,&nbsp;"加盟门店名称<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_COLLECT.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_COLLECT&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_COLLECT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_COLLECT&nbsp;TYPE&nbsp;TY_COLLECT.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_KNA1&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;KNA1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_KNA1&nbsp;&nbsp;&nbsp;TYPE&nbsp;KNA1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_KNA1_2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;KNA1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_T005U&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;T005U,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_T005U&nbsp;&nbsp;TYPE&nbsp;T005U,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBAK&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBAK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBAK_2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBAK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBAK&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBAK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBFA&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBFA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBFA&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBFA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBFA_2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBFA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBFA_2&nbsp;TYPE&nbsp;VBFA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBRK&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取原始凭证<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;B~KUNAG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C~NAME1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D~EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~ZXSJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~ZXSKZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~KZWI1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~KZWI2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~VBTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRP&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;VBRK&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~VBELN&nbsp;=&nbsp;B~VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KNA1&nbsp;AS&nbsp;C&nbsp;ON&nbsp;B~KUNAG&nbsp;=&nbsp;C~KUNNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;D&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;D~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~BUKRS&nbsp;IN&nbsp;S_BUKRS&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~KUNAG&nbsp;IN&nbsp;S_KUNAG&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~FKDAT&nbsp;IN&nbsp;S_FKDAT&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D~EXTWG&nbsp;IN&nbsp;S_EXTWG&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~VBTYP&nbsp;IN&nbsp;(&nbsp;'M','N'&nbsp;)&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取加盟商<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_ALV&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_KNA1&nbsp;FROM&nbsp;KNA1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;KUNNR&nbsp;=&nbsp;IT_ALV-KUNAG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_KNA1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_T005U&nbsp;FROM&nbsp;T005U<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_KNA1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BLAND&nbsp;=&nbsp;LT_KNA1-REGIO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPRAS&nbsp;=&nbsp;'1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LAND1&nbsp;=&nbsp;'CN'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取发票VBTYP_N&nbsp;=&nbsp;'M,N'，VBTYP_V=C&nbsp;and&nbsp;J,M<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBFA&nbsp;FROM&nbsp;VBFA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;IT_ALV-VBELN.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;VBTYP_N&nbsp;=&nbsp;'M'.<br />
+*-------------------删除VBTYP_V&nbsp;=&nbsp;'M'情况,maybe&nbsp;will&nbsp;be&nbsp;used&nbsp;in&nbsp;future--<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DELETE&nbsp;LT_VBFA&nbsp;WHERE&nbsp;VBTYP_V&nbsp;=&nbsp;'M'.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_VBFA&nbsp;BY&nbsp;VBELN&nbsp;VBELV.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_VBFA&nbsp;COMPARING&nbsp;VBELN&nbsp;VBELV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**冲销凭证VBTYP_N&nbsp;=&nbsp;'N'，VBTYP_V=C&nbsp;and&nbsp;J,M<br />
+*&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBFA_2&nbsp;FROM&nbsp;VBFA<br />
+*&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_ALV<br />
+*&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;IT_ALV-VBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;VBTYP_N&nbsp;=&nbsp;'N'.&nbsp;"后继凭证类别<br />
+**-------------------删除VBTYP_V&nbsp;=&nbsp;'M'情况-------------------------------<br />
+*&nbsp;&nbsp;DELETE&nbsp;LT_VBFA_2&nbsp;WHERE&nbsp;VBTYP_V&nbsp;=&nbsp;'M'.<br />
+*<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_VBFA_2&nbsp;BY&nbsp;VBELN&nbsp;VBELV.<br />
+*&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_VBFA_2&nbsp;COMPARING&nbsp;VBELN&nbsp;VBELV.<br />
+<br />
+<br />
+*取发票凭证类型&nbsp;&nbsp;M<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_VBFA&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBAK&nbsp;FROM&nbsp;VBAK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBFA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBFA-VBELV.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取冲销发票凭证类型&nbsp;&nbsp;&nbsp;N<br />
+*&nbsp;&nbsp;IF&nbsp;LT_VBFA_2&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBAK_2&nbsp;FROM&nbsp;VBAK<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBFA_2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBFA_2-VBELV.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+*取相关字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LW_ALV.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;INTO&nbsp;LW_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_KNA1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_KNA1&nbsp;BY&nbsp;KUNNR&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_KNA1&nbsp;INTO&nbsp;LS_KNA1&nbsp;WITH&nbsp;KEY&nbsp;KUNNR&nbsp;&nbsp;=&nbsp;LW_ALV-KUNAG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_T005U.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_T005U&nbsp;INTO&nbsp;LS_T005U&nbsp;WITH&nbsp;KEY&nbsp;BLAND&nbsp;&nbsp;=&nbsp;LS_KNA1-REGIO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ALV-REGIO&nbsp;=&nbsp;LS_T005U-BLAND.&nbsp;"地区编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ALV-ORT01&nbsp;=&nbsp;LS_T005U-BEZEI.&nbsp;"加盟门店区域<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ALV-NAME1&nbsp;=&nbsp;LS_KNA1-NAME1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ALV-FKDAT_S&nbsp;=&nbsp;S_FKDAT-LOW.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ALV-FKDAT_H&nbsp;=&nbsp;S_FKDAT-HIGH.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_VBFA&nbsp;BY&nbsp;VBELN&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBFA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBFA&nbsp;INTO&nbsp;LW_VBFA&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_ALV-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP_N&nbsp;='M'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBAK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBAK&nbsp;INTO&nbsp;LW_VBAK&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBFA-VBELV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ALV-AUART&nbsp;&nbsp;&nbsp;=&nbsp;LW_VBAK-AUART.&nbsp;"凭证类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV&nbsp;FROM&nbsp;LW_ALV&nbsp;TRANSPORTING&nbsp;REGIO&nbsp;ORT01&nbsp;AUART&nbsp;NAME1.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;IT_ALV&nbsp;BY&nbsp;VBELN&nbsp;KUNAG&nbsp;ASCENDING.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;INTO&nbsp;LW_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LW_ALV&nbsp;TO&nbsp;LW_COLLECT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LW_COLLECT&nbsp;INTO&nbsp;LT_COLLECT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_COLLECT&nbsp;INTO&nbsp;LW_COLLECT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LW_COLLECT&nbsp;TO&nbsp;WA_OUT_ITEM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_OUT_ITEM-FKDAT_S&nbsp;=&nbsp;S_FKDAT-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_OUT_ITEM-FKDAT_H&nbsp;=&nbsp;S_FKDAT-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_OUT_ITEM&nbsp;TO&nbsp;IT_OUT_ITEM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_OUT_ITEM.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;IT_OUT_ITEM&nbsp;BY&nbsp;KUNAG&nbsp;EXTWG.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数（明细）<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA2.<br />
+<br />
+&nbsp;&nbsp;DATA:LT_VBFA&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBFA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBFA_2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBFA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBFA&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBFA,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBFA_2&nbsp;TYPE&nbsp;VBFA,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBFA_2&nbsp;TYPE&nbsp;VBFA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_LIKP&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;LIKP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_LIKP_2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;LIKP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_LIKP&nbsp;&nbsp;&nbsp;TYPE&nbsp;LIKP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBAK&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBAK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBAK_2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBAK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBAK&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBAK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBAK_2&nbsp;TYPE&nbsp;VBAK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBRK&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_VBRK_2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_VBRK_2&nbsp;TYPE&nbsp;VBRK.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*查询原始凭证<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;B~KUNAG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C~NAME1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~POSNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D~EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D~RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~ARKTX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~ZXSJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~ZXSKZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~KZWI6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~KZWI1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~KZWI2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~VBTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRP&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;VBRK&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~VBELN&nbsp;=&nbsp;B~VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KNA1&nbsp;AS&nbsp;C&nbsp;ON&nbsp;B~KUNAG&nbsp;=&nbsp;C~KUNNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;D&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;D~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~BUKRS&nbsp;IN&nbsp;S_BUKRS&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~KUNAG&nbsp;IN&nbsp;S_KUNAG&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~FKDAT&nbsp;IN&nbsp;S_FKDAT&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D~EXTWG&nbsp;IN&nbsp;S_EXTWG&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~VBTYP&nbsp;IN&nbsp;(&nbsp;'M','N'&nbsp;)&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_OUT&nbsp;BY&nbsp;VBELN&nbsp;CHARG&nbsp;MATNR.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_OUT&nbsp;COMPARING&nbsp;ALL&nbsp;FIELDS.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_OUT&nbsp;TO&nbsp;IT_ZMM_CHARG.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取发票销售订单单号，VBTYP_V=C&nbsp;and&nbsp;J<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBFA&nbsp;FROM&nbsp;VBFA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_OUT-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;VBTYP_N&nbsp;=&nbsp;'M'.&nbsp;"后继凭证类别<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_VBFA&nbsp;BY&nbsp;VBELN&nbsp;VBELV.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_VBFA&nbsp;COMPARING&nbsp;VBELN&nbsp;VBELV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*冲销凭证销售订单单号，VBTYP_V=C&nbsp;and&nbsp;J<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBFA_2&nbsp;FROM&nbsp;VBFA<br />
+&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_OUT<br />
+&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_OUT-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;VBTYP_N&nbsp;=&nbsp;'N'.&nbsp;"后继凭证类别<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_VBFA_2&nbsp;BY&nbsp;VBELN&nbsp;VBELV.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_VBFA_2&nbsp;COMPARING&nbsp;VBELN&nbsp;VBELV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取发票销售日期，凭证类型&nbsp;&nbsp;&nbsp;M<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_VBFA&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBAK&nbsp;FROM&nbsp;VBAK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBFA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBFA-VBELV.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_LIKP&nbsp;FROM&nbsp;LIKP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBFA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBFA-VBELV.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取冲销发票销售日期，凭证类型&nbsp;&nbsp;&nbsp;N<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_VBFA_2&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_VBAK_2&nbsp;FROM&nbsp;VBAK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBFA_2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBFA_2-VBELV.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_LIKP_2&nbsp;FROM&nbsp;LIKP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_VBFA_2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;LT_VBFA_2-VBELV.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_OUT&nbsp;TO&nbsp;LT_VBRK.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_ZMM_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;IT_ZMM_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LS_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ZMM_CHARACTERS&nbsp;INTO&nbsp;WA_ZMM_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;CHARG&nbsp;=&nbsp;LS_OUT-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;=&nbsp;LS_OUT-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-ZGYSDM&nbsp;=&nbsp;WA_ZMM_CHARACTERS-ZGYSDM.<br />
+   </div>
+   <div class="codeComment">
+*取发票相关字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_VBRK&nbsp;BY&nbsp;VBELN&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBRK&nbsp;INTO&nbsp;LW_VBRK&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LS_OUT-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP&nbsp;=&nbsp;'M'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBFA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBFA&nbsp;INTO&nbsp;LW_VBFA&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBRK-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP_V&nbsp;='C'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-VBELV&nbsp;=&nbsp;LW_VBFA-VBELV.&nbsp;"销售订单单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBAK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBAK&nbsp;INTO&nbsp;LW_VBAK&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBFA-VBELV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-ERDAT&nbsp;=&nbsp;LW_VBAK-ERDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-AUART&nbsp;=&nbsp;LW_VBAK-AUART.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_VBRK&nbsp;BY&nbsp;KUNAG&nbsp;VBELN&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBRK&nbsp;INTO&nbsp;LW_VBRK&nbsp;WITH&nbsp;KEY&nbsp;KUNAG&nbsp;=&nbsp;LS_OUT-KUNAG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP&nbsp;=&nbsp;'M'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBFA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBFA&nbsp;INTO&nbsp;LW_VBFA&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBRK-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP_V&nbsp;='J'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-VBELV1&nbsp;=&nbsp;LW_VBFA-VBELV.&nbsp;"发货单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_LIKP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_LIKP&nbsp;INTO&nbsp;LW_LIKP&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBFA-VBELV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-WADAT_IST&nbsp;=&nbsp;LW_LIKP-WADAT_IST.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------删除前置0,可在ALV中直接控制----------------------<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LS_OUT-KUNAG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LS_OUT-KUNAG.<br />
+*-----------------删除前置0,可在ALV中直接控制----------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_OUT&nbsp;TO&nbsp;IT_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBAK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBFA.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取冲销凭证相关字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_OUT&nbsp;INTO&nbsp;LS_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBRK_2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_VBRK&nbsp;BY&nbsp;VBELN&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBRK&nbsp;INTO&nbsp;LW_VBRK_2&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LS_OUT-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP&nbsp;=&nbsp;'N'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBFA_2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBFA_2&nbsp;INTO&nbsp;LW_VBFA_2&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBRK_2-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP_V&nbsp;='C'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-VBELV&nbsp;=&nbsp;LW_VBFA_2-VBELV.&nbsp;"销售订单单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBAK_2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBAK_2&nbsp;INTO&nbsp;LW_VBAK_2&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBFA_2-VBELV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-ERDAT&nbsp;=&nbsp;LW_VBAK_2-ERDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-AUART&nbsp;=&nbsp;LW_VBAK_2-AUART.&nbsp;"订单类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBRK_2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_VBRK&nbsp;BY&nbsp;KUNAG&nbsp;VBELN&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBRK&nbsp;INTO&nbsp;LW_VBRK_2&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LS_OUT-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP&nbsp;=&nbsp;'N'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBFA_2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_VBFA_2&nbsp;INTO&nbsp;LW_VBFA_2&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBRK_2-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBTYP_V&nbsp;='J'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-VBELV1&nbsp;=&nbsp;LW_VBFA_2-VBELV.&nbsp;"发货单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_LIKP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_LIKP_2&nbsp;INTO&nbsp;LW_LIKP&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;LW_VBFA_2-VBELV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT-WADAT_IST&nbsp;=&nbsp;LW_LIKP-WADAT_IST.&nbsp;"日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_OUT&nbsp;FROM&nbsp;LS_OUT&nbsp;TRANSPORTING&nbsp;VBELV&nbsp;ERDAT&nbsp;AUART&nbsp;VBELV1&nbsp;WADAT_IST.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBAK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_VBFA.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;IT_OUT&nbsp;BY&nbsp;KUNAG&nbsp;EXTWG.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示界面<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM ALV_SHOW1.  "汇总<br />
+&nbsp;&nbsp;"宏<br />
+&nbsp;&nbsp;CLEAR:IT_FIELDCAT[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELDNAME&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EMPHASIZE&nbsp;&nbsp;=&nbsp;."列颜色<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;."此字段为'X'，整列变为可编辑状态，当与STYLE冲突时STYLE优先。<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;=&nbsp;."参考字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;=&nbsp;."参考表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-HOTSPOT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;."下划线&nbsp;小手<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;."关键字段,前面变蓝色<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;."对齐方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;."鼠标放在标题上显示出的文字<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;."内部长度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIX_COLUMN&nbsp;&nbsp;=&nbsp;ABAP_TRUE.&nbsp;"固定列<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+&nbsp;&nbsp;1&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'ORT01'&nbsp;&nbsp;&nbsp;'加盟商区域'&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;2&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'KUNAG'&nbsp;&nbsp;&nbsp;'加盟商编码'&nbsp;&nbsp;&nbsp;'VBRK'&nbsp;&nbsp;'KUNAG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;3&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'NAME1'&nbsp;&nbsp;&nbsp;'加盟商名称'&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;4&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'FKDAT_S'&nbsp;'销售起始日期'&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;5&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'FKDAT_H'&nbsp;'销售截至日期'&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;6&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'AUART'&nbsp;&nbsp;&nbsp;'订单类型'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;7&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'EXTWG'&nbsp;&nbsp;&nbsp;'商品大类'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;8&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'ZXSJS'&nbsp;&nbsp;&nbsp;'销售件数'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;9&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'ZXSKZ'&nbsp;&nbsp;&nbsp;'销售重量'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;10&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'KZWI1'&nbsp;&nbsp;&nbsp;'销售商品金额'&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;11&nbsp;'IT_OUT_ITEM'&nbsp;&nbsp;&nbsp;'KZWI2'&nbsp;&nbsp;&nbsp;'销售商品成本'&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'."列宽自适应<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'."显示前导零<br />
+<br />
+   </div>
+   <div class="codeComment">
+*调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID&nbsp;"系统变量程序ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_OUT_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS&nbsp;"错误提示<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+FORM ALV_SHOW2.  "明细<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELDNAME&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EMPHASIZE&nbsp;&nbsp;=&nbsp;&4."列颜色<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5."此字段为'X'，整列变为可编辑状态，当与STYLE冲突时STYLE优先。<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;=&nbsp;&6."参考字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;=&nbsp;&7."参考表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-HOTSPOT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8."下划线&nbsp;小手<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&9."关键字段,前面变蓝色<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&9."对齐方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&9."鼠标放在标题上显示出的文字<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+<br />
+&nbsp;&nbsp;1&nbsp;'IT_OUT'&nbsp;&nbsp;'KUNAG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'加盟商编码'&nbsp;&nbsp;&nbsp;'VBRK'&nbsp;'KUNAG'&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;2&nbsp;'IT_OUT'&nbsp;&nbsp;'NAME1'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'加盟商名称'&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;3&nbsp;'IT_OUT'&nbsp;&nbsp;'ERDAT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'销售日期'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;4&nbsp;'IT_OUT'&nbsp;&nbsp;'FKDAT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'开票日期'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;5&nbsp;'IT_OUT'&nbsp;&nbsp;'AUART'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'订单类型'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;6&nbsp;'IT_OUT'&nbsp;&nbsp;'VBELV'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'销售订单单号'&nbsp;'VBFA'&nbsp;'VBELV'&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;7&nbsp;'IT_OUT'&nbsp;&nbsp;'WADAT_IST'&nbsp;'发货日期'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;8&nbsp;'IT_OUT'&nbsp;&nbsp;'VBELV1'&nbsp;&nbsp;&nbsp;&nbsp;'发货单号'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'VBFA'&nbsp;'VBELV'&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;9&nbsp;'IT_OUT'&nbsp;&nbsp;'VBELN'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'收入凭证号'&nbsp;&nbsp;&nbsp;'VBRK'&nbsp;'VBELN'&nbsp;&nbsp;,<br />
+&nbsp;10&nbsp;'IT_OUT'&nbsp;&nbsp;'POSNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'行项目号'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;11&nbsp;'IT_OUT'&nbsp;&nbsp;'EXTWG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品大类'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;12&nbsp;'IT_OUT'&nbsp;&nbsp;'RAUBE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品小类'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;13&nbsp;'IT_OUT'&nbsp;&nbsp;'MATNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品款式'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'VBRP'&nbsp;'MATNR'&nbsp;&nbsp;,<br />
+&nbsp;14&nbsp;'IT_OUT'&nbsp;&nbsp;'ARKTX'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'款式名称'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;15&nbsp;'IT_OUT'&nbsp;&nbsp;'CHARG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'批次'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;16&nbsp;'IT_OUT'&nbsp;&nbsp;'ZXSJS'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'销售件数'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;17&nbsp;'IT_OUT'&nbsp;&nbsp;'ZXSKZ'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'销售重量'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;18&nbsp;'IT_OUT'&nbsp;&nbsp;'KZWI6'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品销售价格'&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;19&nbsp;'IT_OUT'&nbsp;&nbsp;'KZWI1'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'收款金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;20&nbsp;'IT_OUT'&nbsp;&nbsp;'KZWI2'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品销售成本'&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;21&nbsp;'IT_OUT'&nbsp;&nbsp;'ZGYSDM'&nbsp;&nbsp;&nbsp;&nbsp;'联营供应商'&nbsp;&nbsp;'LFA1'&nbsp;&nbsp;'LIFNR'&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_LAYOUT.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'."列宽自适应<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'."显示前导零<br />
+<br />
+   </div>
+   <div class="codeComment">
+*调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID&nbsp;"系统变量程序ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS&nbsp;"错误提示<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汇总查询<br />
+*&nbsp;P_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;明细查询<br />
+*&nbsp;S_AUART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;订单类型<br />
+*&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公司代码<br />
+*&nbsp;S_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品大类<br />
+*&nbsp;S_FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开票日期<br />
+*&nbsp;S_KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;加盟商<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

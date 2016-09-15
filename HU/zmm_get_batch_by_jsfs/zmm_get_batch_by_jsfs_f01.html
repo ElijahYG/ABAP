@@ -1,0 +1,710 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_GET_BATCH_BY_JSFS_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMM_GET_BATCH_BY_JSFS_F01</h2>
+<h3> Description: ZMM_GET_BATCH_BY_JSFS_F01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_BATCH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_BATCH .<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZSPTM&nbsp;TYPE&nbsp;ATINN&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;S_ZSPTM[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;A~MATNR,&nbsp;A~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@GT_ZMM_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;ZMMDG0010_JSFS&nbsp;AS&nbsp;B&nbsp;ON&nbsp;B~BM&nbsp;=&nbsp;A~ZLYJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;IN&nbsp;@S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~CHARG&nbsp;IN&nbsp;@S_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZLYJSFS&nbsp;IN&nbsp;@S_ZJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZXSJGJLDW&nbsp;IN&nbsp;@S_ZXSDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZXSKGFD&nbsp;&nbsp;IN&nbsp;@S_ZXSGF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZGYSDM&nbsp;IN&nbsp;@S_ZGYSD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~SFLY&nbsp;IN&nbsp;@S_ZSFLY&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;'ZSPTM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZSPTM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;A~MATNR,&nbsp;A~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@GT_ZMM_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MCH1&nbsp;AS&nbsp;C&nbsp;ON&nbsp;&nbsp;C~MATNR&nbsp;=&nbsp;A~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;C~CHARG&nbsp;=&nbsp;A~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;AUSP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;&nbsp;P~OBJEK&nbsp;=&nbsp;C~CUOBJ_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~ATINN&nbsp;=&nbsp;@LV_ATINN_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;ZMMDG0010_JSFS&nbsp;AS&nbsp;B&nbsp;ON&nbsp;B~BM&nbsp;=&nbsp;A~ZLYJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;IN&nbsp;@S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~CHARG&nbsp;IN&nbsp;@S_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZLYJSFS&nbsp;IN&nbsp;@S_ZJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZXSJGJLDW&nbsp;IN&nbsp;@S_ZXSDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZXSKGFD&nbsp;&nbsp;IN&nbsp;@S_ZXSGF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ZGYSDM&nbsp;IN&nbsp;@S_ZGYSD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~ATWRT&nbsp;&nbsp;IN&nbsp;@S_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~SFLY&nbsp;IN&nbsp;@S_ZSFLY&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_ZMM_CHARG[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_ZB00&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_ZTJJ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_ZKSG&nbsp;.&nbsp;"&nbsp;注意在这个之前要运行PERFORM&nbsp;FRM_GET_ZTJJ<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_MATNR<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_MATNR .<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_ZMM_CHARG&nbsp;TO&nbsp;GT_MATNR&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MATNR&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;GT_MATNR&nbsp;COMPARING&nbsp;MATNR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;EXTWG&nbsp;RAUBE&nbsp;TEMPB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;GT_MATNR-MATNR&nbsp;.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_ZB00<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_ZB00 .<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;A~EX_SITE&nbsp;A~EXTWG&nbsp;A~RAUBE&nbsp;A~EX_GJS&nbsp;P~KBETR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_ZB00<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A909&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;A~KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~KSCHL&nbsp;=&nbsp;'ZB00'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EX_SITE&nbsp;=&nbsp;P_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_ZTJJ<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_ZTJJ .<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;A~EXTWG&nbsp;A~RAUBE&nbsp;A~EX_GJS&nbsp;P~KBETR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_ZTJJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A908&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;A~KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~KSCHL&nbsp;=&nbsp;'ZTJJ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_ZKSG<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_ZKSG .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_ZKG1&nbsp;LIKE&nbsp;GT_ZKSG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;A~ZXSKGFD&nbsp;P~KBETR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_ZKSG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A911&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;A~KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~KSCHL&nbsp;&nbsp;=&nbsp;'ZKSG'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;取投资银产品加价百分比<br />
+&nbsp;&nbsp;SELECT&nbsp;A~ZXSKGFD&nbsp;P~KBETR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZKG1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A911&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;A~KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~KSCHL&nbsp;&nbsp;=&nbsp;'ZKG1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;将加价百分比转换为加价金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;GT_ZTJJ&nbsp;BY&nbsp;EXTWG&nbsp;RAUBE&nbsp;EX_GJS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_ZKG1&nbsp;INTO&nbsp;DATA(LS_ZKG1)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZTJJ&nbsp;INTO&nbsp;GS_ZTJJ&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;'D04'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;'19'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;=&nbsp;'403'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GS_ZKSG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_ZKSG-ZXSKGFD&nbsp;=&nbsp;LS_ZKG1-ZXSKGFD&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_ZKSG-KBETR&nbsp;=&nbsp;LS_ZKG1-KBETR&nbsp;*&nbsp;GS_ZTJJ-KBETR&nbsp;/&nbsp;1000&nbsp;.&nbsp;&nbsp;"将百分比乘以基础银价计算出克工费加价金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_ZKSG&nbsp;TO&nbsp;GT_ZKSG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_CHARACTERS<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_CHARACTERS .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_LINE_TOTAL&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_FROM&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_TO&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_MAX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_ZMM_CHARACTERS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZMM_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ALV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;GT_ALV.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZMM_CHARG&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;LV_LINE_TOTAL&nbsp;=&nbsp;LINES(&nbsp;GT_ZMM_CHARG&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;LV_LINE_MAX&nbsp;=&nbsp;10000&nbsp;.<br />
+&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINE_TOTAL&nbsp;DIV&nbsp;LV_LINE_MAX&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;DO&nbsp;LV_TIMES&nbsp;TIMES&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;LT_ZMM_CHARG,&nbsp;LT_ZMM_CHARACTERS,&nbsp;LT_ALV&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_FROM&nbsp;=&nbsp;LV_LINE_MAX&nbsp;*&nbsp;(&nbsp;SY-INDEX&nbsp;-&nbsp;1&nbsp;)&nbsp;+&nbsp;1&nbsp;.&nbsp;"&nbsp;本次循环从内表的哪一行开始<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-INDEX&nbsp;=&nbsp;LV_TIMES&nbsp;.&nbsp;"&nbsp;最后一次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_TO&nbsp;=&nbsp;LV_LINE_TOTAL&nbsp;.&nbsp;"&nbsp;本次循环到内表的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_TO&nbsp;=&nbsp;LV_LINE_MAX&nbsp;*&nbsp;SY-INDEX&nbsp;.&nbsp;"&nbsp;本次循环到内表的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;GT_ZMM_CHARG&nbsp;FROM&nbsp;LV_LINE_FROM&nbsp;TO&nbsp;LV_LINE_TO&nbsp;TO&nbsp;LT_ZMM_CHARG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_ZMM_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;LT_ZMM_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_ZMM_CHARACTERS&nbsp;TO&nbsp;LT_ALV&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_ALV&nbsp;TO&nbsp;GT_ALV&nbsp;.<br />
+&nbsp;&nbsp;ENDDO.<br />
+&nbsp;&nbsp;REFRESH:&nbsp;LT_ZMM_CHARG,&nbsp;LT_ZMM_CHARACTERS,&nbsp;LT_ALV&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ALV&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PROCESS_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PROCESS_DATA .<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MATNR&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZKSG&nbsp;BY&nbsp;ZXSKGFD&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZB00&nbsp;BY&nbsp;EX_SITE&nbsp;EXTWG&nbsp;RAUBE&nbsp;EX_GJS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZTJJ&nbsp;BY&nbsp;EXTWG&nbsp;RAUBE&nbsp;EX_GJS&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;GS_ALV&gt;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MATNR&nbsp;INTO&nbsp;GS_MATNR&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;GS_ALV&gt;-MATNR&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-EXTWG&nbsp;=&nbsp;GS_MATNR-EXTWG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-RAUBE&nbsp;=&nbsp;GS_MATNR-RAUBE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-TEMPB&nbsp;=&nbsp;GS_MATNR-TEMPB&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_ALV&gt;-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;按克销售的商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取投资商品的金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_ALV&gt;-EXTWG&nbsp;=&nbsp;'D04'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZTJJ&nbsp;INTO&nbsp;GS_ZTJJ&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;&lt;GS_ALV&gt;-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;&lt;GS_ALV&gt;-RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;=&nbsp;&lt;GS_ALV&gt;-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-KBETR_JJ&nbsp;=&nbsp;GS_ZTJJ-KBETR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取一般贵金属商品的金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZB00&nbsp;INTO&nbsp;GS_ZB00&nbsp;WITH&nbsp;KEY&nbsp;EX_SITE&nbsp;=&nbsp;P_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;&lt;GS_ALV&gt;-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;&nbsp;=&nbsp;&lt;GS_ALV&gt;-RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;&nbsp;=&nbsp;&lt;GS_ALV&gt;-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-KBETR_JJ&nbsp;=&nbsp;GS_ZB00-KBETR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZKSG&nbsp;INTO&nbsp;GS_ZKSG&nbsp;WITH&nbsp;KEY&nbsp;ZXSKGFD&nbsp;=&nbsp;&lt;GS_ALV&gt;-ZXSKGFD&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-KBETR_GF&nbsp;=&nbsp;GS_ZKSG-KBETR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;克单价&nbsp;=&nbsp;克金价&nbsp;+&nbsp;克工费&nbsp;+&nbsp;克附加费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-KBETR&nbsp;=&nbsp;&lt;GS_ALV&gt;-KBETR_JJ&nbsp;+&nbsp;&lt;GS_ALV&gt;-KBETR_GF&nbsp;+&nbsp;&lt;GS_ALV&gt;-ZXSKFJGF&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;每件售价&nbsp;=&nbsp;克单价&nbsp;*&nbsp;克金重&nbsp;，并舍分<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-PRICE&nbsp;=&nbsp;&lt;GS_ALV&gt;-KBETR&nbsp;*&nbsp;&lt;GS_ALV&gt;-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-PRICE&nbsp;=&nbsp;&lt;GS_ALV&gt;-PRICE&nbsp;*&nbsp;10&nbsp;DIV&nbsp;1&nbsp;/&nbsp;10&nbsp;.&nbsp;"&nbsp;舍分<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&lt;GS_ALV&gt;-ZXSJGJLDW&nbsp;=&nbsp;'PC'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_ALV&gt;-PRICE&nbsp;=&nbsp;&lt;GS_ALV&gt;-ZCKLSJ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_DIS_ALV<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_DIS_ALV .<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_FIELDCAT.&nbsp;&nbsp;&nbsp;"&nbsp;设置显示字段属性<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_LAYOUT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;设置屏幕布局<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_ALV_DISPLAY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;ALV显示<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_FIELDCAT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置显示字段属性<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_FIELDCAT .<br />
+&nbsp;&nbsp;REFRESH&nbsp;GT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_FIELDCATALOG_MERGE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PROGRAM_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_INTERNAL_TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_STRUCTURE_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMM_CHARACTERS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CLIENT_NEVER_DISPLAY&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_INCLNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BYPASSING_BUFFER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BUFFER_ACTIVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCONSISTENT_INTERFACE&nbsp;=&nbsp;1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Implement&nbsp;suitable&nbsp;error&nbsp;handling&nbsp;here<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;GS_FIELDCAT&gt;&nbsp;LIKE&nbsp;GS_FIELDCAT&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_FIELDCAT&nbsp;ASSIGNING&nbsp;&lt;GS_FIELDCAT&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'MATNR'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'CHARG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZBQMC'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-LOWERCASE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZJSZBM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'检测站编码'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;20.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZCT1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'抽屉1'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;13.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZCT2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'抽屉2'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;13.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'SFLY'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'是否联营'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'TEMPB'&nbsp;''&nbsp;'TEMPB'&nbsp;'条码类型'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'EXTWG'&nbsp;''&nbsp;''&nbsp;'大类'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'RAUBE'&nbsp;''&nbsp;''&nbsp;'小类'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'KBETR_JJ'&nbsp;''&nbsp;''&nbsp;'基础金价'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'KBETR_GF'&nbsp;''&nbsp;''&nbsp;'克工费'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'KBETR'&nbsp;''&nbsp;''&nbsp;'克单价'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'PRICE'&nbsp;''&nbsp;''&nbsp;'每件价格'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+<br />
+ENDFORM.                    " FRM_BUILD_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_SET_FIELDS<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SUB_SET_FIELDS USING I_FIELDNAME TYPE SLIS_FIELDNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_TABLENAME&nbsp;TYPE&nbsp;SLIS_TABNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_ROLLNAME&nbsp;&nbsp;TYPE&nbsp;DD03P-ROLLNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_REPTEXT&nbsp;TYPE&nbsp;DD03P-REPTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_NO_ZERO&nbsp;TYPE&nbsp;CHAR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_OUTPUTLEN&nbsp;TYPE&nbsp;DD03P-OUTPUTLEN.<br />
+<br />
+&nbsp;&nbsp;GS_FIELDCAT-FIELDNAME&nbsp;=&nbsp;I_FIELDNAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;I_TABLENAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-ROLLNAME&nbsp;&nbsp;&nbsp;=&nbsp;I_ROLLNAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-REPTEXT_DDIC&nbsp;=&nbsp;I_REPTEXT&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;=&nbsp;I_NO_ZERO&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_KEY&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;I_OUTPUTLEN&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-OUTPUTLEN&nbsp;=&nbsp;I_OUTPUTLEN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;GS_FIELDCAT-COL_POS&nbsp;=&nbsp;LINES(&nbsp;GT_FIELDCAT&nbsp;)&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELDCAT&nbsp;TO&nbsp;GT_FIELDCAT.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GS_FIELDCAT.<br />
+ENDFORM.                    "SUB_SET_FIELDS<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_LAYOUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置屏幕布局<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_LAYOUT .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;输出长度的最优化设计<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;gs_layout-box_fieldname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BOX'.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.                    " FRM_BUILD_LAYOUT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_ALV_DISPLAY<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALV显示<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_ALV_DISPLAY .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV&nbsp;FUNCTION<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_VARIANT-REPORT&nbsp;=&nbsp;SY-REPID.<br />
+&nbsp;&nbsp;LS_VARIANT-VARIANT&nbsp;=&nbsp;P_VARI&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'FRM_PF_STATUS_SET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'FRM_USER_COMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_HTML_HEIGHT_TOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GS_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_ALV.<br />
+<br />
+ENDFORM.                    " FRM_ALV_DISPLAY<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PF_STATUS_SET<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置状态栏<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PF_STATUS_SET USING RT_EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STANDARD'.<br />
+<br />
+ENDFORM.                    " FRM_PF_STATUS_SET<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_USER_COMMAND<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;定义按钮功能<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_USER_COMMAND  USING R_UCOMM TYPE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;G_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.&nbsp;"&nbsp;刷新数据<br />
+&nbsp;&nbsp;DATA:LT_RSPAR&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RSPAR&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_RSPAR.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;G_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;G_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE'.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.                    " FRM_USER_COMMAND<br />
+<br />
+FORM HTML_TOP_OF_PAGE USING CL_DD TYPE REF TO CL_DD_DOCUMENT.<br />
+&nbsp;&nbsp;DATA&nbsp;LV_TEXT&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;255&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA(LV_LINE)&nbsp;=&nbsp;LINES(&nbsp;GT_ALV&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;LV_TEXT&nbsp;=&nbsp;'找到'&nbsp;&&&nbsp;LV_LINE&nbsp;&&&nbsp;'条SAP批次！'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_MSG&nbsp;INTO&nbsp;GS_MSG&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;GS_MSG-ID&nbsp;TYPE&nbsp;GS_MSG-TYPE&nbsp;NUMBER&nbsp;GS_MSG-NUMBER<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LV_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;GS_MSG-MESSAGE_V1&nbsp;GS_MSG-MESSAGE_V2&nbsp;GS_MSG-MESSAGE_V3&nbsp;GS_MSG-MESSAGE_V4&nbsp;&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;NEW_LINE&nbsp;.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM .<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;F_ALV_VARIANT_F4<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_P_VARI&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM F_ALV_VARIANT_F4 CHANGING P_P_VARI TYPE SLIS_VARI.<br />
+&nbsp;&nbsp;DATA:&nbsp;RS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT.<br />
+<br />
+&nbsp;&nbsp;RS_VARIANT-REPORT&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID.<br />
+&nbsp;&nbsp;RS_VARIANT-USERNAME&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_VARIANT_F4'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'A'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ES_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_P_VARI&nbsp;=&nbsp;RS_VARIANT-VARIANT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM. " F_ALV_VARIANT_F4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

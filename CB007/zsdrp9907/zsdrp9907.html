@@ -1,0 +1,519 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP9907</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP9907</h2>
+<h3> Description: 公司间调拨价格的检查报表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZSDRP9907.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP9907<br />
+*&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:<br />
+*&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;查询公司间交易价格<br />
+*&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;Liuke<br />
+*<br />
+*&---------------------------------------------------------------------*<br />
+*<br />
+*报表需求：<br />
+*<br />
+*输入：&nbsp;过账日期（默认当前），发货地点（默认DC80），收货地点（默认DC70），商品，批次，数量<br />
+*<br />
+*名称&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;字段&nbsp;&nbsp;参考字段<br />
+*过账日期	BEDAT	TYPE&nbsp;EKKO-BEDAT<br />
+*发货地点	RESWK	TYPE&nbsp;EKKO-RESWK<br />
+*收货地点	WERKS	TYPE&nbsp;EKPO-WERKS<br />
+*商品	&nbsp;&nbsp;&nbsp;&nbsp;MATNR	TYPE&nbsp;EKPO-MATNR<br />
+*批次	&nbsp;&nbsp;&nbsp;&nbsp;CHARG	TYPE&nbsp;EKET-CHARG<br />
+*数量	&nbsp;&nbsp;&nbsp;&nbsp;MENGE	TYPE&nbsp;EKPO-MENGE<br />
+*<br />
+*<br />
+*输出：过账日期，发货地点，收货地点，商品，批次，数量，成本，<br />
+<br />
+*加价率，结算单价，结算金额（=数量*单价）。<br />
+*<br />
+*处理逻辑：&nbsp;参考&nbsp;ME23N&nbsp;单号&nbsp;4700000626<br />
+<br />
+   </div>
+   <div class="code">
+TABLES:EKKO,EKPO,EKET,MAKT,KONV.<br />
+<br />
+<br />
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT     TYPE SLIS_LAYOUT_ALV.<br />
+<br />
+<br />
+TYPES:BEGIN OF STRU_0010,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEDAT	TYPE&nbsp;EKKO-BEDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RESWK	TYPE&nbsp;EKKO-RESWK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS	TYPE&nbsp;EKPO-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR	TYPE&nbsp;EKPO-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG	TYPE&nbsp;EKET-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE	TYPE&nbsp;EKPO-MENGE,<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0010.<br />
+<br />
+<br />
+<br />
+<br />
+TYPES:BEGIN OF GETCOST,<br />
+<br />
+<br />
+&nbsp;&nbsp;BEDAT&nbsp;TYPE&nbsp;EKKO-BEDAT,&nbsp;"*过账日期<br />
+&nbsp;&nbsp;RESWK&nbsp;TYPE&nbsp;EKKO-RESWK,&nbsp;"&nbsp;发货地点<br />
+&nbsp;&nbsp;WERKS_R	TYPE&nbsp;EKPO-WERKS,&nbsp;"收货地点<br />
+&nbsp;&nbsp;MATNR&nbsp;&nbsp;TYPE&nbsp;&nbsp;MATNR,<br />
+&nbsp;&nbsp;CHARG&nbsp;&nbsp;TYPE&nbsp;&nbsp;CHARG_D,<br />
+&nbsp;&nbsp;WERKS&nbsp;&nbsp;TYPE&nbsp;&nbsp;WERKS_D,<br />
+&nbsp;&nbsp;MENGE&nbsp;&nbsp;TYPE&nbsp;&nbsp;MENGE_D,<br />
+&nbsp;&nbsp;TUIHUO&nbsp;TYPE&nbsp;&nbsp;CHAR1,<br />
+&nbsp;&nbsp;VERPR&nbsp;&nbsp;TYPE&nbsp;&nbsp;VERPR,&nbsp;&nbsp;"成本<br />
+&nbsp;&nbsp;EXTWG&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;KBETR&nbsp;TYPE&nbsp;KONP-KBETR,<br />
+&nbsp;&nbsp;JSJE&nbsp;&nbsp;TYPE&nbsp;&nbsp;KONP-KBRUE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;GETCOST.<br />
+<br />
+<br />
+TYPES:BEGIN OF STRU,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEDAT	TYPE&nbsp;EKKO-BEDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RESWK	TYPE&nbsp;EKKO-RESWK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS	TYPE&nbsp;EKPO-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR	TYPE&nbsp;EKPO-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG	TYPE&nbsp;EKET-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE	TYPE&nbsp;EKPO-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZPUR_COST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_CAL-ZPUR_COST,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZIC_ADD_RATE&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_CAL-ZIC_ADD_RATE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZIC_ADD_PRIC&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_CAL-ZIC_ADD_PRIC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZIC_AMT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_CAL-ZIC_AMT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZIC_SAL_COST&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_CAL-ZIC_SAL_COST,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZIC_PUR_COST&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_CAL-ZIC_PUR_COST,<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU.<br />
+<br />
+<br />
+<br />
+<br />
+TYPES:BEGIN OF COST,<br />
+<br />
+VERPR TYPE  VERPR,  "成本<br />
+MENGE TYPE  MENGE_D, "  基本单位对应的数量<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;COST.<br />
+<br />
+<br />
+TYPES:BEGIN OF STRU_0030,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;TYPE&nbsp;EKKO-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEDAT	TYPE&nbsp;EKKO-BEDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RESWK	TYPE&nbsp;EKKO-RESWK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS	TYPE&nbsp;EKPO-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR	TYPE&nbsp;EKPO-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG	TYPE&nbsp;EKET-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE	TYPE&nbsp;EKPO-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KSCHL	TYPE&nbsp;KONV-KSCHL,&nbsp;"条件类型-税码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KWERT	TYPE&nbsp;KONV-KWERT,&nbsp;&nbsp;"税金<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0030.<br />
+<br />
+<br />
+DATA: IT_TABLE  TYPE  STANDARD TABLE OF STRU_0030.<br />
+DATA: WA_TABLE  TYPE                    STRU_0030.<br />
+<br />
+<br />
+DATA: IT_TABLE2  TYPE  STANDARD TABLE OF STRU_0030.<br />
+DATA: WA_TABLE2  TYPE                    STRU_0030.<br />
+<br />
+<br />
+DATA: IT_TABLE1  TYPE  STANDARD TABLE OF STRU_0030.<br />
+DATA: WA_TABLE1  TYPE                    STRU_0030.<br />
+<br />
+<br />
+DATA: WA_CHARG  TYPE   ZMM_CHARG.<br />
+DATA: IT_CHARG  TYPE STANDARD TABLE OF  ZMM_CHARG.<br />
+<br />
+DATA: WA_CHARACTERS  TYPE   ZMM_CHARACTERS.<br />
+DATA: IT_CHARACTERS  TYPE  STANDARD TABLE OF ZMM_CHARACTERS.<br />
+<br />
+<br />
+DATA: WA_CAL TYPE ZSDRP0020_CAL.<br />
+DATA: IT_CAL TYPE  STANDARD TABLE OF ZSDRP0020_CAL.<br />
+<br />
+DATA: WA_COST TYPE COST.<br />
+DATA: IT_COST TYPE  STANDARD TABLE OF COST.<br />
+<br />
+DATA: WA_GETCOST TYPE    GETCOST.<br />
+DATA: IT_GETCOST TYPE  STANDARD TABLE OF GETCOST.<br />
+<br />
+DATA: WA_MARA TYPE    MARA.<br />
+DATA: IT_MARA TYPE  STANDARD TABLE OF MARA.<br />
+<br />
+DATA: WA_A974 TYPE    A974.<br />
+DATA: IT_A974 TYPE  STANDARD TABLE OF A974.<br />
+<br />
+DATA: WA_KONP TYPE    KONP.<br />
+DATA: IT_KONP TYPE  STANDARD TABLE OF KONP.<br />
+<br />
+<br />
+DATA: I TYPE KONP-KBETR.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*过账日期	BEDAT	EKKO-BEDAT<br />
+*发货地点	RESWK	EKKO-RESWK<br />
+*收货地点	WERKS	EKPO-WERKS<br />
+*商品	&nbsp;&nbsp;&nbsp;&nbsp;MATNR	EKPO-MATNR<br />
+*批次	&nbsp;&nbsp;&nbsp;&nbsp;CHARG	EKET-CHARG<br />
+*数量	&nbsp;&nbsp;&nbsp;&nbsp;MENGE	EKPO-MENGE<br />
+*MATCHCODE&nbsp;OBJECT&nbsp;ZSH_ZSDRP0070_XSLX&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS<br />
+*输入：&nbsp;过账日期（默认当前），发货地点（默认DC80），收货地点（默认DC70），商品，批次，数量<br />
+*OBLIGATORY<br />
+   </div>
+   <div class="code">
+SELECT-OPTIONS:<br />
+&nbsp;S_BEDAT&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;EKKO-BEDAT&nbsp;&nbsp;DEFAULT&nbsp;SY-DATUM,&nbsp;"过账日期<br />
+&nbsp;S_RESWK&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;EKKO-RESWK&nbsp;&nbsp;DEFAULT&nbsp;'DC80',&nbsp;"发货地点<br />
+&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;EKPO-WERKS&nbsp;&nbsp;DEFAULT&nbsp;'DC70',&nbsp;"收货地点<br />
+&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;EKPO-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品<br />
+&nbsp;S_CHARG&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;EKET-CHARG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;S_MENGE&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;EKPO-MENGE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_SHOW.<br />
+   </div>
+   <div class="codeComment">
+*通过EKPO&nbsp;的条件类型和条件记录号抓&nbsp;KONV<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;SELECT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;A~EBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;A~BEDAT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;A~RESWK<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;B~WERKS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;C~CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;D~KSCHL<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;D~KWERT<br />
+*<br />
+*&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE<br />
+*&nbsp;&nbsp;FROM&nbsp;EKKO&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EKPO&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~EBELN&nbsp;=&nbsp;B~EBELN&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EKET&nbsp;AS&nbsp;C&nbsp;ON&nbsp;B~EBELN&nbsp;=&nbsp;C~EBELN<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONV&nbsp;AS&nbsp;D&nbsp;ON&nbsp;A~KNUMV&nbsp;=&nbsp;D~KNUMV<br />
+<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;A~BEDAT&nbsp;IN&nbsp;S_BEDAT&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;A~RESWK&nbsp;IN&nbsp;S_RESWK&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;B~WERKS&nbsp;IN&nbsp;S_WERKS&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR&nbsp;IN&nbsp;S_MATNR&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;C~CHARG&nbsp;IN&nbsp;S_CHARG&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE&nbsp;IN&nbsp;S_MENGE&nbsp;.<br />
+<br />
+*S_BEDAT&nbsp;&nbsp;过账日期<br />
+*S_CHARG&nbsp;&nbsp;批次<br />
+*S_MATNR&nbsp;&nbsp;商品<br />
+*S_MENGE&nbsp;&nbsp;数量<br />
+*S_RESWK&nbsp;&nbsp;发货地点<br />
+*S_WERKS&nbsp;&nbsp;收货地点<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_GETCOST-MATNR&nbsp;=&nbsp;S_MATNR-LOW.<br />
+&nbsp;&nbsp;WA_GETCOST-CHARG&nbsp;=&nbsp;S_CHARG-LOW.<br />
+&nbsp;&nbsp;WA_GETCOST-WERKS&nbsp;=&nbsp;'DC80'.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsd_get_cost/zsd_get_cost.html">'ZSD_GET_COST'</a><br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_MATNR&nbsp;=&nbsp;WA_GETCOST-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_CHARG&nbsp;=&nbsp;WA_GETCOST-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_WERKS&nbsp;=&nbsp;WA_GETCOST-WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_MENGE&nbsp;=&nbsp;'1'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;I_TUIHUO&nbsp;=&nbsp;WA_GETCOST-TUIHUO<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;WA_GETCOST-VERPR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE&nbsp;=&nbsp;WA_GETCOST-MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GETCOST-BEDAT&nbsp;=&nbsp;WA_TABLE-BEDAT.&nbsp;"过账日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GETCOST-RESWK&nbsp;=&nbsp;S_RESWK-LOW.&nbsp;&nbsp;"&nbsp;发货地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GETCOST-WERKS_R&nbsp;=&nbsp;WA_TABLE-WERKS.&nbsp;"收货地点<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_MARA&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;&nbsp;WHERE&nbsp;&nbsp;MATNR&nbsp;=&nbsp;WA_GETCOST-MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GETCOST-EXTWG&nbsp;=&nbsp;WA_MARA-EXTWG.<br />
+   </div>
+   <div class="codeComment">
+*DATAB&nbsp;&gt;=&nbsp;'20151130'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_A974&nbsp;&nbsp;FROM&nbsp;A974<br />
+&nbsp;&nbsp;WHERE&nbsp;&nbsp;EXTWG&nbsp;=&nbsp;WA_GETCOST-EXTWG&nbsp;AND&nbsp;DATAB&nbsp;&lt;&nbsp;SY-DATUM&nbsp;AND&nbsp;DATBI&nbsp;=&nbsp;'99991231'&nbsp;AND&nbsp;KSCHL&nbsp;=&nbsp;'ZK10'&nbsp;AND&nbsp;VKORG&nbsp;=&nbsp;'8000'.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_KONP&nbsp;&nbsp;FROM&nbsp;KONP<br />
+&nbsp;&nbsp;WHERE&nbsp;&nbsp;KNUMH&nbsp;=&nbsp;WA_A974-KNUMH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;I&nbsp;=&nbsp;WA_KONP-KBETR.<br />
+&nbsp;&nbsp;&nbsp;WA_GETCOST-KBETR&nbsp;=&nbsp;I&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;WA_GETCOST-JSJE&nbsp;=&nbsp;WA_GETCOST-VERPR&nbsp;*&nbsp;(&nbsp;WA_GETCOST-KBETR&nbsp;+&nbsp;1&nbsp;).<br />
+<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_GETCOST&nbsp;TO&nbsp;IT_GETCOST.<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*过账日期	BEDAT	EKKO-BEDAT<br />
+*发货地点	RESWK	EKKO-RESWK<br />
+*收货地点	WERKS	EKPO-WERKS<br />
+*商品	&nbsp;&nbsp;&nbsp;&nbsp;MATNR	EKPO-MATNR<br />
+*批次	&nbsp;&nbsp;&nbsp;&nbsp;CHARG	EKET-CHARG<br />
+*数量	&nbsp;&nbsp;&nbsp;&nbsp;MENGE	EKPO-MENGE<br />
+*MATCHCODE&nbsp;OBJECT&nbsp;ZSH_ZSDRP0070_XSLX&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS<br />
+*输入：&nbsp;过账日期（默认当前），发货地点（默认DC80），收货地点（默认DC70），商品，批次，数量<br />
+<br />
+*输出：过账日期，发货地点，收货地点，商品，批次，数量，成本，<br />
+<br />
+*加价率，结算单价，结算金额（=数量*单价）。<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+FORM GET_SHOW.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].<br />
+   </div>
+   <div class="codeComment">
+*将自己定义的数据结构放到&nbsp;用于显示ALV的内表中<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'BEDAT'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'过账日期'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'RESWK'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'发货地点'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'WERKS'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'收货地点'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;WA_FIELDCAT-HOTSPOT&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'MATNR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'商品'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOSTE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'CHARG'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'批次'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'MENGE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'数量'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'VERPR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'成本'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'KBETR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'加价率'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_GETCOST'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'JSJE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'结算金额'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_GETCOST<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_BEDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;过账日期<br />
+*&nbsp;S_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;批次<br />
+*&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品<br />
+*&nbsp;S_MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数量<br />
+*&nbsp;S_RESWK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发货地点<br />
+*&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;收货地点<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZLQTEST13</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZLQTEST13</h2>
+<h3> Description: TEST</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZLQTEST13.<br />
+<br />
+DATA: BEGIN OF ig_ftp_result OCCURS 0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line(100),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ig_ftp_result.<br />
+<br />
+DATA: l_path(128)       TYPE c.  "文件路径,必须以/结尾<br />
+DATA: l_filename(128)   TYPE c VALUE 'CH210276140222_likp.txt'.  "文件名<br />
+DATA: l_ftpcommand(100) TYPE c.  "FTP命令<br />
+DATA: l_handle          TYPE i.                 "HAND<br />
+"源路径，必须以/结尾<br />
+DATA: cons_source(128) TYPE c  VALUE '/usr/sap/tmp/'.<br />
+DATA:  cons_dens(128) TYPE c value '/dev'.                      "目标路径<br />
+<br />
+CONSTANTS cons_key TYPE i  VALUE 26101957.<br />
+DATA  pr_return(1) TYPE c VALUE '0'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*//&nbsp;START&nbsp;OF&nbsp;SELECTION<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;frm_ftp_file.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_ftp_file<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_ftp_file .<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_dstlen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;i,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"DESTINATION&nbsp;LEN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_pw(64)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;c.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"密码长度一定要够否则出错<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;连接FTP服务器<br />
+*--&nbsp;FTP_CONNECT&nbsp;requires&nbsp;an&nbsp;encrypted&nbsp;password&nbsp;to&nbsp;work<br />
+*&nbsp;&nbsp;&nbsp;CREATE&nbsp;THE&nbsp;NEW&nbsp;PW&nbsp;BASE&nbsp;ON&nbsp;LOGIN&nbsp;FTP&nbsp;PASS&nbsp;WORD.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'HTTP_SCRAMBLE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SOURCE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'9ikfj2ow8f'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sourcelen&nbsp;&nbsp;&nbsp;=&nbsp;10<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;cons_key<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;=&nbsp;l_pw.<br />
+<br />
+&nbsp;&nbsp;DO&nbsp;3&nbsp;TIMES."&nbsp;连接三次，以为一次可能会不成功<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;OPEN&nbsp;THE&nbsp;FTP&nbsp;SERVER.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FTP_CONNECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'FTP_SAP'&nbsp;&nbsp;&nbsp;"USER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_pw&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"PASS&nbsp;WORD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;host&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'192.168.30.100'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rfc_destination&nbsp;=&nbsp;'SAPFTPA'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"DEFAULT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_handle<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_connected&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDDO.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE&nbsp;:/&nbsp;sy-datum,&nbsp;sy-uzeit,&nbsp;sy-uname,&nbsp;&nbsp;'CONNECT&nbsp;FTP&nbsp;FAILED!'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MESSAGEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Change&nbsp;local&nbsp;directory<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;l_ftpcommand.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'lcd'&nbsp;cons_source&nbsp;INTO&nbsp;l_ftpcommand&nbsp;SEPARATED&nbsp;BY&nbsp;space.<br />
+&nbsp;&nbsp;PERFORM&nbsp;frm_ftp_command&nbsp;USING&nbsp;l_ftpcommand&nbsp;pr_return.<br />
+&nbsp;&nbsp;IF&nbsp;pr_return&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/&nbsp;sy-datum,&nbsp;sy-uzeit,&nbsp;sy-uname,&nbsp;&nbsp;'FTP改变本地路径错误!'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Change&nbsp;ftp&nbsp;directory<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;cons_dens&nbsp;&lt;&gt;&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;l_ftpcommand.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'cd'&nbsp;cons_dens&nbsp;INTO&nbsp;l_ftpcommand&nbsp;SEPARATED&nbsp;BY&nbsp;space.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_ftp_command&nbsp;USING&nbsp;l_ftpcommand&nbsp;pr_return.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Change&nbsp;ftp&nbsp;directory<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;l_ftpcommand.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;l_ftpcommand&nbsp;=&nbsp;'dir'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_ftp_command&nbsp;USING&nbsp;l_ftpcommand&nbsp;pr_return.<br />
+   </div>
+   <div class="codeComment">
+**&nbsp;Change&nbsp;TRANSFER&nbsp;MODE<br />
+*&nbsp;&nbsp;CLEAR&nbsp;l_ftpcommand.<br />
+**&nbsp;&nbsp;l_ftpcommand&nbsp;=&nbsp;'binary'.<br />
+*&nbsp;&nbsp;l_ftpcommand&nbsp;=&nbsp;'ascii'.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;frm_ftp_command&nbsp;USING&nbsp;l_ftpcommand&nbsp;pr_return.<br />
+*&nbsp;&nbsp;IF&nbsp;pr_return&nbsp;=&nbsp;'1'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/&nbsp;sy-datum,&nbsp;sy-uzeit,&nbsp;sy-uname,&nbsp;&nbsp;'改变FTP传输模式出现错误!'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+**&nbsp;Put&nbsp;File&nbsp;into&nbsp;FTP&nbsp;SERVER<br />
+*&nbsp;&nbsp;CLEAR&nbsp;l_ftpcommand.<br />
+*&nbsp;&nbsp;CONCATENATE&nbsp;'put'&nbsp;&nbsp;l_filename&nbsp;INTO&nbsp;l_ftpcommand&nbsp;SEPARATED&nbsp;BY&nbsp;space.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;frm_ftp_command&nbsp;USING&nbsp;l_ftpcommand&nbsp;pr_return.<br />
+*&nbsp;&nbsp;IF&nbsp;pr_return&nbsp;=&nbsp;'1'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/&nbsp;sy-datum,&nbsp;sy-uzeit,&nbsp;sy-uname,&nbsp;&nbsp;'文件传输中出现错误!'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+*&nbsp;&nbsp;断开FTP服务器<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FTP_DISCONNECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handle&nbsp;=&nbsp;l_handle.<br />
+<br />
+&nbsp;&nbsp;WRITE:/&nbsp;sy-datum,&nbsp;sy-uzeit,&nbsp;sy-uname,&nbsp;&nbsp;'文件传输成功!'.<br />
+<br />
+ENDFORM.                    " FRM_FTP_FILE<br />
+<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&&nbsp;FORM&nbsp;FRM_FTP_COMMAND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<br />
+************************************************************************<br />
+*&&nbsp;FTP&nbsp;Command&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+FORM frm_ftp_command USING pr_command pr_ret.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FTP_COMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_handle<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;command&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;pr_command<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPRESS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RFC_DESTINATION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VERIFY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILESIZE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILEDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILETIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ig_ftp_result<br />
+&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tcpip_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;command_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Disconnect<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0."&nbsp;调用中出错立即断开连接<br />
+&nbsp;&nbsp;&nbsp;&nbsp;pr_ret&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FTP_DISCONNECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handle&nbsp;=&nbsp;l_handle.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.                    "FRM_FTP_COMMAND<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

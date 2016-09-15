@@ -1,0 +1,1822 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0141</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0141</h2>
+<h3> Description: 联营供应商结算单生成(无ALV)</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZFIRP014<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;FI-RP-0141<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;联营供应商结算单生成(无ALV)<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;LINAN<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/11/05&nbsp;&nbsp;&nbsp;LINAN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZFIRP0141.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&ALV相关定义<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPE-POOLS: SLIS.                                   "ALV显示使用到的共享池<br />
+<br />
+DATA: IT_FIELDCAT    TYPE    SLIS_T_FIELDCAT_ALV.<br />
+DATA: WA_FIELDCAT    TYPE    SLIS_FIELDCAT_ALV.<br />
+DATA: WA_LAYOUT      TYPE    SLIS_LAYOUT_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;引用表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:ZFIRP0140_C1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_C2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_C3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_C4,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_DOC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BKPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001W,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001K,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFA1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KONV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EKBE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EKPO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP0020_KLTZ.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义结构体<br />
+*&---------------------------------------------------------------------*<br />
+*定义表头结构<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF STRU_HEADER,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSD_NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZJSD_NO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-LIFNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZPO_BUKRS&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZPO_BUKRS,&nbsp;&nbsp;&nbsp;&nbsp;"采购公司代码<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSMS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZJSMS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算模式:联营/经销<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZJSZQ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATKL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-MATKL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品组<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-RAUBE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"小类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZDAYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZDAYS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"天数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSTART_DATE&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZSTART_DATE,&nbsp;&nbsp;"开始时间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEND_DATE&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZEND_DATE,&nbsp;&nbsp;&nbsp;&nbsp;"结束时间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFAPIAO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZFAPIAO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收到发票<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-GJAHR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计年度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-BUDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"过账日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-BELNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发票编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZWAIBU_NO&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZWAIBU_NO,&nbsp;&nbsp;&nbsp;&nbsp;"外部发票号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BVORG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-BVORG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司间凭证编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZFK,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"付款状态&nbsp;&nbsp;&nbsp;3已付款&nbsp;1未付款&nbsp;2部分付款<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFKJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZFKJE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"付款金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSZT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZJSZT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算状态&nbsp;&nbsp;&nbsp;3已结清&nbsp;1未结清&nbsp;2部分结清<br />
+   </div>
+   <div class="codeComment">
+*判断状态<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSMS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZJSMS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算模式&nbsp;&nbsp;1自由结算&nbsp;&nbsp;2自然月结算<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSH1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;CHAR10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"描述审核状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFK1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;CHAR10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"描述付款状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFAPIAO1&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;CHAR10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"描述收到发票<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSZT1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;CHAR10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"描述结算状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择按钮<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLIGHT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ZLIGHT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"状态灯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFYZT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ZFYZT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"费用状态<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM1-ZXSKZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"总克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM1-ZXSJS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"总件数<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZXSZJE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售总金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZCKZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZCKZJE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售总金额<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZJSJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM1-ZJSJE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商结算总金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER-ZZSAL_COST,&nbsp;&nbsp;&nbsp;&nbsp;"最终总销售成本<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADNAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ADNAM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建人<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ADDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADTIM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ADTIM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建时间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPNAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-UPNAM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"更改人<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-UPDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"更改日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPTIM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-UPTIM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"更改时间<br />
+<br />
+   </div>
+   <div class="codeComment">
+*审核相关<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ZSH,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"审核状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHNAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ADNAM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"审核人<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ADDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"审核日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHTIM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_HEADER-ADTIM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"审核时间<br />
+   </div>
+   <div class="codeComment">
+*字段描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EWBEZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-EWBEZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"大类描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RBTXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-RBTXT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"小类描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BMTXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-BMTXT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"联营结算方式描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WGBEZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-WGBEZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品组描述<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_HEADER.<br />
+   </div>
+   <div class="codeComment">
+*定义行项目结构<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF STRU_ITEM1,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSD_NO&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSD_NO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZITEM_NO&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZITEM_NO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-VBELN,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"小票号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"POS单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-POSNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"小票行项目&nbsp;&nbsp;"行项目号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSA_BUKRS&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZSA_BUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-KUNAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SERV_TYPE&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-SERV_TYPE,&nbsp;&nbsp;&nbsp;&nbsp;"业务类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-XBLNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收入凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-AUFNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部订单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGYSDM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZGYSDM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-MBLNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"入库单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZPO_BUKRS&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZPO_BUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-RAUBE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-CHARG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARKTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ARKTX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-FKDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"实销价格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZYHJG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZYHJG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优惠价格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZLYJSFS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSJJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSJJ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSKGF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSKGF,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSDKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSDKZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克倒扣工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSYKJ&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZLYJSYKJ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算一口价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSKL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSKL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算扣率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZB00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZB00,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"投资克基础价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZKSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZKSG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克工费档加价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZD01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZD01,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"以旧换新抵值<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSCB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSCB,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售成本金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSJE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商结算金额<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGJSCZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZGJSCZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGYSSPTM&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZGYSSPTM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"厂家编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXQZSZL&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZXQZSZL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"主石大小<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZS1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZZS1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"证书<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZXSJS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZXSKZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VRKME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-VRKME,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKIMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-FKIMG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+   </div>
+   <div class="codeComment">
+*优惠金额分摊<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择按钮<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZYHFT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZYHFT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优惠金额分摊<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STYLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_T_STYL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"编辑状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZKLTZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZKLTZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"扣率调整<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZPUR_TAX&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZPUR_TAX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"税码<br />
+<br />
+   </div>
+   <div class="codeComment">
+*20151110-增加综合优惠<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZHYH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_ITEM1-ZZHYH,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"综合优惠<br />
+<br />
+   </div>
+   <div class="codeComment">
+*字段描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EWBEZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-EWBEZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"大类描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RBTXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-RBTXT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"小类描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BMTXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-BMTXT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"联营结算方式描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WGBEZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-WGBEZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品组描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZSDRP0020_ALV-SORTL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJSCZ_TEXT&nbsp;TYPE&nbsp;&nbsp;ZFIRP0140_TY_BM-GJSCZ_TEXT,&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质描述<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZEILE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-SHKZG,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_ITEM1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取数用ALV<br />
+   </div>
+   <div class="code">
+TYPES BEGIN OF STRU_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_alv/dictionary-zsdrp0020_alv.html">ZSDRP0020_ALV</a>.<br />
+TYPES: ZMBLNR TYPE MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMJAHR&nbsp;TYPE&nbsp;MSEG-MJAHR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZEILE&nbsp;TYPE&nbsp;MSEG-ZEILE.<br />
+TYPES END OF STRU_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义常量,定义宏<br />
+*&---------------------------------------------------------------------*<br />
+*定义ALV显示宏<br />
+   </div>
+   <div class="code">
+DEFINE ADD_ALV.<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;WA_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"中文描述字段名<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"勾选框<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIX_COLUMN&nbsp;&nbsp;=&nbsp;ABAP_TRUE.&nbsp;"固定列<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+*定义变量<br />
+   </div>
+   <div class="code">
+DATA: GL_CHECK TYPE CHAR1.<br />
+   </div>
+   <div class="codeComment">
+*定义存放数据内表<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;RT_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;FKDAT,<br />
+&nbsp;&nbsp;IT_TAB_HEADER&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_HEADER,<br />
+&nbsp;&nbsp;WA_TAB_HEADER&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_HEADER,<br />
+&nbsp;&nbsp;WA_ALV_TAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ALV,<br />
+&nbsp;&nbsp;IT_TAB_ITEM1&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ITEM1,<br />
+&nbsp;&nbsp;WA_TAB_ITEM1&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ITEM1.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-001.<br />
+<br />
+SELECT-OPTIONS: S_LIFNR  FOR ZFIRP0140_C1-LIFNR NO-EXTENSION NO INTERVALS OBLIGATORY.<br />
+SELECT-OPTIONS: S_BUKRS  FOR ZFIRP0140_C1-ZPO_BUKRS NO-EXTENSION NO INTERVALS OBLIGATORY.<br />
+SELECT-OPTIONS: S_EXTWG  FOR MARA-EXTWG NO INTERVALS NO-EXTENSION OBLIGATORY.<br />
+SELECT-OPTIONS: S_RAUBE  FOR MARA-RAUBE NO INTERVALS NO-EXTENSION .<br />
+SELECT-OPTIONS: S_KUNAG  FOR VBRK-KUNAG NO INTERVALS NO-EXTENSION .<br />
+SELECT-OPTIONS: S_ZHTH   FOR ZFIRP0140_ITEM1-ZGYSSPTM NO INTERVALS .<br />
+SELECT-OPTIONS: S_DATE   FOR SY-DATUM MODIF ID BL1 NO-EXTENSION OBLIGATORY.<br />
+<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;PBO处理<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN OUTPUT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;PAI处理<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_OB.<br />
+&nbsp;&nbsp;IF&nbsp;GL_CHECK&nbsp;=&nbsp;'D'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;GL_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'没有符合条件的数据'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕结束<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+END-OF-SELECTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;PERFORM&nbsp;FM_ALVSHOW.<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;GL_CHECK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TAB_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TAB_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;屏幕检查<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_OB.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GL_CHECK.<br />
+   </div>
+   <div class="codeComment">
+*判断起始日期,终止日期,是否有效&nbsp;&nbsp;不能跨越&nbsp;终止日期不能大于系统日期&nbsp;是否填写完整<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DATE-LOW+0(6)&nbsp;NE&nbsp;S_DATE-HIGH+0(6).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'D'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'结算单期间不能跨月'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_DATE-LOW&nbsp;&gt;&nbsp;SY-DATUM&nbsp;OR&nbsp;S_DATE-HIGH&nbsp;&gt;&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'D'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'结算单结束日期不能大于系统日期'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_DATE-LOW&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;S_DATE-HIGH&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'D'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'请将日期区间填写完整'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ALV_TAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;WA_TAB_ITEM1&gt;&nbsp;TYPE&nbsp;STRU_ITEM1.<br />
+<br />
+&nbsp;&nbsp;RT_DATE[]&nbsp;=&nbsp;S_DATE[].<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_SDDATA&nbsp;TABLES&nbsp;IT_ALV_TAB.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_ALV_TAB&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;PERFORM&nbsp;FM_SERV_TYPE&nbsp;TABLES&nbsp;IT_ALV_TAB.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_MOVE&nbsp;TABLES&nbsp;IT_ALV_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*20151110-综合优惠逻辑<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_ZHYH.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*20160202-参考零售价,结算金额,结算成本,退货保证金额为负<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;ASSIGNING&nbsp;&lt;WA_TAB_ITEM1&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_TAB_ITEM1&gt;-SHKZG&nbsp;=&nbsp;ABAP_TRUE&nbsp;AND&nbsp;&lt;WA_TAB_ITEM1&gt;-ZJSJE&nbsp;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_TAB_ITEM1&gt;-ZJSJE&nbsp;=&nbsp;&lt;WA_TAB_ITEM1&gt;-ZJSJE&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_TAB_ITEM1&gt;-SHKZG&nbsp;=&nbsp;ABAP_TRUE&nbsp;AND&nbsp;&lt;WA_TAB_ITEM1&gt;-KZWI6&nbsp;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_TAB_ITEM1&gt;-KZWI6&nbsp;=&nbsp;&lt;WA_TAB_ITEM1&gt;-KZWI6&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_TAB_ITEM1&gt;-SHKZG&nbsp;=&nbsp;ABAP_TRUE&nbsp;AND&nbsp;&lt;WA_TAB_ITEM1&gt;-ZJSCB&nbsp;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_TAB_ITEM1&gt;-ZJSCB&nbsp;=&nbsp;&lt;WA_TAB_ITEM1&gt;-ZJSCB&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_HEADER_SUM.<br />
+   </div>
+   <div class="codeComment">
+*end<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_SAVE_TAB.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取销售数据<br />
+   </div>
+   <div class="code">
+include <a href ="zfirp0140_get.html">ZFIRP0140_GET</a>.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**----------------------SD相关取数-------------------------<br />
+*FORM&nbsp;FM_GET_SDDATA&nbsp;TABLES&nbsp;IT_SD_TAB.<br />
+**定义批次特性取数结构<br />
+*&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_MA_CH,<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-CHARG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-BUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售公司代码<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-KUNAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店编码<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-VBELN,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收入凭证<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_POSNUM&nbsp;TYPE&nbsp;VBRK-EX_POSNUM,&nbsp;"POS单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARKTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-ARKTX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品名称<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKIMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-FKIMG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VRKME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-VRKME,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单位<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-SHKZG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"退货标识<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-FKDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售日期<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"实销价格<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品成本(POS发票)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商场回款<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI4,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优惠合计<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI5,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI6,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标签价/零售价<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-POSNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-AUFNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部订单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SERV_TYPE&nbsp;TYPE&nbsp;CHAR10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"业务类型<br />
+**取销售条件类型<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KNUMV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-KNUMV,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单据条件数<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZB00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"投资克基础价<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZKSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克工费档加价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZD01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"以旧换新抵值<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VKP0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR,&nbsp;&nbsp;&nbsp;&nbsp;"凭证编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR,&nbsp;&nbsp;&nbsp;&nbsp;"凭证年度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE,&nbsp;&nbsp;&nbsp;&nbsp;"凭证行项目<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_MA_CH.<br />
+**定义批次特性计算结构<br />
+*&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_CHARACTER,<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-CHARG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGYSDM&nbsp;&nbsp;&nbsp;TYPE&nbsp;LFA1-LIFNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"入库单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;&nbsp;TYPE&nbsp;CHAR3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSJJ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZLYJSYKJ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克金价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSKGF&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZJSKGF,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克工费<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSDKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZJSDKZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克倒扣工费<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSYKJ&nbsp;TYPE&nbsp;ZLYJSYKJ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算一口价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSKL&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZJSKL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算扣率<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZB00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"投资克基础价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZKSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克工费档加价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZD01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"以旧换新抵值<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZJZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"金重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-RAUBE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品小类<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-KUNAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店编码<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMBLNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;EKBE-BELNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品凭证编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;EKBE-GJAHR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品凭证年度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;EKBE-EBELN,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购订单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PO_BUKRS&nbsp;TYPE&nbsp;EKPO-BUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购公司代码<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSJE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商结算金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZBQMC&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARACTERS-ZBQMC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标签名称<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATKL&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MATKL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品组<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSKZ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-FKIMG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-FKIMG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKIMG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-FKIMG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VRKME&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-VRKME,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单位<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VKP0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZCKLSJ&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI6&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_CHARACTER.<br />
+**取MSEG相关数据<br />
+*&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_MSEG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-CHARG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-AUFNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部订单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BWART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动类型<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售公司代码<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SERV_TYPE&nbsp;&nbsp;TYPE&nbsp;CHAR10,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"业务类型<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001W-BWKEY,&nbsp;&nbsp;&nbsp;&nbsp;"评估范围<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单位<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-SHKZG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"借贷标识,是否是退货的标记<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT_MKPF&nbsp;TYPE&nbsp;MKPF-BUDAT,&nbsp;&nbsp;&nbsp;&nbsp;"过账日期<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR,&nbsp;&nbsp;&nbsp;&nbsp;"凭证编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR,&nbsp;&nbsp;&nbsp;&nbsp;"凭证年度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE,&nbsp;&nbsp;&nbsp;&nbsp;"凭证行项目<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_MSEG.<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_MSEGTAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_MSEG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MSEGTAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_MSEG.<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_BWART&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;BWART,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_BWART&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;IT_BWART.<br />
+***定义ALV显示表<br />
+**&nbsp;&nbsp;DATA:<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_TAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV,<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ALV.<br />
+**定义存BRK,VBRP等相关取数表<br />
+*&nbsp;&nbsp;DATA:<br />
+**&nbsp;&nbsp;LT_VBELN&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_MACHTAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_MA_CH,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_MA_CH.<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_TAB_CAL1&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0020_CAL,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_MACHTAB1&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_MA_CH.<br />
+**定义存批次特性表<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARG1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARACTER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_CHARACTER,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARACTER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_CHARACTER,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_CHARACTER&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_CHARACTER.<br />
+**定义取值用表<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_TAB_CAL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0020_CAL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"联营商品结算输入输出表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP0020_CAL.<br />
+*<br />
+**定义存批次特性内表<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IT_LYJSFS&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_LYJSFS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_LYJSFS.<br />
+*<br />
+*&nbsp;&nbsp;DATA:&nbsp;WA_TMP_ALV&nbsp;TYPE&nbsp;&nbsp;STRU_ALV.<br />
+*&nbsp;&nbsp;DATA&nbsp;L_NUM&nbsp;TYPE&nbsp;NUM4.<br />
+*<br />
+*&nbsp;&nbsp;DATA:&nbsp;IT_ALV_TAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV.<br />
+*<br />
+**给联营结算方式赋值<br />
+*&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_LYJSFS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_LYJSFS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_LYJSFS-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_LYJSFS-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_LYJSFS-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_LYJSFS&nbsp;TO&nbsp;IT_LYJSFS.<br />
+*&nbsp;&nbsp;END-OF-DEFINITION.<br />
+*<br />
+**给移动类型赋值<br />
+*&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_BWART.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BWART.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_BWART-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_BWART-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_BWART-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_BWART&nbsp;TO&nbsp;IT_BWART.<br />
+*&nbsp;&nbsp;END-OF-DEFINITION.<br />
+*<br />
+*&nbsp;&nbsp;DF_ADD_BWART:<br />
+*&nbsp;&nbsp;'Z61','Z62'.<br />
+*<br />
+**取MSEG相关数据<br />
+*&nbsp;&nbsp;SELECT&nbsp;*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_MSEGTAB<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BUDAT_MKPF&nbsp;IN&nbsp;S_DATE<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MATNR&nbsp;IN&nbsp;S_MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BWART&nbsp;IN&nbsp;IT_BWART.<br />
+***取销售公司代码<br />
+**&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MSEGTAB&nbsp;INTO&nbsp;WA_MSEGTAB.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BWKEY<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;WA_MSEGTAB-BWKEY<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;EQ&nbsp;WA_MSEGTAB-WERKS.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_MSEGTAB&nbsp;FROM&nbsp;WA_MSEGTAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;BWKEY.<br />
+**&nbsp;&nbsp;ENDLOOP.<br />
+**&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MSEGTAB&nbsp;INTO&nbsp;WA_MSEGTAB.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;WA_MSEGTAB-BUKRS<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;EQ&nbsp;WA_MSEGTAB-BWKEY.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_MSEGTAB&nbsp;FROM&nbsp;WA_MSEGTAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;BUKRS.<br />
+**&nbsp;&nbsp;ENDLOOP.<br />
+**计算业务类型<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MSEGTAB&nbsp;INTO&nbsp;WA_MSEGTAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_MSEGTAB-BWART&nbsp;EQ&nbsp;'Z61'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MSEGTAB-SERV_TYPE&nbsp;=&nbsp;'组合商品'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_MSEGTAB-BWART&nbsp;EQ&nbsp;'Z62'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MSEGTAB-SERV_TYPE&nbsp;=&nbsp;'拆分商品'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_MSEGTAB&nbsp;FROM&nbsp;WA_MSEGTAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;SERV_TYPE.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+**从VBRK取凭证号<br />
+*&nbsp;&nbsp;SELECT&nbsp;*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRP&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN&nbsp;VBRK&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~VBELN&nbsp;EQ&nbsp;B~VBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_MACHTAB<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~FKDAT&nbsp;IN&nbsp;S_DATE.<br />
+*<br />
+**更改&nbsp;MSEG-SHKZG&nbsp;的值<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MSEGTAB&nbsp;INTO&nbsp;WA_MSEGTAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_MSEGTAB-SHKZG&nbsp;=&nbsp;'S'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MSEGTAB-SHKZG&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_MSEGTAB&nbsp;FROM&nbsp;WA_MSEGTAB&nbsp;TRANSPORTING&nbsp;SHKZG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+**整合批次表<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MSEGTAB&nbsp;INTO&nbsp;WA_MSEGTAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_MACHTAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-MATNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-AUFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-AUFNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-BUKRS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-SERV_TYPE&nbsp;=&nbsp;WA_MSEGTAB-SERV_TYPE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-FKIMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-MENGE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-VRKME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-MEINS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-SHKZG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-BUDAT_MKPF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-WERKS.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-MBLNR.&nbsp;&nbsp;&nbsp;&nbsp;"凭证编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-MJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-MJAHR.&nbsp;&nbsp;&nbsp;&nbsp;"凭证年度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-ZEILE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEGTAB-ZEILE.&nbsp;&nbsp;&nbsp;&nbsp;"凭证行项目<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_MACHTAB&nbsp;TO&nbsp;IT_MACHTAB.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+**删除批次为空的行项目<br />
+*&nbsp;&nbsp;DELETE&nbsp;IT_MACHTAB[]&nbsp;WHERE&nbsp;CHARG&nbsp;IS&nbsp;INITIAL.<br />
+*<br />
+*<br />
+*&nbsp;&nbsp;DF_ADD_LYJSFS:<br />
+*&nbsp;&nbsp;&nbsp;'Z04','Z05','Z06','Z07','Z10','Z11','Z12'.<br />
+*<br />
+**整理传入表<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MACHTAB&nbsp;INTO&nbsp;WA_MACHTAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_CAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-WERKS&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-WERKS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-FKDAT&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-FKDAT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-MATNR&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-MATNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-CHARG&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-FKIMG&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-FKIMG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-SHKZG&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-SHKZG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-ZTZKJCJ_IN&nbsp;=&nbsp;WA_MACHTAB-KZWI5.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_CAL-ZCKLSJ_IN&nbsp;&nbsp;=&nbsp;WA_MACHTAB-KZWI6.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TAB_CAL&nbsp;TO&nbsp;IT_TAB_CAL.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+**调用计算函数<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ZSDRP0020_FM'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_TABLE&nbsp;=&nbsp;IT_TAB_CAL.<br />
+*<br />
+*&nbsp;&nbsp;DELETE&nbsp;IT_TAB_CAL&nbsp;WHERE&nbsp;ZBUKRS_PUR&nbsp;NOT&nbsp;IN&nbsp;S_BUKRS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZGYSDM&nbsp;NOT&nbsp;IN&nbsp;S_LIFNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;NOT&nbsp;IN&nbsp;S_EXTWG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*******************20151123-更改以旧换新计算逻辑-ln*******************<br />
+*&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_KONV,<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KNUMV&nbsp;TYPE&nbsp;KONV-KNUMV,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KPOSN&nbsp;TYPE&nbsp;KONV-KPOSN,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KBETR&nbsp;TYPE&nbsp;KONV-KBETR,<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_KONV.<br />
+*<br />
+*&nbsp;&nbsp;DATA:&nbsp;IT_KONV&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_KONV,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_HZ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_KONV,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KONV&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_KONV,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_K&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_KONV.<br />
+*<br />
+*&nbsp;&nbsp;DATA:&nbsp;L_ZF94&nbsp;TYPE&nbsp;ZDE_ZJE.<br />
+*<br />
+*&nbsp;&nbsp;SELECT&nbsp;KNUMV<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KPOSN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KBETR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_KONV<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;KONV<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_MACHTAB<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;KNUMV&nbsp;=&nbsp;IT_MACHTAB-KNUMV<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KPOSN&nbsp;=&nbsp;IT_MACHTAB-POSNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KSCHL&nbsp;=&nbsp;'ZF94'.<br />
+*<br />
+*&nbsp;&nbsp;SORT&nbsp;IT_KONV&nbsp;BY&nbsp;KNUMV&nbsp;KPOSN.<br />
+*&nbsp;&nbsp;SORT&nbsp;IT_MACHTAB&nbsp;BY&nbsp;KNUMV&nbsp;POSNR.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_KONV&nbsp;INTO&nbsp;WA_TMP_K.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_KONV.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_KONV&nbsp;=&nbsp;WA_TMP_K.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;L_ZF94&nbsp;=&nbsp;L_ZF94&nbsp;+&nbsp;WA_KONV-KBETR.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;KPOSN.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_K-KNUMV&nbsp;=&nbsp;WA_KONV-KNUMV.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_K-KPOSN&nbsp;=&nbsp;WA_KONV-KPOSN.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_K-KBETR&nbsp;=&nbsp;L_ZF94.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TMP_K&nbsp;TO&nbsp;IT_HZ.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_ZF94.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+*<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MACHTAB&nbsp;INTO&nbsp;WA_MACHTAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_KONV.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_HZ&nbsp;INTO&nbsp;WA_KONV&nbsp;WITH&nbsp;KEY&nbsp;KNUMV&nbsp;=&nbsp;WA_MACHTAB-KNUMV<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KPOSN&nbsp;=&nbsp;WA_MACHTAB-POSNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MACHTAB-ZD01&nbsp;=&nbsp;WA_KONV-KBETR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_MACHTAB&nbsp;FROM&nbsp;WA_MACHTAB&nbsp;TRANSPORTING&nbsp;ZD01.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+************************END**************************<br />
+*<br />
+*&nbsp;&nbsp;CLEAR&nbsp;L_NUM.<br />
+*&nbsp;&nbsp;SORT&nbsp;IT_TAB_CAL&nbsp;BY&nbsp;SHKZG&nbsp;ZTZKJCJ_IN&nbsp;ZCKLSJ_IN&nbsp;WERKS&nbsp;FKDAT&nbsp;MATNR&nbsp;CHARG&nbsp;FKIMG.<br />
+**将IT_TAB_CAL整合到ALV<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MACHTAB&nbsp;INTO&nbsp;WA_MACHTAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_CAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_CAL&nbsp;INTO&nbsp;WA_TAB_CAL&nbsp;WITH&nbsp;KEY&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;WA_MACHTAB-SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"退货标识<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZTZKJCJ_IN&nbsp;=&nbsp;&nbsp;WA_MACHTAB-KZWI5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"投资克基础价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZCKLSJ_IN&nbsp;&nbsp;=&nbsp;&nbsp;WA_MACHTAB-KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;WA_MACHTAB-WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;WA_MACHTAB-FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"过账日期/销售日期<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;WA_MACHTAB-MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料编号/款号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;WA_MACHTAB-CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKIMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;WA_MACHTAB-FKIMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_ALV_TAB.<br />
+**取数数据&nbsp;&nbsp;合并<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-SERV_TYPE&nbsp;=&nbsp;WA_MACHTAB-SERV_TYPE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-AUFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-AUFNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-XBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-EX_POSNUM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-VBELN.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZD01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-ZD01.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-POSNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-POSNR&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-KZWI1&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-KZWI2&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-KZWI3&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-KZWI4&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-KZWI5&nbsp;.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-KZWI6&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZMBLNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-MBLNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZMJAHR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-MJAHR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZZEILE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MACHTAB-ZEILE.<br />
+*<br />
+**批次计算属性数据&nbsp;&nbsp;合并<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-WERKS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-FKDAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售日期<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-MATNR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料编号/款号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-CHARG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-FKIMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-FKIMG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-SHKZG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"退货项目<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZTZKJCJ&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZTZKJCJ_OUT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"投资克基础价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZCKLSJ&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZCKLSJ_OUT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZCKLSJ_OUT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZLYJSFS&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZLYJSFS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"联营结算方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-SFLY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-SFLY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否联营<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-EXTWG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-RAUBE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"小类<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ARKTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZBQMC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标签名称<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZGYSDM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZGYSDM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商代码<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZJZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单品金重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZJSJJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZJSJJ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克金价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZJSKGF&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZJSKGF.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克工费<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZJSDKZ&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZJSDKZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算克倒扣值<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZLYJSYKJ&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZLYJSYKJ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"联营结算一口价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZJSKL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZJSKL.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算扣率<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZXSKGFD&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZXSKGFD.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克工费档<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZKLTZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZJSKL_WERKS.&nbsp;&nbsp;&nbsp;"扣率调整<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZXSKGF&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZXSKGF.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克工费<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZXSJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZXSJS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZXSKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZXSKZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-MEINS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"基本计量单位<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-MBLNR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品凭证编号/入库单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-MJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-MJAHR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品凭证年度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-PO_BUKRS&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZBUKRS_PUR.&nbsp;&nbsp;&nbsp;&nbsp;"采购公司<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZBUKRS_SAL.&nbsp;&nbsp;&nbsp;&nbsp;"销售公司<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZWERKS_SAL.&nbsp;&nbsp;&nbsp;&nbsp;"销售地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZWERKS_SAL_TAX&nbsp;=&nbsp;WA_TAB_CAL-ZWERKS_SAL_TAX.&nbsp;&nbsp;&nbsp;"销售地点税分类<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-KUNNR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZIC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZIC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否跨公司<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZJSJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZPUR_AMT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算金额/采购金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZPUR_TAX&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZPUR_TAX.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购税率<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZPUR_COST&nbsp;=&nbsp;WA_TAB_CAL-ZPUR_COST.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购成本<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZIC_ADD_RATE&nbsp;=&nbsp;WA_TAB_CAL-ZIC_ADD_RATE.&nbsp;&nbsp;&nbsp;&nbsp;"公司间加价率<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZIC_ADD_PRIC&nbsp;=&nbsp;WA_TAB_CAL-ZIC_ADD_PRIC.&nbsp;&nbsp;&nbsp;&nbsp;"公司间加价克单价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZIC_AMT&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZIC_AMT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司间采购/销售金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZIC_SAL_COST&nbsp;=&nbsp;WA_TAB_CAL-ZIC_SAL_COST.&nbsp;&nbsp;&nbsp;&nbsp;"公司间销售成本<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZIC_PUR_COST&nbsp;=&nbsp;WA_TAB_CAL-ZIC_PUR_COST.&nbsp;&nbsp;&nbsp;&nbsp;"公司间采购成本<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZSAL_COST&nbsp;=&nbsp;WA_TAB_CAL-ZSAL_COST.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"最终销售成本<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZBUKRS_PUR&nbsp;=&nbsp;WA_TAB_CAL-ZBUKRS_PUR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购公司<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZEKORG_PUR&nbsp;=&nbsp;WA_TAB_CAL-ZEKORG_PUR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购地点的采购组织<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZVKORG_PUR&nbsp;=&nbsp;WA_TAB_CAL-ZVKORG_PUR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购地点的销售组织<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZWERKS_PUR&nbsp;=&nbsp;WA_TAB_CAL-ZWERKS_PUR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZBUKRS_SAL&nbsp;=&nbsp;WA_TAB_CAL-ZBUKRS_SAL.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售公司<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZWERKS_SAL&nbsp;=&nbsp;WA_TAB_CAL-ZWERKS_SAL.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_ALV_TAB-ZXSKZ&nbsp;NE&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZB00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_CAL-ZTZKJCJ_OUT&nbsp;/&nbsp;WA_ALV_TAB-ZXSKZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"投资克基础价<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_ALV_TAB&nbsp;TO&nbsp;IT_ALV_TAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+**----------------------------------------------------------------------------------------------------------------------<br />
+**计算优惠金额<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV_TAB&nbsp;INTO&nbsp;WA_TMP_ALV&nbsp;WHERE&nbsp;KZWI1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_ALV_TAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI1&nbsp;=&nbsp;WA_TMP_ALV-KZWI1&nbsp;-&nbsp;WA_TMP_ALV-ZD01.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZYHJG&nbsp;=&nbsp;WA_TMP_ALV-KZWI6&nbsp;-&nbsp;WA_ALV_TAB-KZWI1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV_TAB&nbsp;FROM&nbsp;WA_ALV_TAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;ZYHJG&nbsp;KZWI1.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+**确定业务类型<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV_TAB&nbsp;INTO&nbsp;WA_ALV_TAB&nbsp;WHERE&nbsp;SERV_TYPE&nbsp;IS&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_ALV_TAB-KZWI1&nbsp;&gt;&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-SERV_TYPE&nbsp;=&nbsp;'商品销售'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_ALV_TAB-KZWI1&nbsp;&lt;&nbsp;0&nbsp;AND&nbsp;WA_ALV_TAB-SHKZG&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-SERV_TYPE&nbsp;=&nbsp;'商品退货'.<br />
+****************20151027增加退货克重负显示***************<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZXSKZ&nbsp;=&nbsp;-1&nbsp;*&nbsp;WA_ALV_TAB-ZXSKZ.<br />
+*********************************************************<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV_TAB&nbsp;FROM&nbsp;WA_ALV_TAB&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;SERV_TYPE&nbsp;ZXSKZ.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+**整理销售公司代码<br />
+*&nbsp;&nbsp;DELETE&nbsp;IT_ALV_TAB&nbsp;WHERE&nbsp;ZBUKRS_PUR&nbsp;NOT&nbsp;IN&nbsp;S_BUKRS.<br />
+**整理大类<br />
+*&nbsp;&nbsp;DELETE&nbsp;IT_ALV_TAB&nbsp;WHERE&nbsp;EXTWG&nbsp;NOT&nbsp;IN&nbsp;S_EXTWG&nbsp;OR&nbsp;EXTWG&nbsp;IS&nbsp;INITIAL.<br />
+**整理小类<br />
+*&nbsp;&nbsp;IF&nbsp;S_LIFNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_ALV_TAB&nbsp;WHERE&nbsp;ZGYSDM&nbsp;NOT&nbsp;IN&nbsp;S_LIFNR&nbsp;OR&nbsp;ZGYSDM&nbsp;IS&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV_TAB&nbsp;INTO&nbsp;WA_ALV_TAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_ALV_TAB-SERV_TYPE&nbsp;=&nbsp;'商品退货'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI6&nbsp;=&nbsp;-1&nbsp;*&nbsp;WA_ALV_TAB-KZWI6.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZYHJG&nbsp;=&nbsp;WA_ALV_TAB-KZWI6&nbsp;-&nbsp;WA_ALV_TAB-KZWI1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_ALV_TAB-BUKRS&nbsp;=&nbsp;'7000'&nbsp;AND&nbsp;WA_ALV_TAB-ZYHJG&nbsp;&lt;&nbsp;0&nbsp;AND&nbsp;WA_ALV_TAB-SERV_TYPE&nbsp;=&nbsp;'商品销售'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZYHJG&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_ALV_TAB-BUKRS&nbsp;=&nbsp;'7000'&nbsp;AND&nbsp;WA_ALV_TAB-ZYHJG&nbsp;&gt;&nbsp;0&nbsp;AND&nbsp;WA_ALV_TAB-SERV_TYPE&nbsp;=&nbsp;'商品退货'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZYHJG&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV_TAB&nbsp;FROM&nbsp;WA_ALV_TAB&nbsp;TRANSPORTING&nbsp;ZYHJG.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+*&nbsp;&nbsp;IT_SD_TAB[]&nbsp;=&nbsp;IT_ALV_TAB[].<br />
+*<br />
+*ENDFORM.<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&ALV显示内表整理<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_MOVE TABLES IT_MOV_TAB.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ALV_TAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"STRU_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARACTERS&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;L_NUM2&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZITEM_NO."NUMC3&nbsp;VALUE&nbsp;000.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TAB_ITEM1&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_TAB[]&nbsp;=&nbsp;IT_MOV_TAB[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_ALV_TAB[]&nbsp;TO&nbsp;IT_TAB_ITEM1[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TAB_HEADER,&nbsp;L_NUM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;INDEX&nbsp;1.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TMP_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_ALV_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_ITEM1-AUFNR&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV_TAB&nbsp;INTO&nbsp;WA_ALV_TAB&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_TAB_ITEM1-VBELN&nbsp;&nbsp;POSNR&nbsp;=&nbsp;WA_TAB_ITEM1-POSNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV_TAB&nbsp;INTO&nbsp;WA_ALV_TAB&nbsp;WITH&nbsp;KEY&nbsp;CHARG&nbsp;=&nbsp;WA_TAB_ITEM1-CHARG&nbsp;&nbsp;MATNR&nbsp;=&nbsp;WA_TAB_ITEM1-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM2&nbsp;=&nbsp;L_NUM2&nbsp;+&nbsp;1.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM1.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSD_NO&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZITEM_NO&nbsp;&nbsp;=&nbsp;L_NUM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZPO_BUKRS&nbsp;=&nbsp;WA_ALV_TAB-ZBUKRS_PUR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZSA_BUKRS&nbsp;=&nbsp;WA_ALV_TAB-ZBUKRS_SAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ALV_TAB-KZWI1&nbsp;-&nbsp;WA_ALV_TAB-ZD01.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZYHJG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ALV_TAB-ZYHJG&nbsp;+&nbsp;WA_ALV_TAB-ZD01.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-VRKME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ALV_TAB-MEINS.<br />
+   </div>
+   <div class="codeComment">
+************采购公司=销售公司&nbsp;结算成本=最终销售成本********采购公司&nbsp;NE&nbsp;销售公司&nbsp;结算成本=采购成本*******************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_ALV_TAB-ZIC&nbsp;=&nbsp;ABAP_FALSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSCB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ALV_TAB-ZSAL_COST.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSCB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ALV_TAB-ZPUR_COST.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+********************************************************************************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_ITEM1-ZLYJSFS&nbsp;=&nbsp;'Z07'&nbsp;AND&nbsp;WA_TAB_ITEM1-ZSA_BUKRS&nbsp;NE&nbsp;'7000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_ITEM1-ZYHJG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;ZJSD_NO&nbsp;ZITEM_NO&nbsp;ZPO_BUKRS&nbsp;ZSA_BUKRS&nbsp;ZYHFT&nbsp;ZJSCB&nbsp;VRKME.&nbsp;"ZYHJG&nbsp;KZWI1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_ITEM1&nbsp;TO&nbsp;IT_CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;IT_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_CHARACTERS&nbsp;INTO&nbsp;WA_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;WA_TAB_ITEM1-MATNR&nbsp;CHARG&nbsp;=&nbsp;WA_TAB_ITEM1-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZGYSSPTM&nbsp;=&nbsp;WA_CHARACTERS-ZGYSSPTM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZGJSCZ&nbsp;&nbsp;&nbsp;=&nbsp;WA_CHARACTERS-ZGJSCZ&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZZS1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CHARACTERS-ZZS1&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZXQZSZL&nbsp;&nbsp;=&nbsp;WA_CHARACTERS-ZXQZSZL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;ZGYSSPTM&nbsp;ZGJSCZ&nbsp;ZZS1&nbsp;ZXQZSZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_Z07&nbsp;TABLES&nbsp;IT_ALV_TAB.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_ITEM1.<br />
+&nbsp;&nbsp;IF&nbsp;IT_TAB_ITEM1&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_HEADER.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_HEADER_SUM.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*检查行项目是否重复结算<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_ITEM1.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RT_ZJSD_NO&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;ZFIRP0140_ITEM1-ZJSD_NO,&nbsp;&nbsp;&nbsp;"记录结算单单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZJSD_NO&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;RT_ZJSD_NO.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;RT_ZITEM_NO&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;ZFIRP0140_ITEM1-ZITEM_NO,&nbsp;&nbsp;&nbsp;"记录结算单行项目号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ZITEM_NO&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;RT_ZITEM_NO.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;IT_TMP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ITEM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TMP_HEADER&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TMP_ITEM1&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ITEM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_ITEM1&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ITEM1.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;L_NUM2&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZITEM_NO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CLEAR&nbsp;IT_TMP_HEADER.<br />
+*&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_HEADER&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TMP_HEADER<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_LIFNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZPO_BUKRS&nbsp;IN&nbsp;S_BUKRS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TMP_HEADER&nbsp;INTO&nbsp;WA_TMP_HEADER.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_ZJSD_NO.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ZJSD_NO-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ZJSD_NO-OPTION&nbsp;=&nbsp;'EQ'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_ZJSD_NO-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZJSD_NO.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_ZJSD_NO&nbsp;TO&nbsp;RT_ZJSD_NO.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+**获取相关结算单行项目<br />
+*&nbsp;&nbsp;CLEAR&nbsp;IT_TMP_ITEM1.<br />
+*&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_ITEM1&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TMP_ITEM1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;IN&nbsp;RT_ZJSD_NO.<br />
+**删除重复行项目<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;RT_ZJSD_NO.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TMP_ITEM1&nbsp;INTO&nbsp;WA_TMP_ITEM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_TMP_ITEM1-VBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;=&nbsp;WA_TMP_ITEM1-POSNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TAB_ITEM1&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;WA_TMP_ITEM1-VBELN&nbsp;AND&nbsp;POSNR&nbsp;=&nbsp;WA_TMP_ITEM1-POSNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+*&nbsp;&nbsp;CLEAR&nbsp;IT_TMP_ITEM1.<br />
+*&nbsp;&nbsp;SELECT&nbsp;*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_ITEM1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TMP_ITEM1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TAB_ITEM1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;IT_TAB_ITEM1-VBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;POSNR&nbsp;=&nbsp;IT_TAB_ITEM1-POSNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MATNR&nbsp;=&nbsp;IT_TAB_ITEM1-MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;IT_TAB_ITEM1-CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;IF&nbsp;IT_TMP_ITEM1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TAB_ITEM1&nbsp;BY&nbsp;VBELN&nbsp;POSNR&nbsp;MATNR&nbsp;CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TMP_ITEM1&nbsp;INTO&nbsp;WA_TMP_ITEM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_TMP_ITEM1-VBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;=&nbsp;WA_TMP_ITEM1-POSNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;=&nbsp;WA_TMP_ITEM1-MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;WA_TMP_ITEM1-CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TAB_ITEM1&nbsp;INDEX&nbsp;SY-TABIX.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IT_TMP[]&nbsp;=&nbsp;IT_TAB_ITEM1[].<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TMP&nbsp;WHERE&nbsp;AUFNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TMP&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IT_TMP_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TMP_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TMP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;IT_TMP-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;POSNR&nbsp;=&nbsp;IT_TMP-POSNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TMP_ITEM1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TAB_ITEM1&nbsp;BY&nbsp;VBELN&nbsp;POSNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TMP_ITEM1&nbsp;INTO&nbsp;WA_TMP_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_TMP_ITEM1-VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;=&nbsp;WA_TMP_ITEM1-POSNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TAB_ITEM1&nbsp;INDEX&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;IT_TMP[].<br />
+&nbsp;&nbsp;IT_TMP[]&nbsp;=&nbsp;IT_TAB_ITEM1[].<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TMP&nbsp;WHERE&nbsp;AUFNR&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TMP&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IT_TMP_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TMP_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TMP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZMBLNR&nbsp;=&nbsp;IT_TMP-ZMBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZZEILE&nbsp;=&nbsp;IT_TMP-ZZEILE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZMJAHR&nbsp;=&nbsp;IT_TMP-ZMJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TMP_ITEM1&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TAB_ITEM1&nbsp;BY&nbsp;ZMBLNR&nbsp;ZZEILE&nbsp;ZMJAHR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TMP_ITEM1&nbsp;INTO&nbsp;WA_TMP_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1&nbsp;WITH&nbsp;KEY&nbsp;ZMBLNR&nbsp;=&nbsp;WA_TMP_ITEM1-ZMBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZEILE&nbsp;=&nbsp;WA_TMP_ITEM1-ZZEILE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMJAHR&nbsp;=&nbsp;WA_TMP_ITEM1-ZMJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TAB_ITEM1&nbsp;INDEX&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*为新的结算单行项目排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TAB_ITEM1&nbsp;BY&nbsp;ZITEM_NO.<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_NUM2.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NUM2&nbsp;=&nbsp;L_NUM2&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TMP_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_ITEM1-ZITEM_NO&nbsp;=&nbsp;L_NUM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TMP_ITEM1&nbsp;TRANSPORTING&nbsp;ZITEM_NO.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*计算Z07结算价格<br />
+   </div>
+   <div class="code">
+FORM FM_Z07 TABLES IT_Z07_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*扣率调整<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_KLTZ,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSD_NO&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZJSD_NO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZITEM_NO&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1-ZITEM_NO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KLTZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZKLTZ,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"扣率调整<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_KLTZ.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*扣率调整表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;IT_KLTZ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_KLTZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KLTZ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_KLTZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_TAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ALV.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*计算结算扣率调整<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1&nbsp;WHERE&nbsp;ZLYJSFS&nbsp;=&nbsp;'Z07'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_ITEM1-SERV_TYPE&nbsp;=&nbsp;'商品销售'&nbsp;OR&nbsp;WA_TAB_ITEM1-SERV_TYPE&nbsp;=&nbsp;'商品退货'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_KLTZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_ITEM1-KZWI6&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KLTZ-KLTZ&nbsp;=&nbsp;100&nbsp;-&nbsp;WA_TAB_ITEM1-ZJSKL&nbsp;-&nbsp;(&nbsp;WA_TAB_ITEM1-ZJSJE&nbsp;*&nbsp;100&nbsp;/&nbsp;WA_TAB_ITEM1-KZWI6&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_KLTZ-KLTZ&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KLTZ-ZJSD_NO&nbsp;&nbsp;=&nbsp;&nbsp;WA_TAB_ITEM1-ZJSD_NO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KLTZ-ZITEM_NO&nbsp;=&nbsp;&nbsp;WA_TAB_ITEM1-ZITEM_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_KLTZ&nbsp;TO&nbsp;IT_KLTZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*计算结算金额<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1&nbsp;WHERE&nbsp;ZLYJSFS&nbsp;=&nbsp;'Z07'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_ITEM1-SERV_TYPE&nbsp;=&nbsp;'商品销售'&nbsp;OR&nbsp;WA_TAB_ITEM1-SERV_TYPE&nbsp;=&nbsp;'商品退货'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_KLTZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_KLTZ&nbsp;INTO&nbsp;WA_KLTZ&nbsp;WITH&nbsp;KEY&nbsp;ZJSD_NO&nbsp;=&nbsp;WA_TAB_ITEM1-ZJSD_NO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZITEM_NO&nbsp;=&nbsp;WA_TAB_ITEM1-ZITEM_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSJE&nbsp;=&nbsp;(&nbsp;WA_TAB_ITEM1-KZWI6&nbsp;-&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;)&nbsp;*&nbsp;(&nbsp;1&nbsp;-&nbsp;WA_TAB_ITEM1-ZJSKL&nbsp;/&nbsp;100&nbsp;&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSJE&nbsp;=&nbsp;(&nbsp;WA_TAB_ITEM1-KZWI6&nbsp;-&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;)&nbsp;*&nbsp;(&nbsp;1&nbsp;-&nbsp;(&nbsp;WA_TAB_ITEM1-ZJSKL&nbsp;+&nbsp;WA_KLTZ-KLTZ&nbsp;)&nbsp;/&nbsp;100&nbsp;&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZKLTZ&nbsp;=&nbsp;WA_KLTZ-KLTZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+****************************************20151029-计算结算税率*********************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_TAB[]&nbsp;=&nbsp;IT_Z07_TAB[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_ALV_TAB&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_ALV_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV_TAB&nbsp;INTO&nbsp;WA_ALV_TAB&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;WA_TAB_ITEM1-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;WA_TAB_ITEM1-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSCB&nbsp;=&nbsp;WA_TAB_ITEM1-ZJSJE&nbsp;/&nbsp;(&nbsp;1&nbsp;+&nbsp;WA_ALV_TAB-ZPUR_TAX&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*************************************************end******************************************************<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;ZJSJE&nbsp;ZKLTZ&nbsp;ZJSCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*更新表头汇总<br />
+   </div>
+   <div class="code">
+FORM FM_HEADER_SUM.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_TMP_HEADER&nbsp;TYPE&nbsp;STRU_HEADER.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_TMP_HEADER.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZXSZJE&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZXSZJE&nbsp;+&nbsp;WA_TAB_ITEM1-KZWI1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZCKZJE&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZCKZJE&nbsp;+&nbsp;WA_TAB_ITEM1-KZWI6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZZ&nbsp;&nbsp;+&nbsp;WA_TAB_ITEM1-ZXSKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZJS&nbsp;+&nbsp;WA_TAB_ITEM1-ZXSJS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZJSJE&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZJSJE&nbsp;+&nbsp;WA_TAB_ITEM1-ZJSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER-ZZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_HEADER-ZZJE&nbsp;+&nbsp;WA_TAB_ITEM1-ZJSCB.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TMP_HEADER&nbsp;INDEX&nbsp;1&nbsp;TRANSPORTING&nbsp;ZZZ&nbsp;ZZJS&nbsp;ZZJE&nbsp;ZXSZJE&nbsp;ZZJSJE&nbsp;ZCKZJE.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*获取结算单号<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HEADER.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_TMP_HEADER&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_HEADER&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_HEADER.<br />
+   </div>
+   <div class="codeComment">
+*读取已有结算单表头<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TMP_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*计算结算单号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;IF&nbsp;IT_TMP_HEADER&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TMP_HEADER&nbsp;BY&nbsp;ZJSD_NO&nbsp;DESCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TMP_HEADER&nbsp;INTO&nbsp;WA_TMP_HEADER&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TMP_HEADER-ZJSD_NO+0(6)&nbsp;=&nbsp;SY-DATUM+0(6).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;=&nbsp;WA_TMP_HEADER-ZJSD_NO&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_TMP_HEADER-ZJSD_NO+0(4)&nbsp;=&nbsp;SY-DATUM+0(4)&nbsp;AND&nbsp;WA_TMP_HEADER-ZJSD_NO+4(2)&nbsp;NE&nbsp;SY-DATUM+4(2).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'0001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_TMP_HEADER-ZJSD_NO+0(4)&nbsp;NE&nbsp;SY-DATUM+0(4).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'0001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'0001'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*为结算单表头赋值<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_TAB_HEADER-LIFNR&nbsp;&nbsp;&nbsp;=&nbsp;S_LIFNR-LOW.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZPO_BUKRS&nbsp;=&nbsp;S_BUKRS-LOW.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;S_EXTWG-LOW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*计算起始日期,终止日期,天数<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_TAB_HEADER-ZDAYS&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-HIGH&nbsp;-&nbsp;S_DATE-LOW&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZSTART_DATE&nbsp;=&nbsp;S_DATE-LOW.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZEND_DATE&nbsp;&nbsp;=&nbsp;S_DATE-HIGH.<br />
+<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZFAPIAO&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发票状态&nbsp;1未收到&nbsp;&nbsp;3已收到<br />
+&nbsp;&nbsp;WA_TAB_HEADER-GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_HEADER-ZSTART_DATE+0(4).<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-BELNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZWAIBU_NO&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-BVORG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_TAB_HEADER-ZFK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZFKJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZJSZT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZLIGHT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZSH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SPACE.<br />
+<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ADNAM&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ADDAT&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ADTIM&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZFYZT&nbsp;=&nbsp;'未添加'.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_TAB_HEADER&nbsp;TO&nbsp;IT_TAB_HEADER.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM FM_SAVE_TAB.<br />
+   </div>
+   <div class="codeComment">
+*更新自建表用内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;IT_TAB_HEADER1&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZFIRP0140_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER1&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TAB_ITEM11&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZFIRP0140_ITEM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM11&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TAB_ITEM21&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZFIRP0140_ITEM2,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM21&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_ITEM2.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSD_NO&nbsp;=&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;BREAK-POINT.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_HEADER&nbsp;TO&nbsp;IT_TAB_HEADER1.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_ITEM1&nbsp;TO&nbsp;IT_TAB_ITEM11.<br />
+<br />
+&nbsp;&nbsp;MODIFY&nbsp;ZFIRP0140_HEADER&nbsp;FROM&nbsp;TABLE&nbsp;IT_TAB_HEADER1.<br />
+&nbsp;&nbsp;MODIFY&nbsp;ZFIRP0140_ITEM1&nbsp;FROM&nbsp;TABLE&nbsp;IT_TAB_ITEM11.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;PERFORM&nbsp;FM_ADD_DEL_FY&nbsp;USING&nbsp;ABAP_TRUE.<br />
+<br />
+*&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_HEADER.<br />
+*&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;INDEX&nbsp;1.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'结算单'&nbsp;&&&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;&&&nbsp;'保存成功'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'S'&nbsp;.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*20151110-综合优惠取数<br />
+   </div>
+   <div class="code">
+FORM FM_ZHYH.<br />
+<br />
+&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_ZHYH,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_ZHYH-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR_T&nbsp;TYPE&nbsp;ZFIRP0140_ZHYH-MATNR_T,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_ZHYH,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_SUM,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;TYPE&nbsp;VBRP-VBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM1&nbsp;&nbsp;TYPE&nbsp;ZDE_ZZHYH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM2&nbsp;&nbsp;TYPE&nbsp;ZDE_ZZHYH,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_SUM,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_VBRP,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;TYPE&nbsp;VBRP-VBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;TYPE&nbsp;VBRP-POSNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;VBRP-MATNR,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;VBRP-CHARG,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;TYPE&nbsp;VBRP-KZWI1,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;TYPE&nbsp;VBRP-KZWI2,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI3&nbsp;TYPE&nbsp;VBRP-KZWI3,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI4&nbsp;TYPE&nbsp;VBRP-KZWI4,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI5&nbsp;TYPE&nbsp;VBRP-KZWI5,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI6&nbsp;TYPE&nbsp;VBRP-KZWI6,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZHYH&nbsp;TYPE&nbsp;ZDE_ZZHYH,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_VBRP.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ZHYH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ZHYH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZHYH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ZHYH,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_SUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_SUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_SUM,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_VBRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_VBRP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_VBRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_VBRP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TMP_VBRP&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_VBRP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_VBRP&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_VBRP,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TMP_ITEM1&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ITEM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_ITEM1&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ITEM1,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RT_VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;VBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RW_VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;RT_VBELN,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RT_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RW_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;RT_MATNR.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;L_SUM1&nbsp;TYPE&nbsp;ZDE_ZZHYH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_SUM2&nbsp;TYPE&nbsp;ZDE_ZZHYH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM&nbsp;&nbsp;TYPE&nbsp;I.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-------------1.取出所有优惠相关的物料号------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR_T<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_ZHYH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_ZHYH.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZHYH&nbsp;INTO&nbsp;WA_ZHYH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;RW_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RW_MATNR-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RW_MATNR-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RW_MATNR-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_ZHYH-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;RW_MATNR&nbsp;TO&nbsp;RT_MATNR.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-------------2.取所有Z07的小票号行项目-------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IT_TMP_ITEM1[]&nbsp;=&nbsp;IT_TAB_ITEM1[].<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TMP_ITEM1&nbsp;WHERE&nbsp;ZLYJSFS&nbsp;NE&nbsp;'Z07'.<br />
+&nbsp;&nbsp;SORT&nbsp;IT_TMP_ITEM1&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;IT_TMP_ITEM1&nbsp;COMPARING&nbsp;VBELN.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TMP_ITEM1&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TMP_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;IT_TMP_ITEM1-VBELN<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;POSNR&nbsp;=&nbsp;IT_TMP_ITEM1-POSNR<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*-------------3.根据小票号合计所有综合优惠金额-----------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IT_TMP_VBRP&nbsp;=&nbsp;IT_VBRP.<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TMP_VBRP&nbsp;WHERE&nbsp;MATNR&nbsp;NOT&nbsp;IN&nbsp;RT_MATNR.<br />
+&nbsp;&nbsp;SORT&nbsp;IT_TMP_VBRP&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;IT_TMP_VBRP&nbsp;COMPARING&nbsp;VBELN.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TMP_VBRP&nbsp;INTO&nbsp;WA_TMP_VBRP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;RW_VBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RW_VBELN-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RW_VBELN-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RW_VBELN-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TMP_VBRP-VBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;RW_VBELN&nbsp;TO&nbsp;RT_VBELN.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_VBRP&nbsp;WHERE&nbsp;VBELN&nbsp;NOT&nbsp;IN&nbsp;RT_VBELN.<br />
+&nbsp;&nbsp;SORT&nbsp;IT_VBRP&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_VBRP&nbsp;INTO&nbsp;WA_TMP_VBRP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_VBRP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_VBRP&nbsp;=&nbsp;WA_TMP_VBRP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VBRP-MATNR&nbsp;IN&nbsp;RT_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_SUM1&nbsp;=&nbsp;L_SUM1&nbsp;+&nbsp;WA_VBRP-KZWI1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_SUM2&nbsp;=&nbsp;L_SUM2&nbsp;+&nbsp;WA_VBRP-KZWI6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;VBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_SUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SUM-VBELN&nbsp;=&nbsp;WA_VBRP-VBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SUM-SUM1&nbsp;&nbsp;=&nbsp;L_SUM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SUM-SUM2&nbsp;&nbsp;=&nbsp;L_SUM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_SUM&nbsp;TO&nbsp;IT_SUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;L_SUM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_SUM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*-------------4.分摊综合优惠金额--------------------------<br />
+*&nbsp;&nbsp;SORT&nbsp;IT_SUM&nbsp;BY&nbsp;VBELN.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_SUM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_SUM&nbsp;INTO&nbsp;WA_SUM&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_TAB_ITEM1-VBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;AND&nbsp;WA_TAB_ITEM1-ZLYJSFS&nbsp;=&nbsp;'Z07'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZZHYH&nbsp;=&nbsp;(&nbsp;WA_TAB_ITEM1-KZWI6&nbsp;/&nbsp;WA_SUM-SUM2&nbsp;)&nbsp;*&nbsp;L_SUM1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;=&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;+&nbsp;WA_TAB_ITEM1-ZZHYH.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;ZZHYH&nbsp;ZYHFT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+********************20151116-修改by李楠***********************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_SUM&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_SUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_SUM&nbsp;INTO&nbsp;WA_SUM&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_TAB_ITEM1-VBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHECK&nbsp;WA_SUM-SUM2&nbsp;NE&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_ITEM1-ZLYJSFS&nbsp;=&nbsp;'Z07'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZZHYH&nbsp;=&nbsp;(&nbsp;WA_TAB_ITEM1-KZWI6&nbsp;/&nbsp;WA_SUM-SUM2&nbsp;)&nbsp;*&nbsp;WA_SUM-SUM1&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_ITEM1-ZSA_BUKRS&nbsp;NE&nbsp;'7000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;=&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;+&nbsp;WA_TAB_ITEM1-ZZHYH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+********************************计算新的结算金额和结算成本************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSJE&nbsp;=&nbsp;(&nbsp;WA_TAB_ITEM1-KZWI6&nbsp;-&nbsp;WA_TAB_ITEM1-ZYHFT&nbsp;)&nbsp;*&nbsp;(&nbsp;1&nbsp;-&nbsp;(&nbsp;WA_TAB_ITEM1-ZJSKL&nbsp;+&nbsp;WA_TAB_ITEM1-ZKLTZ&nbsp;)&nbsp;/&nbsp;100&nbsp;&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-ZJSCB&nbsp;=&nbsp;WA_TAB_ITEM1-ZJSJE&nbsp;/&nbsp;(&nbsp;1&nbsp;+&nbsp;WA_TAB_ITEM1-ZPUR_TAX&nbsp;).<br />
+   </div>
+   <div class="codeComment">
+*************************************************end******************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;ZJSJE&nbsp;ZJSCB&nbsp;ZZHYH&nbsp;ZYHFT.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*销售小计1为0时,以旧换新加钱为0<br />
+   </div>
+   <div class="code">
+FORM FM_SERV_TYPE TABLES IT_TAB.<br />
+&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_VBRK,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-VBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_POSTYP&nbsp;TYPE&nbsp;VBRK-EX_POSTYP,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_VBRK.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_TMP_ALV&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_ALV&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ALV,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_TAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ALV,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_VBRK&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_VBELN&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_VBRK&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_VBRK.<br />
+<br />
+&nbsp;&nbsp;IT_ALV_TAB[]&nbsp;=&nbsp;IT_TAB[].<br />
+<br />
+&nbsp;&nbsp;IT_TMP_ALV&nbsp;=&nbsp;IT_ALV_TAB.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TMP_ALV&nbsp;WHERE&nbsp;SERV_TYPE&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TMP_ALV&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TMP_ALV&nbsp;TO&nbsp;IT_VBELN.<br />
+&nbsp;&nbsp;SORT&nbsp;IT_VBELN&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;IT_VBELN&nbsp;COMPARING&nbsp;VBELN.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_POSTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;IT_VBELN-VBELN.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;IT_VBRK&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TMP_ALV&nbsp;INTO&nbsp;WA_TMP_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_VBRK&nbsp;INTO&nbsp;WA_VBRK&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_TMP_ALV-VBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VBRK-EX_POSTYP&nbsp;=&nbsp;'20'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_ALV-SERV_TYPE&nbsp;=&nbsp;'商品退货'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_VBRK-EX_POSTYP&nbsp;=&nbsp;'21'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_ALV-SERV_TYPE&nbsp;=&nbsp;'商品销售'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TMP_ALV&nbsp;FROM&nbsp;WA_TMP_ALV&nbsp;TRANSPORTING&nbsp;SERV_TYPE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;IT_TMP_ALV&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV_TAB&nbsp;INTO&nbsp;WA_ALV_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TMP_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TMP_ALV&nbsp;INTO&nbsp;WA_TMP_ALV&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;WA_ALV_TAB-VBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-SERV_TYPE&nbsp;=&nbsp;WA_TMP_ALV-SERV_TYPE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-KZWI1&nbsp;=&nbsp;WA_TMP_ALV-KZWI1&nbsp;-&nbsp;WA_TMP_ALV-ZD01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV_TAB-ZYHJG&nbsp;=&nbsp;WA_TMP_ALV-KZWI6&nbsp;-&nbsp;WA_ALV_TAB-KZWI1.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV_TAB&nbsp;FROM&nbsp;WA_ALV_TAB&nbsp;TRANSPORTING&nbsp;SERV_TYPE&nbsp;KZWI1&nbsp;ZYHJG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IT_TAB[]&nbsp;=&nbsp;IT_ALV_TAB[].<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_BUKRS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;结算时间<br />
+*&nbsp;S_EXTWG&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_LIFNR&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

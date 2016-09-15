@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0420</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0420</h2>
+<h3> Description: 采购计划/销售历史数据导入程序</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZMMRP0420.<br />
+<br />
+TYPE-POOLS: slis.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------*<br />
+*&nbsp;定义ALV显示字段的内表<br />
+*-----------------------------------------*<br />
+   </div>
+   <div class="code">
+data: it_fieldcat type slis_t_fieldcat_alv.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: wa_fieldcat TYPE slis_fieldcat_alv.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------*<br />
+*&nbsp;定义ALV显示格式的工作区<br />
+*-----------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+DATA: wa_layout     TYPE slis_layout_alv.<br />
+<br />
+DATA: gd_repid LIKE sy-repid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ref_grid&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_gui_alv_grid.<br />
+<br />
+TABLES: sscrfields. "选择屏幕上的字段<br />
+<br />
+DATA functxt TYPE smp_dyntxt.<br />
+<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_EXCEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COL&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;TYPE&nbsp;STRING,&nbsp;&nbsp;&nbsp;&nbsp;"值<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_EXCEL,<br />
+&nbsp;&nbsp;TYT_EXCEL&nbsp;TYPE&nbsp;TY_EXCEL&nbsp;OCCURS&nbsp;0.<br />
+<br />
+DATA:<br />
+&nbsp;&nbsp;LT_EXCEL&nbsp;type&nbsp;TYT_EXCEL,<br />
+&nbsp;&nbsp;LW_EXCEL&nbsp;type&nbsp;TY_EXCEL.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------*<br />
+*&nbsp;定义内表结构体<br />
+*-----------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF TY_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATUM&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIFNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZTYPE&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-ZTYPE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGJSCZ&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-ZGJSCZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;TYPE&nbsp;ZMMRP0420-EX_PZ01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ02&nbsp;TYPE&nbsp;ZMMRP0420-EX_PZ02,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ03&nbsp;TYPE&nbsp;ZMMRP0420-EX_PZ03,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NTGEW&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-NTGEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420-ZJE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_ALV.<br />
+<br />
+data: gt_data type TABLE OF ty_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data&nbsp;type&nbsp;ty_alv.<br />
+DATA: IT_TABLE TYPE STANDARD TABLE OF ZMMRP0420,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE&nbsp;TYPE&nbsp;&nbsp;ZMMRP0420.<br />
+DATA: UT_TABLE TYPE STANDARD TABLE OF ZMMRP0420,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UA_TABLE&nbsp;TYPE&nbsp;&nbsp;ZMMRP0420.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&*****工具栏按钮设置<br />
+<br />
+   </div>
+   <div class="code">
+DATA: BEGIN OF excltab OCCURS 0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fcode&nbsp;LIKE&nbsp;sy-ucomm,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;excltab.<br />
+<br />
+DATA:<br />
+&nbsp;&nbsp;L_PATH&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"EXCEL路径<br />
+<br />
+<br />
+SELECTION-SCREEN: BEGIN OF BLOCK SCR1 WITH FRAME TITLE TEXT-001.<br />
+<br />
+PARAMETERS: P_FILENM LIKE RLGRAP-FILENAME .<br />
+<br />
+SELECTION-SCREEN: END OF BLOCK SCR1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&****创建&nbsp;下载模板&nbsp;按钮<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN FUNCTION KEY 1.<br />
+<br />
+<br />
+INITIALIZATION.<br />
+&nbsp;&nbsp;FUNCTXT-ICON_ID&nbsp;&nbsp;&nbsp;=&nbsp;ICON_XLS.<br />
+&nbsp;&nbsp;FUNCTXT-ICON_TEXT&nbsp;=&nbsp;'下载模板'.<br />
+<br />
+&nbsp;&nbsp;SSCRFIELDS-FUNCTXT_01&nbsp;=&nbsp;FUNCTXT.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&****取文件路径<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR P_FILENM.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_FILENAME_GET.<br />
+<br />
+AT SELECTION-SCREEN.<br />
+&nbsp;&nbsp;IF&nbsp;SSCRFIELDS-UCOMM&nbsp;=&nbsp;'FC01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_FILEPATH&nbsp;USING&nbsp;L_PATH&nbsp;'贵金属检测信息导入_商友版'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_TEMPLATE&nbsp;USING&nbsp;'ZMMRP0420'&nbsp;L_PATH.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_READ_EXCEL&nbsp;USING&nbsp;P_FILENM&nbsp;gT_DATA.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;get_data.&nbsp;&nbsp;"调用函数取数<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;alv_show.&nbsp;&nbsp;"调用alv显示<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;GET_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA .<br />
+<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;ALV_SHOW<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM ALV_SHOW .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;pt_fieldcat&nbsp;type&nbsp;lvc_t_fcat,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'LVC_FIELDCATALOG_MERGE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BUFFER_ACTIVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_STRUCTURE_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMMRP0420'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CLIENT_NEVER_DISPLAY&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BYPASSING_BUFFER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_INTERNAL_TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMMRP0420'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;pt_fieldcat[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCONSISTENT_INTERFACE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;pt_fieldcat&nbsp;INTO&nbsp;LS_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'MANDT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;LS_FIELDCAT-TABNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;LS_FIELDCAT-FIELDNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;LS_FIELDCAT-SCRTEXT_L.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**　alv&nbsp;显示回调函数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;&nbsp;&nbsp;"状态栏控制<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"用户命令控制<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_DATA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FM_READ_EXCEL<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_P_FILENM&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_LT_DATA&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_READ_EXCEL  USING I_PATH  O_EXCEL TYPE STANDARD TABLE.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FILE&nbsp;&nbsp;TYPE&nbsp;RLGRAP-FILENAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LINE&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;DATA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TAB&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ALSMEX_TABLINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TAB&nbsp;&nbsp;TYPE&nbsp;ALSMEX_TABLINE.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;CREATE&nbsp;DATA&nbsp;LW_LINE&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;O_EXCEL.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;LW_LINE-&gt;*&nbsp;TO&nbsp;&lt;LINE&gt;.<br />
+&nbsp;&nbsp;L_FILE&nbsp;=&nbsp;I_PATH.<br />
+&nbsp;&nbsp;TRANSLATE&nbsp;L_FILE&nbsp;TO&nbsp;UPPER&nbsp;CASE.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ALSM_EXCEL_TO_INTERNAL_TABLE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILENAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_FILE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BEGIN_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BEGIN_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_END_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;250<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_END_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;65536<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCONSISTENT_PARAMETERS&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPLOAD_OLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'上传文件有误！'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_TAB&nbsp;WHERE&nbsp;ROW&nbsp;=&nbsp;1.&nbsp;&nbsp;"删除字段名行<br />
+<br />
+&nbsp;&nbsp;REFRESH:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;O_EXCEL.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TAB&nbsp;INTO&nbsp;LW_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;CHANGE&nbsp;OF&nbsp;LW_TAB-ROW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-TABIX&nbsp;NE&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&nbsp;&lt;LINE&gt;&nbsp;TO&nbsp;O_EXCEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&lt;LINE&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDON.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;LW_TAB-COL&nbsp;OF&nbsp;STRUCTURE&nbsp;&lt;LINE&gt;&nbsp;TO&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS&gt;&nbsp;=&nbsp;LW_TAB-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;CX_ROOT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'上传文件的列多于接收内表的列'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;LAST.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&lt;LINE&gt;&nbsp;TO&nbsp;O_EXCEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;O_EXCEL&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'上传文件为空'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_FILENAME_GET<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_FILENAME_GET .<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_MESSAGE&nbsp;&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_INDEX&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-INDEX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_RC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_FILETABLE&nbsp;TYPE&nbsp;FILETABLE.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_GUI_FRONTEND_SERVICES=&gt;FILE_OPEN_DIALOG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WINDOW_TITLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'选择数据文件'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILE_FILTER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'EXCEL文件|*.XLSX;*.XLS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MULTISELECTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SPACE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILE_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_FILETABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_RC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILE_OPEN_DIALOG_FAILED&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CNTL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_NO_GUI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOT_SUPPORTED_BY_GUI&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;AND&nbsp;I_RC&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;I_FILETABLE&nbsp;INTO&nbsp;P_FILENM&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'没有选择文件或是选择文件错误！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FM_GET_FILEPATH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_L_PATH&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_0197&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_FILEPATH  USING   C_FULLPATH I_NAME.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DEFAULT&nbsp;&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FILENAME&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FULLPATH&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING.<br />
+&nbsp;&nbsp;L_DEFAULT&nbsp;=&nbsp;I_NAME.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_GUI_FRONTEND_SERVICES=&gt;FILE_SAVE_DIALOG&nbsp;"调用保存对话框<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT_EXTENSION&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'XLS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT_FILE_NAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DEFAULT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILENAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_FILENAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_PATH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FULLPATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_FULLPATH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CNTL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_NO_GUI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOT_SUPPORTED_BY_GUI&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;C_FULLPATH&nbsp;=&nbsp;L_FULLPATH.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FM_GET_TEMPLATE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_0201&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_L_PATH&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_TEMPLATE  USING   I_OBJID I_PATH.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取模板<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_OBJID&nbsp;&nbsp;TYPE&nbsp;W3OBJID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_RC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_PATH&nbsp;&nbsp;&nbsp;TYPE&nbsp;RLGRAP-FILENAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_ERRTXT&nbsp;TYPE&nbsp;CHAR200,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_DATA&nbsp;&nbsp;TYPE&nbsp;WWWDATATAB.<br />
+<br />
+&nbsp;&nbsp;L_OBJID&nbsp;=&nbsp;I_OBJID.<br />
+&nbsp;&nbsp;L_PATH&nbsp;&nbsp;=&nbsp;I_PATH.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取模板的内部存储数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;RELID&nbsp;OBJID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;WWWDATA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;LW_DATA<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;SRTF2&nbsp;=&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RELID&nbsp;=&nbsp;'MI'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;OBJID&nbsp;=&nbsp;L_OBJID.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;调用函数下载模板<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DOWNLOAD_WEB_OBJECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_DATA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESTINATION&nbsp;=&nbsp;L_PATH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_RC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_RC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'模板文件：'&nbsp;L_OBJID&nbsp;'下载失败'&nbsp;INTO&nbsp;L_ERRTXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;L_ERRTXT&nbsp;TYPE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'模板文件：'&nbsp;L_OBJID&nbsp;'不存在'&nbsp;INTO&nbsp;L_ERRTXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;L_ERRTXT&nbsp;TYPE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+<br />
+<br />
+FORM PF_STATUS_SET USING T_EXTAB TYPE SLIS_T_EXTAB.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'PF1000'&nbsp;EXCLUDING&nbsp;T_EXTAB.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;USER_COMMAND<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用户事件<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM USER_COMMAND USING VALUE(U_UCOMM) TYPE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;US_SELFIELD&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_ZMMRP0420&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMRP0420,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZMMRP0420&nbsp;TYPE&nbsp;ZMMRP0420.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;U_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE_DATA'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_DATA&nbsp;INTO&nbsp;GS_DATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;gs_data&nbsp;TO&nbsp;LS_ZMMRP0420.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_ZMMRP0420&nbsp;TO&nbsp;LT_ZMMRP0420.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_ZMMRP0420&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0420&nbsp;FROM&nbsp;TABLE&nbsp;LT_ZMMRP0420.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'导入成功!'&nbsp;TYPE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'导入失败!'&nbsp;TYPE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+ENDFORM.                   " USER_COMMAN<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_FILENM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;文件路径<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;Hard&nbsp;coded<br />
+*&nbsp;&nbsp;&nbsp;导入成功!<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

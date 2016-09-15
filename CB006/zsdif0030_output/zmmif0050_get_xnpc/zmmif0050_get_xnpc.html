@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMIF0050_GET_XNPC</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMMIF0050_GET_XNPC</h2>
+<h3> Description: 创建虚拟批次</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMMIF0050_GET_XNPC.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  TABLES<br />
+*"      IT_MATNR TYPE  ZCB01_TY_T_MATNR<br />
+*"      ET_XNPC TYPE  ZCB01_TY_T_XNPC<br />
+*"----------------------------------------------------------------------<br />
+* 对不进行批次管理且基本单位不为G的商品，在下发主数据或业务数据时，需要产生虚拟批次信息。<br />
+* 本Function为集中产生这类虚拟信息的功能。<br />
+* 注意，如果商品不符合"不进行批次管理且基本单位不为G"，就不会添加到返回结果表中<br />
+
+<div class="codeComment">*       <a href ="global-zmmif0050_get_xnpc.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XCHPF&nbsp;TYPE&nbsp;MARA-XCHPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATKL&nbsp;TYPE&nbsp;MARA-MATKL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKTX&nbsp;TYPE&nbsp;MAKT-MAKTX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_MARA&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_MARA&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;ET_XNPC&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ZMMIF0050_CONFIG&nbsp;TYPE&nbsp;ZMMIF0050_CONFIG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZMMIF0050_CONFIG&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ZMMIF0050_CONFIG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_FIRST_CHAR&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;1&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_MATNR[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;"查找商品信息<br />
+&nbsp;&nbsp;SELECT&nbsp;MARA~MATNR&nbsp;MARA~XCHPF&nbsp;MARA~MEINS&nbsp;MARA~MATKL&nbsp;MAKT~MAKTX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MAKT&nbsp;ON&nbsp;MARA~MATNR&nbsp;=&nbsp;MAKT~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MARA~MATNR&nbsp;=&nbsp;IT_MATNR-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MARA~XCHPF&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MARA~MEINS&nbsp;&lt;&gt;&nbsp;'G'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MAKT~SPRAS&nbsp;=&nbsp;SY-LANGU&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"取得虚拟批次配置信息<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZMMIF0050_CONFIG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMIF0050_CONFIG&nbsp;.<br />
+&nbsp;&nbsp;"产生虚拟批次<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MARA&nbsp;INTO&nbsp;LS_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_XNPC,LS_ZMMIF0050_CONFIG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZMMIF0050_CONFIG&nbsp;INTO&nbsp;LS_ZMMIF0050_CONFIG&nbsp;WITH&nbsp;KEY&nbsp;MATKL&nbsp;=&nbsp;LS_MARA-MATKL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZMMIF0050_CONFIG&nbsp;INTO&nbsp;LS_ZMMIF0050_CONFIG&nbsp;WITH&nbsp;KEY&nbsp;MATKL&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_MATN1_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_MARA-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_XNPC-MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"虚拟SAP批次号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_MATN1_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_MARA-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_XNPC-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"商品条码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_MATN1_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_MARA-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_XNPC-ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"如果商品条码第一位是字母，替换为9<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_FIRST_CHAR&nbsp;=&nbsp;LS_XNPC-ZSPTM+0(1).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;NOT&nbsp;(&nbsp;LV_FIRST_CHAR&nbsp;BETWEEN&nbsp;'0'&nbsp;AND&nbsp;'9'&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REPLACE&nbsp;SECTION&nbsp;OFFSET&nbsp;0&nbsp;LENGTH&nbsp;1&nbsp;OF&nbsp;LS_XNPC-ZSPTM&nbsp;WITH&nbsp;'9'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"标签名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC-ZBQMC&nbsp;=&nbsp;LS_MARA-MAKTX&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC-ZLYJSFS&nbsp;=&nbsp;LS_ZMMIF0050_CONFIG-ZLYJSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"销售价格计算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC-ZXSJGJLDW&nbsp;=&nbsp;LS_ZMMIF0050_CONFIG-ZXSJGJLDW&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"虚拟款号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC-EX_XNKH&nbsp;=&nbsp;LS_XNPC-MATNR&nbsp;&&&nbsp;'0000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC-EX_KCODE&nbsp;=&nbsp;'0000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC-EX_KZAVG&nbsp;=&nbsp;'0.000'&nbsp;.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_xnpc&nbsp;to&nbsp;et_xnpc&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

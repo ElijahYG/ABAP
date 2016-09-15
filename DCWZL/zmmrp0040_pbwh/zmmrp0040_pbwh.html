@@ -1,0 +1,437 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0040_PBWH</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0040_PBWH</h2>
+<h3> Description: 配货规则-门店排序与配比维护</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT zmmrp0040_pbwh.<br />
+<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;Types<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+TYPES BEGIN OF ty_data.<br />
+include structure <a href ="zmmdeli_config/dictionary-zmmdeli_config.html">zmmdeli_config</a>.<br />
+TYPES box TYPE char1.<br />
+TYPES meins TYPE mseg-meins.<br />
+TYPES flg TYPE char1.<br />
+TYPES END OF ty_data.<br />
+<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;Tables<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;gt_data&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_data,<br />
+&nbsp;&nbsp;gs_data&nbsp;TYPE&nbsp;ty_data,<br />
+&nbsp;&nbsp;gs_datab&nbsp;TYPE&nbsp;ty_data,<br />
+&nbsp;&nbsp;gt_dele&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ty_data,<br />
+&nbsp;&nbsp;gs_dele&nbsp;TYPE&nbsp;ty_data.<br />
+<br />
+&nbsp;&nbsp;CONTROLS&nbsp;tbl9001&nbsp;TYPE&nbsp;TABLEVIEW&nbsp;USING&nbsp;SCREEN&nbsp;9001.<br />
+DATA:<br />
+&nbsp;&nbsp;g_okcode&nbsp;TYPE&nbsp;sy-ucomm,<br />
+&nbsp;&nbsp;g_werks&nbsp;&nbsp;TYPE&nbsp;t001w-werks,<br />
+&nbsp;&nbsp;g_extwg&nbsp;&nbsp;TYPE&nbsp;twew-extwg,<br />
+&nbsp;&nbsp;g_line&nbsp;&nbsp;&nbsp;TYPE&nbsp;i,<br />
+&nbsp;&nbsp;g_id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;zorderid.<br />
+   </div>
+   <div class="codeComment">
+************************************************************************<br />
+*&nbsp;Start&nbsp;of&nbsp;Selection<br />
+************************************************************************<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;REFRESH:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gt_data,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gt_dele.<br />
+&nbsp;&nbsp;CLEAR&nbsp;g_id.<br />
+&nbsp;&nbsp;SELECT&nbsp;MAX(&nbsp;orderid&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;g_id<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config<br />
+&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;orderid.<br />
+&nbsp;&nbsp;ENDSELECT.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;gt_data<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_data-flg&nbsp;=&nbsp;'O'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;TRANSPORTING&nbsp;flg.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;SORT&nbsp;gt_data&nbsp;BY&nbsp;extwg&nbsp;orderid.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;SCREEN&nbsp;9001.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;STATUS_9001&nbsp;&nbsp;OUTPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE status_9001 OUTPUT.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STANDARD'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;SET&nbsp;TITLEBAR&nbsp;'xxx'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DESCRIBE&nbsp;TABLE&nbsp;gt_data&nbsp;LINES&nbsp;tbl9001-lines.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;g_okcode&nbsp;=&nbsp;'NEW'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;tbl9001-lines&nbsp;=&nbsp;tbl9001-lines&nbsp;+&nbsp;10.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;g_okcode.<br />
+ENDMODULE.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;USER_EXIT&nbsp;&nbsp;INPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE user_exit INPUT.<br />
+&nbsp;&nbsp;IF&nbsp;g_okcode&nbsp;=&nbsp;'&F12'<br />
+&nbsp;&nbsp;OR&nbsp;g_okcode&nbsp;=&nbsp;'&F03'<br />
+&nbsp;&nbsp;OR&nbsp;g_okcode&nbsp;=&nbsp;'&F15'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDMODULE.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;MODULE_EDIT_DATA&nbsp;&nbsp;INPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE module_edit_data INPUT.<br />
+&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;INDEX&nbsp;tbl9001-current_line.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_data&nbsp;TO&nbsp;gt_data.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDMODULE.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;USER_COMMAND_9001&nbsp;&nbsp;INPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE user_command_9001 INPUT.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;gs_data-werks&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;name1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;gs_data-name1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;t001w<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;gs_data-werks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;TRANSPORTING&nbsp;name1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;gs_data-orderid&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_datab&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;gs_data-werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;extwg&nbsp;=&nbsp;gs_data-extwg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;orderid&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-orderid&nbsp;=&nbsp;gs_datab-orderid.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;orderid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;gs_data-orderid<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UP&nbsp;TO&nbsp;1&nbsp;ROWS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;gs_data-werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;extwg&nbsp;=&nbsp;gs_data-extwg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDSELECT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_id&nbsp;=&nbsp;g_id&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-orderid&nbsp;=&nbsp;g_id.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;TRANSPORTING&nbsp;orderid.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_datab&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;gs_data-werks<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;extwg&nbsp;=&nbsp;gs_data-extwg<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;orderid&nbsp;&lt;&gt;&nbsp;gs_data-orderid.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;i001(00)&nbsp;WITH&nbsp;'门店排序号'&nbsp;gs_datab-orderid&nbsp;'在对应的门店及商品大类里已存在&nbsp;将修正为对应编号'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-orderid&nbsp;=&nbsp;gs_datab-orderid.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;TRANSPORTING&nbsp;orderid.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;orderid<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;gs_datab-orderid<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UP&nbsp;TO&nbsp;1&nbsp;ROWS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;gs_data-werks<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;extwg&nbsp;=&nbsp;gs_data-extwg<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;orderid&nbsp;&lt;&gt;&nbsp;gs_data-orderid.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDSELECT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;i001(00)&nbsp;WITH&nbsp;'门店排序号'&nbsp;gs_datab-orderid&nbsp;'在对应的门店及商品大类里已存在&nbsp;将修正为对应编号'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-orderid&nbsp;=&nbsp;gs_datab-orderid.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;TRANSPORTING&nbsp;orderid.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;g_okcode.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SALL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-box&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;TRANSPORTING&nbsp;box.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'CSAL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_data-box&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;gt_data&nbsp;FROM&nbsp;gs_data&nbsp;TRANSPORTING&nbsp;box.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'NEW'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;g_line.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET&nbsp;CURSOR&nbsp;LINE&nbsp;g_line.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_line&nbsp;=&nbsp;g_line&nbsp;+&nbsp;tbl9001-top_line&nbsp;-&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;gs_data&nbsp;INTO&nbsp;gt_data&nbsp;INDEX&nbsp;g_line.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'DEL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data&nbsp;WHERE&nbsp;box&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;flg&nbsp;=&nbsp;'O'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_data&nbsp;TO&nbsp;gt_dele.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;gt_data&nbsp;WHERE&nbsp;box&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_update_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SEARCH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_get_data.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+<br />
+ENDMODULE.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_get_data .<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_data&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmdeli_config,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_data&nbsp;TYPE&nbsp;zmmdeli_config.<br />
+<br />
+&nbsp;&nbsp;&nbsp;DATA&nbsp;:&nbsp;l_answer(01)&nbsp;TYPE&nbsp;c.<br />
+<br />
+&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_CONFIRM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;titlebar&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'确认'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text_question&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'未保存数据将丢失&nbsp;是否继续'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text_button_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'是'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text_button_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'否'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;display_cancel_button&nbsp;=&nbsp;'&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;answer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_answer.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;l_answer&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;lt_data.<br />
+&nbsp;&nbsp;IF&nbsp;g_werks&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;g_extwg&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_data<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;g_werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;extwg&nbsp;=&nbsp;g_extwg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_data<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;g_werks.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;g_extwg&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_data<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;extwg&nbsp;=&nbsp;g_extwg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;lt_data<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;zmmdeli_config.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;gt_data.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_data&nbsp;INTO&nbsp;ls_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;ls_data&nbsp;TO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;gs_data-flg&nbsp;=&nbsp;'O'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;gs_data&nbsp;TO&nbsp;gt_data.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;SORT&nbsp;gt_data&nbsp;BY&nbsp;extwg&nbsp;orderid.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_UPDATE_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM frm_update_data .<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lt_data&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;zmmdeli_config,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_data&nbsp;TYPE&nbsp;zmmdeli_config.<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;lt_data.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_data&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;gs_data&nbsp;TO&nbsp;ls_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_data&nbsp;TO&nbsp;lt_data.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_dele&nbsp;INTO&nbsp;gs_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;FROM&nbsp;zmmdeli_config<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;werks&nbsp;=&nbsp;gs_data-werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;extwg&nbsp;=&nbsp;gs_data-extwg.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;orderid&nbsp;=&nbsp;gs_data-orderid.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;MODIFY&nbsp;zmmdeli_config&nbsp;FROM&nbsp;TABLE&nbsp;lt_data.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'保存成功'&nbsp;TYPE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'保存失败'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;FRM_HIDE&nbsp;&nbsp;OUTPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE frm_hide OUTPUT.<br />
+&nbsp;&nbsp;IF&nbsp;&nbsp;gs_data-flg&nbsp;&lt;&gt;&nbsp;'O'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;SCREEN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;screen-name&nbsp;=&nbsp;'GS_DATA-WERKS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;screen-name&nbsp;=&nbsp;'GS_DATA-EXTWG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;screen-input&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;screen-required&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;SCREEN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDMODULE.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;Hard&nbsp;coded<br />
+*&nbsp;&nbsp;&nbsp;保存成功<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

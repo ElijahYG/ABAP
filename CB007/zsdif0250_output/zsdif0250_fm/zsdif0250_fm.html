@@ -1,0 +1,473 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDIF0250_FM</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZSDIF0250_FM</h2>
+<h3> Description: SAP电商收货回传EC接口</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZSDIF0250_FM.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IM_MBLNR) LIKE  MKPF-MBLNR<br />
+*"     VALUE(IM_MJAHR) LIKE  MKPF-MJAHR<br />
+*"  EXPORTING<br />
+*"     VALUE(RS_IDOC_NUMBER) TYPE  EDIDD-DOCNUM<br />
+*"  TABLES<br />
+*"      RETURN STRUCTURE  BAPIRET2<br />
+*"  EXCEPTIONS<br />
+*"      ERROR_IN_IDOC_CREATE<br />
+*"----------------------------------------------------------------------<br />
+*<br />
+
+<div class="codeComment">*       <a href ="global-zsdif0250_fm.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;WA_SYS_CONFIG&nbsp;TYPE&nbsp;ZSYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsap_get_status/zsap_get_status.html">'ZSAP_GET_STATUS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PID'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SYS_CONFIG&nbsp;=&nbsp;WA_SYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;CHECK&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'01'&nbsp;OR&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'03'.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  段定义的结构<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_HEAD&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZSDIF0250_SGM_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_HEAD&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0250_SGM_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_ITEM&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZSDIF0250_SGM_ITEM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0250_SGM_ITEM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  IDOC 定义的结构<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_CONTROL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;通讯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL&nbsp;TYPE&nbsp;EDIDC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;控制记录<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  数据读取结构及内表<br />
+*-----------------------------------------<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;IT_MKPF&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;MKPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MKPF&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MKPF.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_MSEG&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MSEG&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MSEG.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;WA_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATTYP&nbsp;TYPE&nbsp;MARA-ATTYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;WA_MARA&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_MARA&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;WA_MARA&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_RETURN&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;RETURN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IND&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;1.<br />
+&nbsp;&nbsp;DATA&nbsp;LV_SCMPONUM&nbsp;TYPE&nbsp;ZDE_SCMPONUM&nbsp;.<br />
+&nbsp;&nbsp;DATA&nbsp;LV_DOC_NUMBER&nbsp;TYPE&nbsp;POSKASSID&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  读取数据<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_MKPF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;WA_MKPF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MBLNR&nbsp;=&nbsp;IM_MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MJAHR&nbsp;=&nbsp;IM_MJAHR&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V1&nbsp;=&nbsp;'该商品凭证不存在：'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V2&nbsp;=&nbsp;IM_MBLNR&nbsp;&&&nbsp;'/'&nbsp;&&&nbsp;IM_MJAHR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_RETURN&nbsp;TO&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;ERROR_IN_IDOC_CREATE&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MBLNR&nbsp;=&nbsp;IM_MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MJAHR&nbsp;=&nbsp;IM_MJAHR&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_MSEG[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;IT_MSEG-MATNR&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  取批次特性<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:IT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARACTERS&nbsp;LIKE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARACTERS&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARACTERS&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_CHARG[],&nbsp;IT_CHARACTERS[].<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MSEG&nbsp;INTO&nbsp;WA_MSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARG-MATNR&nbsp;=&nbsp;WA_MSEG-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_CHARG-CHARG&nbsp;=&nbsp;WA_MSEG-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;IT_CHARG.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;IT_CHARACTERS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  整理数据<br />
+*-----------------------------------------<br />
+<br />
+* 准备IDoc段ZSDIF0250_SGM_HEAD<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_HEAD-MBLNR&nbsp;=&nbsp;WA_MKPF-MBLNR.<br />
+&nbsp;&nbsp;WA_HEAD-MJAHR&nbsp;=&nbsp;WA_MKPF-MJAHR.<br />
+&nbsp;&nbsp;WA_HEAD-BUDAT&nbsp;=&nbsp;WA_MKPF-BUDAT.<br />
+&nbsp;&nbsp;WA_HEAD-CPUDT&nbsp;=&nbsp;WA_MKPF-CPUDT.<br />
+&nbsp;&nbsp;WA_HEAD-USNAM&nbsp;=&nbsp;WA_MKPF-USNAM.<br />
+&nbsp;&nbsp;WA_HEAD-BKTXT&nbsp;=&nbsp;WA_MKPF-BKTXT.<br />
+&nbsp;&nbsp;WA_HEAD-LGORT&nbsp;=&nbsp;''.&nbsp;"&nbsp;该字段没有用，放空<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_MSEG&nbsp;INTO&nbsp;WA_MSEG&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;WA_MSEG-BWART&nbsp;=&nbsp;'101'&nbsp;OR&nbsp;WA_MSEG-BWART&nbsp;=&nbsp;'102'.&nbsp;"&nbsp;入库单<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_HEAD-BLAUM&nbsp;=&nbsp;'10'&nbsp;.&nbsp;"&nbsp;10&nbsp;-&nbsp;入库单<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;根据第一行批次特性中的SCM单号，找到对应的EDB采购订单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_CHARACTERS&nbsp;INTO&nbsp;WA_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;WA_MSEG-MATNR&nbsp;CHARG&nbsp;=&nbsp;WA_MSEG-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;AND&nbsp;WA_CHARACTERS-ZSCMDDH&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_SCMPONUM&nbsp;=&nbsp;WA_CHARACTERS-ZSCMDDH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;DOC_NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LV_DOC_NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZSCMIF0140_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZSCM0140_CGPZH&nbsp;=&nbsp;LV_SCMPONUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_HEAD-EBELN&nbsp;=&nbsp;LV_DOC_NUMBER.&nbsp;"&nbsp;EDB的采购单号码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;RESWK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;WA_HEAD-WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;供应商，指菜百<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKKO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EBELN&nbsp;=&nbsp;WA_MSEG-EBELN&nbsp;.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;WA_MSEG-BWART&nbsp;=&nbsp;'Z61'&nbsp;OR&nbsp;WA_MSEG-BWART&nbsp;=&nbsp;'Z62'&nbsp;."&nbsp;商品组合<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_HEAD-BLAUM&nbsp;=&nbsp;'11'&nbsp;.&nbsp;"&nbsp;11&nbsp;-&nbsp;商品组合<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_HEAD-EBELN&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_HEAD-WERKS&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZSDIF0250_SGM_HEAD'.<br />
+&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;WA_HEAD.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 准备IDoc段ZSDIF0250_SGM_ITEM<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MSEG&nbsp;INTO&nbsp;WA_MSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_ITEM,WA_EDIDD,WA_CHARACTERS,WA_MARA&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_MSEG-CHARG&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_CHARACTERS&nbsp;INTO&nbsp;WA_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;WA_MSEG-MATNR&nbsp;CHARG&nbsp;=&nbsp;WA_MSEG-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_CHARACTERS-ZSPTM&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V1&nbsp;=&nbsp;'批次没有条形码！商品：'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V2&nbsp;=&nbsp;WA_MSEG-MATNR&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V3&nbsp;=&nbsp;'批次号：'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V4&nbsp;=&nbsp;WA_MSEG-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_RETURN&nbsp;TO&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IND&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_MSEG-MEINS&nbsp;&lt;&gt;&nbsp;'ST'&nbsp;AND&nbsp;(&nbsp;WA_CHARACTERS-ZJZ&nbsp;&lt;=&nbsp;0&nbsp;OR&nbsp;WA_CHARACTERS-ZJZ&nbsp;IS&nbsp;INITIAL&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V1&nbsp;=&nbsp;'批次没有单件克重！商品：'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V2&nbsp;=&nbsp;WA_MSEG-MATNR&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V3&nbsp;=&nbsp;'批次号：'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V4&nbsp;=&nbsp;WA_MSEG-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_RETURN&nbsp;TO&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IND&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_MSEG-MEINS&nbsp;&lt;&gt;&nbsp;'ST'&nbsp;AND&nbsp;WA_CHARACTERS-ZJZ&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MSEG-MENGE&nbsp;=&nbsp;WA_MSEG-MENGE&nbsp;/&nbsp;WA_CHARACTERS-ZJZ&nbsp;.&nbsp;"&nbsp;件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V1&nbsp;=&nbsp;'找不到批次特性！商品：'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V2&nbsp;=&nbsp;WA_MSEG-MATNR&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V3&nbsp;=&nbsp;'批次号：'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V4&nbsp;=&nbsp;WA_MSEG-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_RETURN&nbsp;TO&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IND&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_CHARACTERS-ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_CHARACTERS-ZGYSDM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_CHARACTERS&nbsp;TO&nbsp;WA_ITEM&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-MBLNR&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-MBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-MJAHR&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-MJAHR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-ZEILE&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-ZEILE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-BWART&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-BWART.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-MATNR&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-WERKS&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-LGORT&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-LGORT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-CHARG&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-SOBKZ&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-SOBKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-LIFNR&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-LIFNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-MEINS&nbsp;&nbsp;&nbsp;=&nbsp;'PC'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;单位PC代表件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-BUKRS&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-BUKRS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-MENGE&nbsp;&nbsp;&nbsp;=&nbsp;WA_MSEG-MENGE.&nbsp;"&nbsp;先默认件数等于数量字段，下面再根据商品单位和单品克重进行转换<br />
+   </div>
+   <div class="codeComment">
+*--------------20160218郭悦更新----------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_CHARACTERS-ZGJSCZ&nbsp;=&nbsp;'102'."(千足金)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-ZJHL&nbsp;=&nbsp;'金含量：999‰'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_CHARACTERS-ZGJSCZ&nbsp;=&nbsp;'101'."（足金）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-ZJHL&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_CHARACTERS-ZGJSCZ&nbsp;=&nbsp;'103'."（投资金）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-ZJHL&nbsp;=&nbsp;'金含量：999.9‰'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_CHARACTERS-ZGJSCZ&nbsp;=&nbsp;'204'."（千足铂）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-ZJHL&nbsp;=&nbsp;'金含量：999‰'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*--------------20160218郭悦更新----------------*<br />
+<br />
+*--------------20151224郭悦更新----------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;WA_ITEM-ZJZ&nbsp;&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;WA_ITEM-ZZQH&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;WA_ITEM-ZQKH&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;WA_ITEM-ZXQZSZL&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;WA_ITEM-MENGE&nbsp;NO-GAPS."去除空格<br />
+   </div>
+   <div class="codeComment">
+*--------------20151224郭悦更新----------------*<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对数量进行正负号处理<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_MSEG-SHKZG&nbsp;=&nbsp;'H'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-MENGE&nbsp;=&nbsp;WA_ITEM-MENGE&nbsp;*&nbsp;-1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_MARA&nbsp;INTO&nbsp;WA_MARA&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;WA_MSEG-MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ITEM-ATTYP&nbsp;=&nbsp;WA_MARA-ATTYP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZSDIF0250_SGM_ITEM'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;=&nbsp;WA_ITEM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;ERROR_IND&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;ERROR_IN_IDOC_CREATE&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+****************设定idoc控制记录***************************<br />
+*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_CONTROL-RCVPRT&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRT.&nbsp;&nbsp;"接收方伙伴类型<br />
+&nbsp;&nbsp;WA_CONTROL-RCVPRN&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRN.&nbsp;&nbsp;"接收方的合作伙伴编号<br />
+&nbsp;&nbsp;WA_CONTROL-RCVPOR&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPOR.&nbsp;&nbsp;"接收者端口(SAP&nbsp;系统，EDI&nbsp;子系统)<br />
+<br />
+&nbsp;&nbsp;WA_CONTROL-MESTYP&nbsp;=&nbsp;'ZSDIF0250_MSG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"信息类型<br />
+&nbsp;&nbsp;WA_CONTROL-IDOCTP&nbsp;=&nbsp;'ZSDIF0250_IDOC'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;类型<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------<br />
+*    发送IDOC<br />
+*----------------------------------------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MASTER_IDOC_DISTRIBUTE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMUNICATION_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_WRITING_IDOC_STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDING_LOGICAL_SYSTEM_UNKNOWN&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-TYPE&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-ID&nbsp;=&nbsp;'ZCB'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-NUMBER&nbsp;=&nbsp;'000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V1&nbsp;=&nbsp;'IDoc创建失败！'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V2&nbsp;=&nbsp;''&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V3&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V4&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_RETURN&nbsp;TO&nbsp;RETURN&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-TYPE&nbsp;=&nbsp;SY-MSGTY&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-ID&nbsp;=&nbsp;SY-MSGID&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-NUMBER&nbsp;=&nbsp;SY-MSGNO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V1&nbsp;=&nbsp;SY-MSGV1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V2&nbsp;=&nbsp;SY-MSGV2&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V3&nbsp;=&nbsp;SY-MSGV3&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V4&nbsp;=&nbsp;SY-MSGV4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_RETURN&nbsp;TO&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;ERROR_IN_IDOC_CREATE&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="codeComment">
+*   发送idoc时会锁住一些系统表，此过程为等待完全操作完毕<br />
+*    CALL FUNCTION 'DB_COMMIT'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DEQUEUE_ALL'.<br />
+   </div>
+   <div class="codeComment">
+*    COMMIT WORK AND WAIT. " 该Function会在标准Output Message处理中调用，标准程序会在更新进程执行，所以这里不需要Commit，否则会Dump<br />
+*   发送的IDOC<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_CONTROL&nbsp;INTO&nbsp;WA_CONTROL&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RS_IDOC_NUMBER&nbsp;=&nbsp;WA_CONTROL-DOCNUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL-DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_IS_NOT_TO_DEQUEUE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'IDOC创建成功：'&nbsp;&&&nbsp;WA_CONTROL-DOCNUM&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFUNCTION.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+* Message class: 00<br />
+*001   &1&2&3&4&5&6&7&8<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

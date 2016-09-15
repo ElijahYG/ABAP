@@ -1,0 +1,937 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMIF0060_ENHANCE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMMIF0060_ENHANCE</h2>
+<h3> Description: 批次特性增强</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMMIF0060_ENHANCE.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     REFERENCE(IM_MATNR) TYPE  MATNR OPTIONAL<br />
+*"     REFERENCE(IM_CHARG) TYPE  CHARG_D OPTIONAL<br />
+*"     REFERENCE(IM_BADI_CLASS) TYPE  KLASSE_D OPTIONAL<br />
+*"     REFERENCE(IM_BADI_OBJEK) TYPE  CUOBN OPTIONAL<br />
+*"     REFERENCE(IM_BADI_OBTAB) TYPE  TABELLE OPTIONAL<br />
+*"     REFERENCE(IM_NUMBER) TYPE  NUM10 OPTIONAL<br />
+*"  TABLES<br />
+*"      IT_BADI_VALUES STRUCTURE  AUSP<br />
+*"  EXCEPTIONS<br />
+*"      WRONG_PARAMETERS<br />
+*"----------------------------------------------------------------------<br />
+* 本程序完成以下功能：<br />
+* 1. 根据批次特性，更新批次附加表信息<br />
+<br />
+* 本程序可在BADI中调用，也可单独调用<br />
+* 1. 如果是在BADI ZMMIF0060_BADI 中调用，请传入IM_BADI_和IT_BADI_开头的参数,<br />
+* 2. 如果是其他程序调用，请传入IM_MATNR和IM_CHARG<br />
+
+<div class="codeComment">*       <a href ="global-zmmif0060_enhance.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LV_MATNR&nbsp;TYPE&nbsp;MARA-MATNR.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_WERKS&nbsp;TYPE&nbsp;MARD-WERKS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_CHARG&nbsp;TYPE&nbsp;MCHA-CHARG.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_MTART&nbsp;TYPE&nbsp;MARA-MTART.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_TEMPB&nbsp;TYPE&nbsp;MARA-TEMPB.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_BEHVO&nbsp;TYPE&nbsp;MARA-BEHVO.<br />
+<br />
+&nbsp;&nbsp;DATA:WA_ZMMRP0210_BATCH&nbsp;TYPE&nbsp;ZMMRP0210_BATCH.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;BEGIN&nbsp;OF&nbsp;TY_ZMMEX0010_RANG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zmmex0010_rang/dictionary-zmmex0010_rang.html">ZMMEX0010_RANG</a>.<br />
+&nbsp;&nbsp;DATA&nbsp;ZKZC&nbsp;TYPE&nbsp;ZDE_MMEX0010_KZAVG&nbsp;.&nbsp;&nbsp;"克重差<br />
+&nbsp;&nbsp;DATA&nbsp;END&nbsp;OF&nbsp;TY_ZMMEX0010_RANG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ZMMEX0010_RANG&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZMMEX0010_RANG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_RANG&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_ZMMEX0010_RANG.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZJZ&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZJZ&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZJZ'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZZQH&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZZQH&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZZQH'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZCT1&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZCT1&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZCT1'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZCT2&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZCT2&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZCT2'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZXSKGFD&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZXSKGFD&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZXSKGFD'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZGYSDM&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZGYSDM&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZGYSDM'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZGJSCZ&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZGJSCZ&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZGJSCZ'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZXSJGJLDW&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZXSJGJLDW&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZXSJGJLDW',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZXSKFJGF&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZXSKFJGF&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZXSKFJGF',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZXSJFJGF&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZXSJFJGF&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZXSJFJGF',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZLYJSYKJ&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZLYJSYKJ&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZLYJSYKJ',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZJSJJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZJSJJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZJSJJ',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZJSKGF&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZJSKGF&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZJSKGF',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZJSDKZ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZJSDKZ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZJSDKZ',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZJSKL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZJSKL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZJSKL',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZCKLSJ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZCKLSJ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZCKLSJ',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZSPTM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZSPTM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZSPTM',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATINN_ZLYJSFS&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZLYJSFS&nbsp;&nbsp;&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZLYJSFS'.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_P&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3.<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_VALUES_BUFFER&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_VAL_AUSP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZJZ_BUFFER&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZZQH_BUFFER&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZCT1_BUFFER&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZCT2_BUFFER&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZXSKGFD_BUFFER&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZGYSDM_BUFFER&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZLYJSFS_BUFFER&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZXSJGJLDW_BUFFER&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZXSKFJGF_BUFFER&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZCKLSJ_BUFFER&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZSPTM_BUFFER&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZGJSCZ_BUFFER&nbsp;TYPE&nbsp;AUSP.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_MCH1&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;MCH1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MCH1&nbsp;TYPE&nbsp;MCH1.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_SIM_KZ&nbsp;TYPE&nbsp;ZMMEX0010_RANG-EX_KZAVG.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;FLAG&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;1.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_FLG&nbsp;TYPE&nbsp;C&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_CHK_XSK&nbsp;TYPE&nbsp;ZMMRP0210_BATCH-CHK_XSK&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSDRP0090&nbsp;TYPE&nbsp;ZSDRP0090,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDRP0090&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0090.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 取得批次特性<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IM_BADI_CLASS&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;IM_BADI_OBJEK&nbsp;IS&nbsp;NOT&nbsp;INITIAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;IT_BADI_VALUES[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;IM_BADI_OBTAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'MCH1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MATNR&nbsp;=&nbsp;IM_BADI_OBJEK(18).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_CHARG&nbsp;=&nbsp;IM_BADI_OBJEK+18(10).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'MCHA'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MATNR&nbsp;=&nbsp;IM_BADI_OBJEK(18).<br />
+   </div>
+   <div class="codeComment">
+*        LV_WERKS = IM_BADI_OBJEK+18(4).<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_CHARG&nbsp;=&nbsp;IM_BADI_OBJEK+22(10).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_VALUES_BUFFER[]&nbsp;=&nbsp;IT_BADI_VALUES[]&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;IM_MATNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;IM_CHARG&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MATNR&nbsp;=&nbsp;IM_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_CHARG&nbsp;=&nbsp;IM_CHARG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LS_MCH1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCH1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LV_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;IT_VALUES_BUFFER&nbsp;FROM&nbsp;AUSP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;&nbsp;OBJEK&nbsp;&nbsp;=&nbsp;LS_MCH1-CUOBJ_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;KLART&nbsp;=&nbsp;'023'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;WRONG_PARAMETERS&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 单件金重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZJZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZJZ.<br />
+   </div>
+   <div class="codeComment">
+* 指圈号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZZQH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZZQH.<br />
+   </div>
+   <div class="codeComment">
+* 抽屉号1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZCT1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZCT1.<br />
+   </div>
+   <div class="codeComment">
+* 抽屉号2<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZCT2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZCT2.<br />
+   </div>
+   <div class="codeComment">
+********************************************************************<br />
+* 销售价格计量单位<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZXSJGJLDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZXSJGJLDW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 销售克付加工费<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZXSKFJGF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZXSKFJGF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 销售件付加工费<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZXSJFJGF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZXSJFJGF.<br />
+   </div>
+   <div class="codeComment">
+* 联营结算一口价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZLYJSYKJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZLYJSYKJ.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 结算金价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZJSJJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZJSJJ.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 结算克工费<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZJSKGF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZJSKGF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 结算倒扣值<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZJSDKZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZJSDKZ.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 结算克重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZJSKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZJSKL.<br />
+   </div>
+   <div class="codeComment">
+* 参考零售价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZCKLSJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZCKLSJ.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 联营结算方式<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZLYJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZLYJSFS.<br />
+   </div>
+   <div class="codeComment">
+********************************************************************<br />
+* 销售克工费档<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZXSKGFD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 供应商代码<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZGYSDM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 贵金属材质<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZGJSCZ.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 商品条码<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZSPTM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取ATFLV值<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_VALUES_BUFFER&nbsp;INTO&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZJZ_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZZQH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZZQH_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZCT1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZCT1_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZCT2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZCT2_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZXSKGFD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZXSKGFD_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZGYSDM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZGYSDM_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZLYJSFS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZLYJSFS_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZXSJGJLDW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZXSJGJLDW_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZXSKFJGF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZXSKFJGF_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZGJSCZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZGJSCZ_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZCKLSJ_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_VAL_AUSP-ATINN&nbsp;EQ&nbsp;LV_ATINN_ZSPTM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZSPTM_BUFFER&nbsp;=&nbsp;WA_VAL_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 计算批次虚拟款号，并更新批次附加信息表ZMMRP0210_BATCH<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MTART&nbsp;TEMPB&nbsp;BEHVO&nbsp;INTO&nbsp;(LV_MTART,&nbsp;LV_TEMPB,&nbsp;LV_BEHVO)&nbsp;FROM&nbsp;MARA&nbsp;WHERE&nbsp;MATNR&nbsp;EQ&nbsp;LV_MATNR.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LV_MTART&nbsp;&lt;&gt;&nbsp;'Z002'&nbsp;AND&nbsp;LV_MTART&nbsp;&lt;&gt;&nbsp;'Z009'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'4'.&nbsp;"&nbsp;不是贵金属饰品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LV_TEMPB&nbsp;EQ&nbsp;'01'&nbsp;OR&nbsp;LV_TEMPB&nbsp;EQ&nbsp;'02'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LV_BEHVO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'K'.&nbsp;&nbsp;"&nbsp;克重商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;EQ&nbsp;'0'&nbsp;OR&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;R~EX_KCODE&nbsp;R~EX_KTYPE&nbsp;R~EX_KZLOW&nbsp;R~EX_KHIGH&nbsp;R~EX_KNAME&nbsp;R~EX_KZAVG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_KZSEL&nbsp;AS&nbsp;K<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_RANG&nbsp;AS&nbsp;R&nbsp;ON&nbsp;K~EX_KCODE&nbsp;=&nbsp;R~EX_KCODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;K~MATNR&nbsp;=&nbsp;LV_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;&lt;=&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;(&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;&gt;&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;&lt;&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_RANG-ZKZC&nbsp;=&nbsp;ABS(&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;-&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ZMMEX0010_RANG&nbsp;FROM&nbsp;WA_ZMMEX0010_RANG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*  Changed by huxiaowei @20151106<br />
+*  如果商品的可选克重段除了Z001之外，还有其他的例如C001，则排除Z001。<br />
+*  原因：期初上线时，由于很难对每款已有商品确定其可选克重段，所以是按品种一级+品种二级<br />
+*        来确定其可选克重段。但是同一个品种一级+品种二级中，有些商品是有克重段的，例如<br />
+*        从C001~C045，有极少商品是不分克重段的，所以该品种一级+品种二级下可选克重段是<br />
+*        C001~C045和Z001。因此该期初商品的可选克重段是C001~C045和Z001，但实际上该商品<br />
+*        的可选克重段不应该既有C001~C045，又有Z001。<br />
+*                SORT IT_ZMMEX0010_RANG BY ZKZC.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LINES(&nbsp;IT_ZMMEX0010_RANG&nbsp;)&nbsp;&gt;&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_ZMMEX0010_RANG&nbsp;WHERE&nbsp;EX_KCODE&nbsp;=&nbsp;'Z001'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_ZMMEX0010_RANG&nbsp;BY&nbsp;ZKZC&nbsp;EX_KCODE.<br />
+   </div>
+   <div class="codeComment">
+*  End<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z'&nbsp;OR&nbsp;'Q'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_ZZQH_BUFFER-ATFLV&nbsp;EQ&nbsp;'0'&nbsp;OR&nbsp;WA_ZZQH_BUFFER-ATFLV&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;R~EX_KCODE&nbsp;R~EX_KTYPE&nbsp;R~EX_KZLOW&nbsp;R~EX_KHIGH&nbsp;R~EX_KNAME&nbsp;R~EX_KZAVG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_ZQSEL&nbsp;AS&nbsp;K<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_RANG&nbsp;AS&nbsp;R&nbsp;ON&nbsp;K~EX_KCODE&nbsp;=&nbsp;R~EX_KCODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;K~MATNR&nbsp;=&nbsp;LV_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;WA_ZZQH_BUFFER-ATFLV&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;WA_ZZQH_BUFFER-ATFLV&nbsp;&lt;=&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;(&nbsp;WA_ZZQH_BUFFER-ATFLV&nbsp;&gt;&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;WA_ZZQH_BUFFER-ATFLV&nbsp;&lt;&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_RANG-ZKZC&nbsp;=&nbsp;ABS(&nbsp;WA_ZZQH_BUFFER-ATFLV&nbsp;-&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ZMMEX0010_RANG&nbsp;FROM&nbsp;WA_ZMMEX0010_RANG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*  Changed by huxiaowei @20151106<br />
+*                SORT IT_ZMMEX0010_RANG BY ZKZC.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_ZMMEX0010_RANG&nbsp;BY&nbsp;ZKZC&nbsp;EX_KCODE.<br />
+   </div>
+   <div class="codeComment">
+*  End<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'5'.&nbsp;"&nbsp;商品不是克重，指圈或圈口商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'6'.&nbsp;"&nbsp;商品不是一般或批次码商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZJZ&nbsp;=&nbsp;WA_ZJZ_BUFFER-ATFLV&nbsp;.&nbsp;"&nbsp;单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查该虚拟款号是否已经匹配过相似款<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;CHK_XSK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LV_CHK_XSK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EX_XNKH&nbsp;=&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHK_XSK&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHK_XSK&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHK_XSK&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+* Insert begin by huxiaowei 20150921<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZCT1&nbsp;=&nbsp;WA_ZCT1_BUFFER-ATWRT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZCT2&nbsp;=&nbsp;WA_ZCT2_BUFFER-ATWRT&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* Insert end<br />
+* Insert begin by huxiaowei 20151120<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZLYJSFS&nbsp;=&nbsp;WA_ZLYJSFS_BUFFER-ATWRT&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"联营结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZXSJGJLDW&nbsp;=&nbsp;WA_ZXSJGJLDW_BUFFER-ATWRT&nbsp;.&nbsp;&nbsp;"销售价格计算单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZXSKGFD&nbsp;=&nbsp;WA_ZXSKGFD_BUFFER-ATWRT&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克工费档<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZXSKFJGF&nbsp;=&nbsp;WA_ZXSKFJGF_BUFFER-ATFLV&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售克附加费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZGYSDM&nbsp;=&nbsp;WA_ZGYSDM_BUFFER-ATWRT&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商代码<br />
+   </div>
+   <div class="codeComment">
+****modify by liquan 2015.12.10 start *****************<br />
+*   WA_ZMMRP0210_BATCH-ZGJSCZ = WA_ZGYSDM_BUFFER-ATWRT .        "贵金属材质<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZGJSCZ&nbsp;=&nbsp;WA_ZGJSCZ_BUFFER-ATWRT&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+   </div>
+   <div class="codeComment">
+****modify by liquan 2015.12.10   end *****************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZCKLSJ&nbsp;=&nbsp;WA_ZCKLSJ_BUFFER-ATFLV&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-ZSPTM&nbsp;=&nbsp;WA_ZSPTM_BUFFER-ATWRT&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+   </div>
+   <div class="codeComment">
+* Insert end<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+** 添加变更日志   20150929  By sujingxiang<br />
+*    LV_MATNR = IM_MATNR .<br />
+*    LV_CHARG = IM_CHARG .<br />
+* 1. 单位ST 或者 联营商品 才启用记录<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARACTERS&nbsp;WITH&nbsp;HEADER&nbsp;LINE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;data:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_mara&nbsp;&nbsp;&nbsp;type&nbsp;mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lv_flg_ok&nbsp;type&nbsp;c&nbsp;&nbsp;&nbsp;"&nbsp;如果单位为PC&nbsp;或者SFLG&nbsp;=&nbsp;X&nbsp;才记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;LS_mara&nbsp;FROM&nbsp;mara<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;matnr&nbsp;=&nbsp;LV_MATNR.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;ls_mara-MEINS&nbsp;=&nbsp;'ST'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lv_flg_ok&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;T_CHARG-MATNR&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;T_CHARG-CHARG&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;APPEND&nbsp;&nbsp;T_CHARG.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+********判断数据源 ***********<br />
+* 1. TCODE 更改   调用函数进行比较，存储日志表<br />
+*2. FM 更改  直接MODIFY ，存储日志表<br />
+******************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_BADI_VALUES[]&nbsp;is&nbsp;NOT&nbsp;INITIAL.&nbsp;"&nbsp;TCODE<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZXSJGJLDW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZXSJGJLDW&nbsp;=&nbsp;IT_BADI_VALUES-ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZLYJSFS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZLYJSFS&nbsp;=&nbsp;IT_BADI_VALUES-ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZJZ&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZXSKFJGF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZXSKFJGF&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZXSJFJGF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZXSJFJGF&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZLYJSYKJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZLYJSYKJ&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZJSJJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZJSJJ&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZJSKGF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZJSKGF&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZJSDKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZJSDKZ&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZJSKL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZJSKL&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;IT_BADI_VALUES-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZCKLSJ&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+********START BY LIQUAN  2015.11.27 *********<br />
+*   参考零售价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZGYSDM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZGYSDM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZGYSDM&nbsp;=&nbsp;IT_BADI_VALUES-ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*   销售克工费档<br />
+*   销售克工费档<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LV_ATNAM_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ATINN_ZXSKGFD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BADI_VALUES&nbsp;WITH&nbsp;KEY&nbsp;ATINN&nbsp;=&nbsp;LV_ATINN_ZXSKGFD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-ZXSKGFD&nbsp;=&nbsp;IT_BADI_VALUES-ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+********END   BY LIQUAN  2015.11.27 *********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-MATNR&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS-CHARG&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;T_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lv_flg_ok&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_FLG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a>"&nbsp;&nbsp;FM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;T_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;T_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;T_CHARACTERS&nbsp;WHERE&nbsp;SFLY&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_flg_ok&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+" 记录日志<br />
+&nbsp;&nbsp;IF&nbsp;lv_flg_ok&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsd_set_document/zsd_set_document.html">'ZSD_SET_DOCUMENT'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_NUMBER&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IM_NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_mara<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_FLG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_FLG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;T_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;T_CHARACTERS.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

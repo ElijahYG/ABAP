@@ -1,0 +1,543 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZHANA_TRAINING_01_HXW</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZHANA_TRAINING_01_HXW</h2>
+<h3> Description: ABAP on HANA培训练习 01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZHANA_TRAINING_01_HXW.<br />
+<br />
+TABLES: MSEG, MKPF.<br />
+<br />
+TYPES: BEGIN OF TY_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;MKPF-BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPMON&nbsp;&nbsp;&nbsp;TYPE&nbsp;S001-SPMON,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BWART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-SHKZG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG_T&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE_S&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE_H&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNTER&nbsp;TYPE&nbsp;I&nbsp;,&nbsp;"&nbsp;计数器<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_ALV.<br />
+DATA: GT_ALV TYPE TABLE OF TY_ALV .<br />
+" 定义ALV显示字段属性内表和工作区<br />
+DATA: GT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT&nbsp;TYPE&nbsp;SLIS_FIELDCAT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义ALV屏幕布局工作区<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_LAYOUT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_EVENTS&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_EVENT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_EVENTS&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_ALV_EVENT.<br />
+<br />
+<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01 .<br />
+SELECT-OPTIONS: S_BUDAT FOR MKPF-BUDAT OBLIGATORY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_WERKS&nbsp;FOR&nbsp;MSEG-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_BWART&nbsp;FOR&nbsp;MSEG-BWART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MATNR&nbsp;FOR&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_CHARG&nbsp;FOR&nbsp;MSEG-CHARG.<br />
+SELECTION-SCREEN END OF BLOCK B1 .<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK B2 WITH FRAME TITLE TEXT-T02 .<br />
+PARAMETERS: LX_2 TYPE C RADIOBUTTON GROUP LX DEFAULT 'X',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LX_3&nbsp;TYPE&nbsp;C&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;LX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LX_4&nbsp;TYPE&nbsp;C&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;LX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LX_5&nbsp;TYPE&nbsp;C&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;LX.<br />
+SELECTION-SCREEN END OF BLOCK B2 .<br />
+<br />
+START-OF-SELECTION .<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_DATA&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;GT_ALV[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_DISPLAY_ALV&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有查询结果！'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_FIELDCAT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置显示字段属性<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_DATA .<br />
+&nbsp;&nbsp;IF&nbsp;LX_2&nbsp;=&nbsp;'X'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;练习（2）<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;F~BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~MBLNR,&nbsp;G~MJAHR,&nbsp;G~ZEILE,&nbsp;G~WERKS,&nbsp;G~MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~CHARG,&nbsp;G~MEINS,&nbsp;G~BWART,&nbsp;G~SHKZG,&nbsp;G~MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;AS&nbsp;COUNTER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;@GT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;F<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MSEG&nbsp;AS&nbsp;G&nbsp;ON&nbsp;&nbsp;G~MBLNR&nbsp;=&nbsp;F~MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MJAHR&nbsp;=&nbsp;F~MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;F~BUDAT&nbsp;IN&nbsp;@S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~WERKS&nbsp;IN&nbsp;@S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~BWART&nbsp;IN&nbsp;@S_BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MATNR&nbsp;IN&nbsp;@S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~CHARG&nbsp;IN&nbsp;@S_CHARG&nbsp;.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;LX_3&nbsp;=&nbsp;'X'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;练习（3）<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;F~BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~MBLNR,&nbsp;G~MJAHR,&nbsp;G~ZEILE,&nbsp;G~WERKS,&nbsp;G~MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~CHARG,&nbsp;G~MEINS,&nbsp;G~BWART,&nbsp;G~SHKZG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;G~SHKZG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'S'&nbsp;THEN&nbsp;'借'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'H'&nbsp;THEN&nbsp;'贷'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;AS&nbsp;SHKZG_T,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~MENGE&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;AS&nbsp;MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;AS&nbsp;MENGE_S,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;AS&nbsp;MENGE_H,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;AS&nbsp;COUNTER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;@GT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;F<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MSEG&nbsp;AS&nbsp;G&nbsp;ON&nbsp;&nbsp;G~MBLNR&nbsp;=&nbsp;F~MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MJAHR&nbsp;=&nbsp;F~MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;F~BUDAT&nbsp;IN&nbsp;@S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~WERKS&nbsp;IN&nbsp;@S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~BWART&nbsp;IN&nbsp;@S_BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MATNR&nbsp;IN&nbsp;@S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~CHARG&nbsp;IN&nbsp;@S_CHARG&nbsp;.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;LX_4&nbsp;=&nbsp;'X'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;练习（4）<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;G~WERKS,&nbsp;G~MATNR,&nbsp;G~MEINS,&nbsp;G~BWART,&nbsp;G~SHKZG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~MENGE&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;)&nbsp;AS&nbsp;MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;)&nbsp;AS&nbsp;MENGE_S,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;)&nbsp;AS&nbsp;MENGE_H<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;@GT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;F<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MSEG&nbsp;AS&nbsp;G&nbsp;ON&nbsp;&nbsp;G~MBLNR&nbsp;=&nbsp;F~MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MJAHR&nbsp;=&nbsp;F~MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;F~BUDAT&nbsp;IN&nbsp;@S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~WERKS&nbsp;IN&nbsp;@S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~BWART&nbsp;IN&nbsp;@S_BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MATNR&nbsp;IN&nbsp;@S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~CHARG&nbsp;IN&nbsp;@S_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;G~WERKS,&nbsp;G~MATNR,&nbsp;G~MEINS,&nbsp;G~BWART,&nbsp;G~SHKZG&nbsp;.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;LX_5&nbsp;=&nbsp;'X'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;练习（5）<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;G~WERKS,&nbsp;G~MATNR,&nbsp;G~MEINS,&nbsp;G~BWART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;G~SHKZG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'S'&nbsp;THEN&nbsp;'借'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'H'&nbsp;THEN&nbsp;'贷'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;AS&nbsp;SHKZG_T,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;AS&nbsp;COUNTER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~MENGE&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;)&nbsp;AS&nbsp;MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;)&nbsp;AS&nbsp;MENGE_S,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;)&nbsp;AS&nbsp;MENGE_H<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;@GT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;F<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MSEG&nbsp;AS&nbsp;G&nbsp;ON&nbsp;&nbsp;G~MBLNR&nbsp;=&nbsp;F~MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MJAHR&nbsp;=&nbsp;F~MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;F~BUDAT&nbsp;IN&nbsp;@S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~WERKS&nbsp;IN&nbsp;@S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~BWART&nbsp;IN&nbsp;@S_BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MATNR&nbsp;IN&nbsp;@S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~CHARG&nbsp;IN&nbsp;@S_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;G~WERKS,&nbsp;G~MATNR,&nbsp;G~MEINS,&nbsp;G~BWART,&nbsp;G~SHKZG.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_FIELDCAT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置显示字段属性<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_FIELDCAT .<br />
+&nbsp;&nbsp;REFRESH:&nbsp;GT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'MBLNR'&nbsp;''&nbsp;'MBLNR'&nbsp;'商品凭证'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'MJAHR'&nbsp;''&nbsp;'MJAHR'&nbsp;'年度'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'ZEILE'&nbsp;''&nbsp;'ZEILE'&nbsp;'行号'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'BUDAT'&nbsp;''&nbsp;'BUDAT'&nbsp;'过账日期'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'SPMON'&nbsp;''&nbsp;'SPMON'&nbsp;'过账月份'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'WERKS'&nbsp;''&nbsp;'WERKS_D'&nbsp;'地点'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'MATNR'&nbsp;''&nbsp;'MATNR'&nbsp;'商品'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'CHARG'&nbsp;''&nbsp;'CHARG_D'&nbsp;'批次'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'MEINS'&nbsp;''&nbsp;'MEINS'&nbsp;'单位'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'BWART'&nbsp;''&nbsp;'BWART_D'&nbsp;'移动类型'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'SHKZG'&nbsp;''&nbsp;'SHKZG'&nbsp;'借贷标识'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'SHKZG_T'&nbsp;''&nbsp;''&nbsp;'借贷名称'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'MENGE'&nbsp;''&nbsp;'MENGE_D'&nbsp;'数量'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'MENGE_S'&nbsp;''&nbsp;'MENGE_D'&nbsp;'借方数量'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'MENGE_H'&nbsp;''&nbsp;'MENGE_D'&nbsp;'贷方数量'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;&nbsp;'COUNTER'&nbsp;''&nbsp;'MENGE_D'&nbsp;'计数器'&nbsp;''&nbsp;''&nbsp;0&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_FIELDCAT&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;GS_FIELDCAT&gt;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'COUNTER'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-DO_SUM&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.                    " FRM_BUILD_FIELDCAT<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_ALV_DISPLAY<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALV显示<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_ALV_DISPLAY .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV&nbsp;FUNCTION<br />
+*&nbsp;&nbsp;LS_VARIANT-REPORT&nbsp;=&nbsp;SY-REPID.<br />
+*&nbsp;&nbsp;LS_VARIANT-VARIANT&nbsp;=&nbsp;P_VARI&nbsp;.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'FRM_PF_STATUS_SET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'FRM_USER_COMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do：确定是否需要Top&nbsp;Page<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_HTML_HEIGHT_TOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do：确定Top&nbsp;Page的高度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GS_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_ALV[].&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do:&nbsp;确定输出的内表<br />
+<br />
+ENDFORM.                    " FRM_ALV_DISPLAY<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;HTML_TOP_OF_PAGE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM HTML_TOP_OF_PAGE USING CL_DD TYPE REF TO CL_DD_DOCUMENT.<br />
+&nbsp;&nbsp;DATA&nbsp;LV_TEXT&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;255&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;To-Do：定义Top&nbsp;Page输出的内容<br />
+**********************************************************************<br />
+*&nbsp;&nbsp;DATA(LV_LINE)&nbsp;=&nbsp;LINES(&nbsp;GT_ALV&nbsp;)&nbsp;.<br />
+*&nbsp;&nbsp;LV_TEXT&nbsp;=&nbsp;'找到'&nbsp;&&&nbsp;LV_LINE&nbsp;&&&nbsp;'条数据！'&nbsp;.<br />
+*&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+   </div>
+   <div class="code">
+ENDFORM .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_DIS_ALV<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_DISPLAY_ALV .<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ALV&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_ALV&nbsp;.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_FIELDCAT.&nbsp;&nbsp;&nbsp;"&nbsp;设置显示字段属性<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_LAYOUT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;设置屏幕布局<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_ALV_DISPLAY&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_SET_FIELDS<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SUB_SET_FIELDS USING I_FIELDNAME TYPE SLIS_FIELDNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_TABLENAME&nbsp;TYPE&nbsp;SLIS_TABNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_ROLLNAME&nbsp;&nbsp;TYPE&nbsp;DD03P-ROLLNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SELTEXT&nbsp;TYPE&nbsp;DD03P-SCRTEXT_L<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_NO_ZERO&nbsp;TYPE&nbsp;CHAR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_OUTPUTLEN&nbsp;TYPE&nbsp;DD03P-OUTPUTLEN.<br />
+<br />
+&nbsp;&nbsp;GS_FIELDCAT-FIELDNAME&nbsp;=&nbsp;I_FIELDNAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;I_TABLENAME&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-ROLLNAME&nbsp;&nbsp;&nbsp;=&nbsp;I_ROLLNAME&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;I_SELTEXT&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;I_SELTEXT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-SELTEXT_M&nbsp;=&nbsp;I_SELTEXT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-SELTEXT_S&nbsp;=&nbsp;I_SELTEXT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-REPTEXT_DDIC&nbsp;&nbsp;&nbsp;=&nbsp;I_SELTEXT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;GS_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;=&nbsp;I_NO_ZERO&nbsp;.<br />
+&nbsp;&nbsp;GS_FIELDCAT-KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_KEY&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;I_OUTPUTLEN&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-OUTPUTLEN&nbsp;=&nbsp;I_OUTPUTLEN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;GS_FIELDCAT-COL_POS&nbsp;=&nbsp;LINES(&nbsp;GT_FIELDCAT&nbsp;)&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELDCAT&nbsp;TO&nbsp;GT_FIELDCAT.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GS_FIELDCAT.<br />
+ENDFORM.                    "SUB_SET_FIELDS<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_LAYOUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置屏幕布局<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_LAYOUT .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;输出长度的最优化设计<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;GS_LAYOUT-COUNTFNAME&nbsp;=&nbsp;'COUNTER'&nbsp;.<br />
+&nbsp;&nbsp;GS_LAYOUT-TOTALS_BEFORE_ITEMS&nbsp;=&nbsp;'X'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;gs_layout-box_fieldname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BOX'.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.                    " FRM_BUILD_LAYOUT<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PF_STATUS_SET<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置状态栏<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PF_STATUS_SET USING RT_EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STANDARD'.<br />
+<br />
+ENDFORM.                    " FRM_PF_STATUS_SET<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_USER_COMMAND<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;定义按钮功能<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_USER_COMMAND  USING R_UCOMM TYPE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;G_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.&nbsp;"&nbsp;刷新数据<br />
+&nbsp;&nbsp;DATA:LT_RSPAR&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_RSPAR&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_RSPAR.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ALV&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_ALV&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;G_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;G_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZBACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&IC1'&nbsp;.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.                    " FRM_USER_COMMAND<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;F_ALV_VARIANT_F4<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_P_VARI&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM F_ALV_VARIANT_F4 CHANGING P_P_VARI TYPE SLIS_VARI.<br />
+&nbsp;&nbsp;DATA:&nbsp;RS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT.<br />
+<br />
+&nbsp;&nbsp;RS_VARIANT-REPORT&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID.<br />
+&nbsp;&nbsp;RS_VARIANT-USERNAME&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_VARIANT_F4'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'A'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ES_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_P_VARI&nbsp;=&nbsp;RS_VARIANT-VARIANT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM. " F_ALV_VARIANT_F4<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;请输入查询条件<br />
+*&nbsp;T02&nbsp;请选择执行的查询程序<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;LX_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;练习<br />
+*&nbsp;LX_3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;练习3<br />
+*&nbsp;LX_4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;练习4<br />
+*&nbsp;LX_5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;练习5<br />
+*&nbsp;S_BUDAT&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_BWART&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_CHARG&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_MATNR&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_WERKS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

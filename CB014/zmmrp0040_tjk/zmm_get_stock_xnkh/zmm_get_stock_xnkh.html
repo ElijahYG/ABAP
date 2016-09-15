@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_GET_STOCK_XNKH</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMM_GET_STOCK_XNKH</h2>
+<h3> Description: 取得虚拟款号库存</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMM_GET_STOCK_XNKH.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IM_HAS_ZCT) TYPE  CHAR1 DEFAULT ''<br />
+*"  TABLES<br />
+*"      IT_XNKH TYPE  ZCB01_TY_T_XNKH<br />
+*"      IR_WERKS TYPE  ZCB01_TY_R_WERKS<br />
+*"      IR_LGORT TYPE  ZCB01_TY_R_LGORT<br />
+*"      ET_STOCK TYPE  ZCB01_TY_T_STOCK<br />
+*"  EXCEPTIONS<br />
+*"      EMPTY_IT_XNKH<br />
+*"      EMPTY_IR_WERKS<br />
+*"----------------------------------------------------------------------<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zmm_get_stock_xnkh.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;ls_mchb,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;matnr&nbsp;TYPE&nbsp;mchb-matnr,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ex_xnkh&nbsp;TYPE&nbsp;zmmrp0210_batch-ex_xnkh&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;werks&nbsp;TYPE&nbsp;mchb-werks,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lgort&nbsp;TYPE&nbsp;mchb-lgort,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;charg&nbsp;TYPE&nbsp;mchb-charg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;zct1&nbsp;&nbsp;TYPE&nbsp;zmmrp0210_batch-zct1&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;clabs&nbsp;TYPE&nbsp;mchb-clabs,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;meins&nbsp;TYPE&nbsp;mara-meins,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;zjz&nbsp;&nbsp;&nbsp;TYPE&nbsp;zmmrp0210_batch-zjz&nbsp;,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;ls_mchb&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;lt_mchb&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ls_mchb&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;ls_xnkh&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;it_xnkh,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_stock&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;et_stock&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;ls_stock&gt;&nbsp;LIKE&nbsp;ls_stock&nbsp;.<br />
+<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;et_stock&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;it_xnkh[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;empty_it_xnkh&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;ir_werks[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;empty_ir_werks&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*  IF ir_lgort[] IS INITIAL.<br />
+*    EXIT .<br />
+*  ENDIF.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;im_has_zct&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;mchb~matnr&nbsp;mchb~werks&nbsp;mchb~lgort&nbsp;mchb~charg&nbsp;mchb~clabs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mara~meins<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zmmrp0210_batch~ex_xnkh&nbsp;zmmrp0210_batch~zjz&nbsp;zmmrp0210_batch~zct1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;zmmrp0210_batch&nbsp;on&nbsp;zmmrp0210_batch~matnr&nbsp;=&nbsp;mchb~matnr&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zmmrp0210_batch~charg&nbsp;=&nbsp;mchb~charg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;mara&nbsp;on&nbsp;mara~matnr&nbsp;=&nbsp;mchb~matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;it_xnkh<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;mchb~werks&nbsp;IN&nbsp;ir_werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;mchb~lgort&nbsp;in&nbsp;ir_lgort<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmrp0210_batch~ex_xnkh&nbsp;=&nbsp;it_xnkh-ex_xnkh<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmrp0210_batch~zct1&nbsp;&lt;&gt;&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;mchb~clabs&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;mchb~matnr&nbsp;mchb~werks&nbsp;mchb~lgort&nbsp;mchb~charg&nbsp;mchb~clabs<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mara~meins<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zmmrp0210_batch~ex_xnkh&nbsp;zmmrp0210_batch~zjz&nbsp;zmmrp0210_batch~zct1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;zmmrp0210_batch&nbsp;on&nbsp;zmmrp0210_batch~matnr&nbsp;=&nbsp;mchb~matnr&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zmmrp0210_batch~charg&nbsp;=&nbsp;mchb~charg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;mara&nbsp;on&nbsp;mara~matnr&nbsp;=&nbsp;mchb~matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;it_xnkh<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;mchb~werks&nbsp;IN&nbsp;ir_werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;mchb~lgort&nbsp;in&nbsp;ir_lgort<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;zmmrp0210_batch~ex_xnkh&nbsp;=&nbsp;it_xnkh-ex_xnkh<br />
+   </div>
+   <div class="codeComment">
+*        AND zmmrp0210_batch~zct1 &lt;&gt; ''<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;mchb~clabs&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;lt_mchb[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;lt_mchb&nbsp;BY&nbsp;werks&nbsp;lgort&nbsp;ex_xnkh&nbsp;zct1&nbsp;DESCENDING&nbsp;charg&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;"&nbsp;按虚拟款号+地点+库存地点汇总库存<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;lt_mchb&nbsp;INTO&nbsp;ls_mchb&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_stock&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-ex_xnkh&nbsp;&nbsp;=&nbsp;ls_mchb-ex_xnkh&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-werks&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_mchb-werks&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-lgort&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_mchb-lgort&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ls_mchb-meins&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ls_mchb-zjz&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-clabs&nbsp;=&nbsp;ls_mchb-clabs&nbsp;/&nbsp;ls_mchb-zjz&nbsp;.&nbsp;"&nbsp;库存件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-kz&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_mchb-clabs&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-clabs&nbsp;=&nbsp;1&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;库存件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-kz&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_mchb-clabs&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-clabs&nbsp;=&nbsp;ls_mchb-clabs&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;库存件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-kz&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_mchb-clabs&nbsp;*&nbsp;&nbsp;ls_mchb-zjz&nbsp;.&nbsp;&nbsp;"&nbsp;库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ls_stock-clabs_s&nbsp;=&nbsp;ls_stock-clabs&nbsp;.&nbsp;"&nbsp;剩余库存件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;ls_stock&nbsp;INTO&nbsp;et_stock&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;et_stock&nbsp;ASSIGNING&nbsp;&lt;ls_stock&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_mchb&nbsp;INTO&nbsp;ls_mchb&nbsp;WITH&nbsp;KEY&nbsp;werks&nbsp;&nbsp;&nbsp;=&nbsp;&lt;ls_stock&gt;-werks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lgort&nbsp;&nbsp;&nbsp;=&nbsp;&lt;ls_stock&gt;-lgort<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ex_xnkh&nbsp;=&nbsp;&lt;ls_stock&gt;-ex_xnkh<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;ls_stock&gt;-cth&nbsp;=&nbsp;ls_mchb-zct1&nbsp;.&nbsp;"&nbsp;抽屉号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

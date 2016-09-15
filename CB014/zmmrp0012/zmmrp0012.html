@@ -1,0 +1,1332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0012</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0012</h2>
+<h3> Description: 商品主数据批导_展示并导入</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZMMRP0012<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;MM-RP-0012<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;商品主数据批导_补充-展示并导入<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;YANGGANG<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/11/24&nbsp;&nbsp;&nbsp;&nbsp;YANGGANG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZMMRP0012.<br />
+<br />
+TABLES:<br />
+&nbsp;&nbsp;MARA,<br />
+&nbsp;&nbsp;ZMMRP0011_IMPORT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:LT_OUT TYPE TABLE OF ZMMRP0011_IMPORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMRP0011_IMPORT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC&nbsp;使用参数<br />
+*---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA: LS_FUNCTION TYPE MSGFN.<br />
+<br />
+DATA: LS_E1BPE1MATHEAD TYPE E1BPE1MATHEAD.   "控制信息<br />
+<br />
+DATA: LS_E1BPE1AUSPRT  TYPE E1BPE1AUSPRT,    "特性值分配<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1AUSPRTX&nbsp;TYPE&nbsp;E1BPE1AUSPRTX.&nbsp;&nbsp;&nbsp;"特性值分配检查框结构<br />
+<br />
+DATA: LS_E1BPE1MARART  TYPE E1BPE1MARART,    "集团级别的商品数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARARTX&nbsp;TYPE&nbsp;E1BPE1MARARTX.&nbsp;&nbsp;&nbsp;"集团级别的商品数据检查框结构<br />
+<br />
+DATA: LS_E1BPE1MAW1RT  TYPE E1BPE1MAW1RT,    "基本数据的扩展<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MAW1RTX&nbsp;TYPE&nbsp;E1BPE1MAW1RTX.&nbsp;&nbsp;&nbsp;"基本数据的扩展检查框结构<br />
+<br />
+DATA: LS_E1BPE1MAKTRT  TYPE E1BPE1MAKTRT.    "商品描述<br />
+<br />
+DATA: LS_E1BPE1MARCRT  TYPE E1BPE1MARCRT,     "地点层的商品数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX&nbsp;TYPE&nbsp;E1BPE1MARCRTX.&nbsp;&nbsp;&nbsp;&nbsp;"地点层的商品数据检查框结构<br />
+<br />
+DATA: LS_E1BPE1MBEWRT  TYPE E1BPE1MBEWRT,     "评估数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX&nbsp;TYPE&nbsp;E1BPE1MBEWRTX.&nbsp;&nbsp;&nbsp;&nbsp;"评估数据复选框结构<br />
+<br />
+DATA: LS_E1BPE1MVKERT  TYPE E1BPE1MVKERT,     "销售数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX&nbsp;TYPE&nbsp;E1BPE1MVKERTX.&nbsp;&nbsp;&nbsp;&nbsp;"销售数据检查框结构<br />
+<br />
+DATA: LS_EDIDC  TYPE          EDIDC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDC&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIDD&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_DOCNUM&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDC-DOCNUM.<br />
+<br />
+DATA: RT_DOCNUM TYPE  EDIDC-DOCNUM.<br />
+<br />
+DATA: PUBLIC_MATNR TYPE MARA-MATNR.<br />
+<br />
+DATA: IT_T001W TYPE STANDARD TABLE OF T001W,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_T001W&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001W.<br />
+<br />
+DATA: IT_TWPA TYPE STANDARD TABLE OF TWPA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TWPA&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TWPA.<br />
+<br />
+DATA: IT_TVTA TYPE STANDARD TABLE OF TVTA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TVTA&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TVTA.<br />
+<br />
+DATA: LS_BUKRS TYPE                   T001K-BUKRS.<br />
+DATA: LS_PROFIT_CTR TYPE  E1BPE1MARCRT-PROFIT_CTR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------ALV------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT  TYPE SLIS_LAYOUT_ALV.<br />
+<br />
+DATA: GT_ALV TYPE TABLE OF ZMMRP0011_IMPORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_ALV&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMRP0011_IMPORT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;MARA-MATNR&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品编码<br />
+&nbsp;&nbsp;S_TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0011_IMPORT-CRAT_TIME&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"导入时间<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SHOW_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&GET_DATA<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0011_IMPORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATERIAL&nbsp;IN&nbsp;S_MATNR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CRAT_TIME&nbsp;IN&nbsp;S_TIME&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_NUM&nbsp;=&nbsp;''.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&SHOW_ALV<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SHOW_ALV.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清空内表<br />
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'IDOC_NUM&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'IDOC编号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'CRAT_TIME&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'导入时间&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MATERIAL&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'物料&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MATL_TYPE&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'物料类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MATL_GROUP&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'物料组&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MATL_DESC&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'物料描述&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'BASE_UOM&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'计量单位&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EXTMATLGRP&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品大类&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'STOR_CONDS&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品小类&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TEMP_CONDS&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'条码类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'CONTAINER&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'度量类别&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'BATCH_MGMT&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'是否启用批次管理&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'VAL_CAT&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'是否评估类别&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MATL_CAT&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'物料类别&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'PUR_GROUP&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'采购组&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TAX_CLASS&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'税收分类&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'VAL_CLASS&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'评估类&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TRANS_GRP&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'运输组&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'LOADINGGRP&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'装载组&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'LI_PROC_ST&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'存储清单流程&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'LI_PROC_DC&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'分销中心清单流程&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MRP_TYPE&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'需求计划类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'AVAILCHECK&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'可用性检查&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MAT_PR_GRP&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品定价组&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ACCT_ASSGT&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'科目设置组&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_XZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'形状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_YT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'用途&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_BSCZ&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'宝石材质&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_PZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'品质&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_XQFS&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'镶嵌方式&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_JJJB&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'工费加价级别&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_PZ01&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'品种一级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_PZ02&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'品种二级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_PZ03&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'品种三级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_PZ04&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'品种四级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_TA01&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'图案一级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_TA02&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'图案二级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_GJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'贵金属材质&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_ZT01&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'主题一级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_ZT02&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'主题二级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_ZT03&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'主题三级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_XFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'是否消费税&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_LINK&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'图片链接&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_YEAR&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'年份&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'LT_OUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SERVV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'是否是EDB需要&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列宽自适应<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"显示前导零<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------按钮---------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"系统变量程序ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"回掉状态集<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"回掉用户命令<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------按钮-----------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"错误提示<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*----------------------------按钮-------------------------------------<br />
+   </div>
+   <div class="code">
+"以下是建立小图标用的语句<br />
+FORM PF_STATUS_SET USING P_EXTAB TYPE SLIS_T_EXTAB..<br />
+&nbsp;&nbsp;"Set&nbsp;the&nbsp;Button&nbsp;using&nbsp;the&nbsp;staus<br />
+&nbsp;&nbsp;"Copy&nbsp;the&nbsp;Standard&nbsp;status&nbsp;from&nbsp;the&nbsp;program&nbsp;SAPLKKBL&nbsp;status<br />
+&nbsp;&nbsp;"&nbsp;STANDARD&nbsp;using&nbsp;SE41,&nbsp;and&nbsp;use&nbsp;that&nbsp;here.<br />
+&nbsp;&nbsp;"Pf&nbsp;status<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZMMRP0012_PF'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击设置自己的按钮<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*----------------------------按钮-------------------------------------<br />
+<br />
+*----------------------------按钮-------------------------------------<br />
+   </div>
+   <div class="code">
+FORM USER_COMMAND USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;FREE&nbsp;REF_GRID&nbsp;.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA&nbsp;.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;REFRESH_TABLE_DISPLAY.<br />
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*------------------------执行按钮-------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_IMPORT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_MAT_DATA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_PROFILE_DATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SEND_IDOC_FOR_MAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;RT_DOCNUM&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'主数据导入失败！请检查数据！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;RT_DOCNUM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT-IDOC_NUM&nbsp;=&nbsp;RT_DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_OUT&nbsp;FROM&nbsp;LW_OUT&nbsp;TRANSPORTING&nbsp;IDOC_NUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0011_IMPORT&nbsp;FROM&nbsp;TABLE&nbsp;LT_OUT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'主数据导入成功！请查看IDOC：'&nbsp;&&&nbsp;RT_DOCNUM&nbsp;DISPLAY&nbsp;LIKE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;SY-SUBRC&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'主数据导入失败！请检查数据！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM GET_MAT_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获得增强字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;GET_EXTENT_MARA.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;生成内向配置文件参数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;GET_PROFILE_DATA.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;GET_FUNCTION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;整理IDOC数据并发送<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PUBLIC_MATNR&nbsp;=&nbsp;LW_OUT-MATERIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LT_EDIDD[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SEND_IDOC_FOR_MAT.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM GET_PROFILE_DATA.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_EDIDC.CLEAR&nbsp;LS_EDIDS.CLEAR&nbsp;LT_EDIDC[].CLEAR&nbsp;LT_EDIDD.CLEAR&nbsp;LT_EDIDD[].CLEAR&nbsp;LT_DOCNUM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;系统根据下面与设置关联起来<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-MESTYP&nbsp;=&nbsp;'ARTMAS'.&nbsp;"Message&nbsp;Type<br />
+&nbsp;&nbsp;LS_EDIDC-IDOCTP&nbsp;=&nbsp;'ARTMAS07'.&nbsp;"IDOC&nbsp;Type<br />
+&nbsp;&nbsp;LS_EDIDC-DIRECT&nbsp;=&nbsp;'2'.&nbsp;"<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONFIG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSYS_CONFIG.<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsap_get_status/zsap_get_status.html">'ZSAP_GET_STATUS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'RET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SYS_CONFIG&nbsp;=&nbsp;LW_CONFIG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;接收方<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-RCVPRN&nbsp;=&nbsp;LW_CONFIG-RCVPRN.<br />
+&nbsp;&nbsp;LS_EDIDC-RCVPOR&nbsp;=&nbsp;LW_CONFIG-RCVPOR.<br />
+&nbsp;&nbsp;LS_EDIDC-RCVPRT&nbsp;=&nbsp;LW_CONFIG-RCVPRT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LS_EDIDC-MESCOD&nbsp;=&nbsp;'20'.<br />
+<br />
+*&nbsp;发出方<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-SNDPRN&nbsp;=&nbsp;LW_CONFIG-RCVPRN.<br />
+&nbsp;&nbsp;LS_EDIDC-SNDPOR&nbsp;=&nbsp;LW_CONFIG-RCVPOR.<br />
+&nbsp;&nbsp;LS_EDIDC-SNDPRT&nbsp;=&nbsp;LW_CONFIG-RCVPRT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CASE&nbsp;SY-SYSID.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'RED'.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接收方<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPRN&nbsp;=&nbsp;LW_CONFIG-RCVPRN.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPOR&nbsp;=&nbsp;LW_CONFIG-RCVPOR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPRT&nbsp;=&nbsp;LW_CONFIG-RCVPRT.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-MESCOD&nbsp;=&nbsp;'20'.<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发出方<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPRN&nbsp;=&nbsp;LW_CONFIG-RCVPRN.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPOR&nbsp;=&nbsp;LW_CONFIG-RCVPOR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPRT&nbsp;=&nbsp;LW_CONFIG-RCVPRT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'REQ'.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接收方<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPRN&nbsp;=&nbsp;'REQCLNT500'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPOR&nbsp;=&nbsp;'SAPREQ'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPRT&nbsp;=&nbsp;'LS'.<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发出方<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPRN&nbsp;=&nbsp;'REQCLNT500'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPOR&nbsp;=&nbsp;'A000000002'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPRT&nbsp;=&nbsp;'LS'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'REP'.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接收方<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPRN&nbsp;=&nbsp;'REPCLNT800'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPOR&nbsp;=&nbsp;'SAPREP'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-RCVPRT&nbsp;=&nbsp;'LS'.<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发出方<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPRN&nbsp;=&nbsp;'REPCLNT800'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPOR&nbsp;=&nbsp;'A000000002'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDC-SNDPRT&nbsp;=&nbsp;'LS'.<br />
+*<br />
+*&nbsp;&nbsp;ENDCASE.<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+FORM GET_FUNCTION.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_FUNCTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;P_004&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'004'.<br />
+*&nbsp;&nbsp;ELSEIF&nbsp;P_005&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'005'.<br />
+*&nbsp;&nbsp;ELSEIF&nbsp;P_009&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'006'.<br />
+*&nbsp;&nbsp;ELSEIF&nbsp;P_023&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'023'.<br />
+*&nbsp;&nbsp;ELSEIF&nbsp;P_018&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'018'.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'005'.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM GET_EXTENT_MARA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_ZMMEX0010_MARA&nbsp;TYPE&nbsp;ZMMEX0010_MARA.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LW_OUT&nbsp;TO&nbsp;WA_ZMMEX0010_MARA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_MARA-MATNR&nbsp;=&nbsp;&nbsp;LW_OUT-MATERIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMEX0010_MARA&nbsp;FROM&nbsp;WA_ZMMEX0010_MARA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_ZMMEX0010_MARA.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+********START&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.10.09&nbsp;**********<br />
+*&nbsp;克重范围/指圈&nbsp;自动全选<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_KZSEL&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_KZSEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_KZSEL&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_KZSEL&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ZQSEL&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_ZQSEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZQSEL&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_ZQSEL&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SHIP_T&nbsp;TYPE&nbsp;ZMMEX0010_SHIP&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SHIP&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_SHIP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SHIP&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_SHIP&nbsp;&nbsp;OCCURS&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;删除已存在数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_OUT&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;克重范围<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_KZSEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_KZSEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LT_OUT-MATERIAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_KZSEL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ZMMEX0010_KZSEL&nbsp;FROM&nbsp;TABLE&nbsp;LT_KZSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'导入失败，更新克重范围时出错'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;指圈<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZQSEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_ZQSEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LT_OUT-MATERIAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_ZQSEL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ZMMEX0010_ZQSEL&nbsp;FROM&nbsp;TABLE&nbsp;LT_ZQSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'导入失败，更新指圈时出错'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_KZSEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZQSEL.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;更新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_OUT&nbsp;TO&nbsp;LT_SHIP_T.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_SHIP_T&nbsp;BY&nbsp;EX_PZ01&nbsp;EX_PZ02.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_SHIP_T&nbsp;COMPARING&nbsp;EX_PZ01&nbsp;EX_PZ02.<br />
+&nbsp;&nbsp;IF&nbsp;LT_SHIP_T&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_SHIP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SHIP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_SHIP_T<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EX_PZ01&nbsp;=&nbsp;LT_SHIP_T-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ02&nbsp;=&nbsp;LT_SHIP_T-EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LT_SHIP_T.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_SHIP&nbsp;BY&nbsp;EX_PZ01&nbsp;EX_PZ02.<br />
+<br />
+<br />
+&nbsp;&nbsp;LT_SHIP_T&nbsp;=&nbsp;LT_SHIP.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_SHIP_T&nbsp;).<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT&nbsp;INTO&nbsp;LW_OUT.<br />
+   </div>
+   <div class="codeComment">
+**********性能优化&nbsp;&nbsp;start***********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LT_SHIP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_SHIP_T&nbsp;INTO&nbsp;LW_SHIP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ02&nbsp;=&nbsp;LW_OUT-EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_SHIP&nbsp;TO&nbsp;LT_SHIP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;&gt;&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_SHIP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_SHIP_T&nbsp;INTO&nbsp;LW_SHIP&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_SHIP-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_OUT-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_SHIP-EX_PZ02&nbsp;&lt;&gt;&nbsp;LW_OUT-EX_PZ02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDDO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+**********性能优化&nbsp;end&nbsp;&nbsp;***********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_OUT-CONTAINER&nbsp;=&nbsp;'K'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SHIP&nbsp;INTO&nbsp;LW_SHIP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_KZSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_KZSEL-MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MATERIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_KZSEL-EX_KCODE&nbsp;&nbsp;=&nbsp;LW_SHIP-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_KZSEL&nbsp;TO&nbsp;LT_KZSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_OUT-CONTAINER&nbsp;=&nbsp;'Z'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SHIP&nbsp;INTO&nbsp;LW_SHIP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_ZQSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ZQSEL-MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MATERIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ZQSEL-EX_KCODE&nbsp;&nbsp;=&nbsp;LW_SHIP-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_ZQSEL&nbsp;TO&nbsp;LT_ZQSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;更新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_KZSEL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMEX0010_KZSEL&nbsp;FROM&nbsp;TABLE&nbsp;LT_KZSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'导入失败，更新克重范围时出错'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_ZQSEL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMEX0010_ZQSEL&nbsp;FROM&nbsp;TABLE&nbsp;LT_ZQSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'导入失败，更新指圈时出错'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+********END&nbsp;&nbsp;&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.10.09&nbsp;**********<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM SEND_IDOC_FOR_MAT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;表头段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1MATHEAD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;AUSP<br />
+*&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1AUSPRT.<br />
+<br />
+*&nbsp;MARA<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1MARART.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;MAW1<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1MAW1RT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;MAKT<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1MAKTRT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;MARC<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1MARCRT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;MBEW<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1MBEWRT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;MVKE<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FULL_E1BPE1MVKERT.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;内向处理IDOC<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;INBOUND_PROCESS_IDOC.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;控制信息<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FULL_E1BPE1MATHEAD.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MATHEAD.<br />
+<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-MATL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MATL_TYPE&nbsp;.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-MATL_GROUP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MATL_GROUP.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-MATL_CAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MATL_CAT&nbsp;.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-BASIC_VIEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-LIST_VIEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-SALES_VIEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-LOGDC_VIEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MATHEAD-LOGST_VIEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MATHEAD'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MATHEAD.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;特性值分配&nbsp;AUSP<br />
+*------------------------------------------------<br />
+*FORM&nbsp;FULL_E1BPE1AUSPRT.<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1AUSPRT.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRT-CHAR_NAME&nbsp;&nbsp;&nbsp;=&nbsp;'ZDUMMY'.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRT-CHAR_VALUE&nbsp;&nbsp;=&nbsp;'1'.<br />
+*&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1AUSPRT'.<br />
+*&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1AUSPRT.<br />
+*&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+*<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1AUSPRTX.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRTX-CHAR_NAME&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;LS_E1BPE1AUSPRTX-CHAR_VALUE&nbsp;&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1AUSPRTX'.<br />
+*&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1AUSPRTX.<br />
+*&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+*<br />
+*ENDFORM.<br />
+*------------------------------------------------<br />
+*&nbsp;集团级别的商品数据&nbsp;MARA<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FULL_E1BPE1MARART.<br />
+<br />
+&nbsp;&nbsp;CLEAR:LS_E1BPE1MARART,&nbsp;LS_E1BPE1MARARTX.<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_CUNIT_INPUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-BASE_UOM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LANGUAGE&nbsp;=&nbsp;SY-LANGU<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARART-BASE_UOM.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_CUNIT_INPUT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-BASE_UOM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LANGUAGE&nbsp;=&nbsp;SY-LANGU<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARART-BASE_UOM_ISO.<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-CONTAINER&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-CONTAINER.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"度量类型<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-STOR_CONDS&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-STOR_CONDS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"小类<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-TEMP_CONDS&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-TEMP_CONDS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"条码类别<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-TRANS_GRP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-TRANS_GRP.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"运输组<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-BATCH_MGMT&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-BATCH_MGMT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否启用批次管理<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-EXTMATLGRP&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-EXTMATLGRP.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;LS_E1BPE1MARART-TAX_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-TAX_CLASS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"税收分类<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARART'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARART.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-BASE_UOM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-BASE_UOM_ISO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-CONTAINER&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-STOR_CONDS&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-TEMP_CONDS&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-TRANS_GRP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-BATCH_MGMT&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-EXTMATLGRP&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARARTX-TAX_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARARTX'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARARTX.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;基本数据的扩展&nbsp;MAW1<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FULL_E1BPE1MAW1RT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MAW1RT.<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-PUR_GROUP.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购组<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-LOADINGGRP&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-LOADINGGRP.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"装载组<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-LI_PROC_ST&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-LI_PROC_ST.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"存储或其它分类种类的列表过程<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-LI_PROC_DC&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-LI_PROC_DC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"分销中心分类种类的列表程序<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-LIST_ST_FR&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列出在商店中的起始日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-LIST_ST_TO&nbsp;&nbsp;&nbsp;=&nbsp;'99991231'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在商店中列出的终止日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-LIST_DC_FR&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列出在分销中心中的起始日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-LIST_DC_TO&nbsp;&nbsp;&nbsp;=&nbsp;'99991231'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在中心仓库/分销中心中被列出的终止日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-SELL_ST_FR&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在商店中出售的起始日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-SELL_ST_TO&nbsp;&nbsp;&nbsp;=&nbsp;'99991231'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在商店中被出售的终止日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-SELL_DC_FR&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在分销中心中出售的起始日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-SELL_DC_TO&nbsp;&nbsp;&nbsp;=&nbsp;'99991231'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在分销中心被出售的终止日期<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-VAL_CLASS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估类<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-ASSORTLIST&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列表功能（分类）已激活<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RT-SERV_AGRT&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-SERVV.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否是EDB需要<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MAW1RT'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MAW1RT.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MAW1RTX.<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-LOADINGGRP&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-LI_PROC_ST&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-LI_PROC_DC&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-LIST_ST_FR&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-LIST_ST_TO&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-LIST_DC_FR&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-LIST_DC_TO&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-SELL_ST_FR&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-SELL_ST_TO&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-SELL_DC_FR&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-SELL_DC_TO&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-ASSORTLIST&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MAW1RTX-SERV_AGRT&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MAW1RTX'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MAW1RTX.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;商品描述&nbsp;MAKT<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FULL_E1BPE1MAKTRT.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MAKTRT.<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MAKTRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MAKTRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MAKTRT-LANGU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-LANGU.<br />
+&nbsp;&nbsp;LS_E1BPE1MAKTRT-MATL_DESC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MATL_DESC.<br />
+<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MAKTRT'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MAKTRT.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;地点层的商品数据&nbsp;MARC<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FULL_E1BPE1MARCRT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;参考物流中心与参考门店<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_TWPA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_TWPA&nbsp;FROM&nbsp;TWPA.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_T001W[].<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_T001W&nbsp;FROM&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;&gt;=&nbsp;'1000'.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGVZ.<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGFI.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR:LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TWPA-VLGVZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物流中心<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-PUR_GROUP.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购组<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-MRP_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MRP_TYPE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"需求计划类型<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-AVAILCHECK&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-AVAILCHECK.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可用性检查<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_BUKRS,&nbsp;LS_PROFIT_CTR.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_T001W.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T001W&nbsp;FROM&nbsp;&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGVZ.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS&nbsp;INTO&nbsp;LS_BUKRS&nbsp;FROM&nbsp;T001K&nbsp;WHERE&nbsp;BWKEY&nbsp;EQ&nbsp;WA_T001W-BWKEY.<br />
+<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'P'&nbsp;LS_BUKRS&nbsp;'001'&nbsp;INTO&nbsp;LS_PROFIT_CTR.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LS_BUKRS&nbsp;=&nbsp;'1000'&nbsp;OR&nbsp;LS_BUKRS&nbsp;=&nbsp;'0001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&nbsp;LS_PROFIT_CTR.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PROFIT_CTR&nbsp;&nbsp;&nbsp;=&nbsp;LS_PROFIT_CTR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRT'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;CLEAR:LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TWPA-VLGFI.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-PUR_GROUP.&nbsp;&nbsp;"采购组<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-MRP_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MRP_TYPE.&nbsp;&nbsp;&nbsp;"需求计划类型<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-AVAILCHECK&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-AVAILCHECK.&nbsp;"可用性检查<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_T001W.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T001W&nbsp;FROM&nbsp;&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGFI.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS&nbsp;INTO&nbsp;LS_BUKRS&nbsp;FROM&nbsp;T001K&nbsp;WHERE&nbsp;BWKEY&nbsp;EQ&nbsp;WA_T001W-BWKEY.<br />
+<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'P'&nbsp;LS_BUKRS&nbsp;'001'&nbsp;INTO&nbsp;LS_PROFIT_CTR.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LS_BUKRS&nbsp;=&nbsp;'1000'&nbsp;OR&nbsp;LS_BUKRS&nbsp;=&nbsp;'0001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&nbsp;LS_PROFIT_CTR.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRT-PROFIT_CTR&nbsp;&nbsp;&nbsp;=&nbsp;LS_PROFIT_CTR.&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRT'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_T001W&nbsp;INTO&nbsp;WA_T001W.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-WERKS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-PUR_GROUP.&nbsp;&nbsp;&nbsp;"采购组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT-MRP_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MRP_TYPE.&nbsp;&nbsp;&nbsp;&nbsp;"需求计划类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT-AVAILCHECK&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-AVAILCHECK.&nbsp;&nbsp;"可用性检查<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS&nbsp;INTO&nbsp;LS_BUKRS&nbsp;FROM&nbsp;T001K&nbsp;WHERE&nbsp;BWKEY&nbsp;EQ&nbsp;WA_T001W-BWKEY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'P'&nbsp;LS_BUKRS&nbsp;'001'&nbsp;INTO&nbsp;LS_PROFIT_CTR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BUKRS&nbsp;=&nbsp;'1000'&nbsp;OR&nbsp;LS_BUKRS&nbsp;=&nbsp;'0001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&nbsp;LS_PROFIT_CTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRT-PROFIT_CTR&nbsp;&nbsp;&nbsp;=&nbsp;LS_PROFIT_CTR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARCRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;-----------------------------------------------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TWPA-VLGVZ.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-MRP_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-AVAILCHECK&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PROFIT_CTR&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRTX'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TWPA-VLGFI.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-MRP_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-AVAILCHECK&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MARCRTX-PROFIT_CTR&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRTX'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_T001W&nbsp;INTO&nbsp;WA_T001W.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX-PUR_GROUP&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX-MRP_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX-AVAILCHECK&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MARCRTX-PROFIT_CTR&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MARCRTX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MARCRTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;评估数据&nbsp;MBEW<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FULL_E1BPE1MBEWRT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_TWPA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_TWPA&nbsp;FROM&nbsp;TWPA.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_T001W[].<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_T001W&nbsp;FROM&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;&gt;=&nbsp;'1000'.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGVZ.<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGFI.<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T001W&nbsp;FROM&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGVZ.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_AREA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-BWKEY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估范围<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估类型<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LS_E1BPE1MBEWRT-MOVING_PR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动平均价格<br />
+*&nbsp;&nbsp;LS_E1BPE1MBEWRT-PRICE_UNIT&nbsp;&nbsp;&nbsp;=&nbsp;'1'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-VAL_CLASS.&nbsp;&nbsp;&nbsp;&nbsp;"评估类<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_CAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-VAL_CAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估类别<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRT'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T001W&nbsp;FROM&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGFI.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_AREA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-BWKEY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估范围<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估类型<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LS_E1BPE1MBEWRT-MOVING_PR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动平均价格<br />
+*&nbsp;&nbsp;LS_E1BPE1MBEWRT-PRICE_UNIT&nbsp;&nbsp;&nbsp;=&nbsp;'1'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-VAL_CLASS.&nbsp;&nbsp;&nbsp;&nbsp;"评估类<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_CAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-VAL_CAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估类别<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRT'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_T001W&nbsp;INTO&nbsp;WA_T001W.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_AREA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-BWKEY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估范围<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估类型<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-MOVING_PR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动平均价格<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-PRICE_UNIT&nbsp;&nbsp;&nbsp;=&nbsp;'1'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-VAL_CLASS.&nbsp;&nbsp;&nbsp;&nbsp;"评估类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRT-VAL_CAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-VAL_CAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"评估类别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MBEWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;--------------------------------------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T001W&nbsp;FROM&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGVZ.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_AREA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-BWKEY.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MOVING_PR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;LS_E1BPE1MBEWRTX-PRICE_UNIT&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_CAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRTX'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T001W&nbsp;FROM&nbsp;T001W&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_TWPA-VLGFI.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_AREA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-BWKEY.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MOVING_PR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;LS_E1BPE1MBEWRTX-PRICE_UNIT&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_CAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRTX'.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_T001W&nbsp;INTO&nbsp;WA_T001W.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_AREA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_T001W-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-MOVING_PR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-PRICE_UNIT&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_CLASS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MBEWRTX-VAL_CAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MBEWRTX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MBEWRTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;销售数据&nbsp;MVKE<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FULL_E1BPE1MVKERT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_TVTA[].<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TVTA&nbsp;FROM&nbsp;TVTA&nbsp;WHERE&nbsp;VKORG&nbsp;&gt;=&nbsp;1000.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TVTA&nbsp;INTO&nbsp;WA_TVTA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MVKERT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-SALES_ORG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TVTA-VKORG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售组织<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-DISTR_CHAN&nbsp;&nbsp;&nbsp;=&nbsp;WA_TVTA-VTWEG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"分销渠道<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-MAT_PR_GRP&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-MAT_PR_GRP.&nbsp;&nbsp;"商品定价组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-ACCT_ASSGT&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-ACCT_ASSGT.&nbsp;&nbsp;"该商品的科目设置组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-LI_PROC_ST&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-LI_PROC_ST.&nbsp;&nbsp;"存储或其它分类种类的列表过程<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-LI_PROC_DC&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT-LI_PROC_DC.&nbsp;&nbsp;"分销中心分类种类的列表程序<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERT-ASSORTLIST&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列表功能（分类）已激活<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MVKERT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MVKERT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TVTA&nbsp;INTO&nbsp;WA_TVTA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_E1BPE1MVKERTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-FUNCTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_FUNCTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-MATERIAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PUBLIC_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-SALES_ORG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TVTA-VKORG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-DISTR_CHAN&nbsp;&nbsp;&nbsp;=&nbsp;WA_TVTA-VTWEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-MAT_PR_GRP&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-ACCT_ASSGT&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-LI_PROC_ST&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-LI_PROC_DC&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_E1BPE1MVKERTX-ASSORTLIST&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1BPE1MVKERTX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;LS_E1BPE1MVKERTX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------<br />
+*&nbsp;内向处理IDOC<br />
+*------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM INBOUND_PROCESS_IDOC.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'IDOC_WRITE_AND_START_INBOUND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_EDIDC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DO_COMMIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;RT_DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_EDIDD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_NOT_SAVED&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品编码<br />
+*&nbsp;S_TIME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导入日期<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

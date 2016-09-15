@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSAP_SEND_MESSAGE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSAP_SEND_MESSAGE</h2>
+<h3> Description: 针对特定在线用户发送通知</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZSAP_SEND_MESSAGE.<br />
+<br />
+INCLUDE &lt;list&gt;.<br />
+<br />
+DATA: BEGIN OF usr_tabl OCCURS 0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;STRUCTURE&nbsp;uinfo.<br />
+DATA: END OF usr_tabl.<br />
+DATA: l_length        TYPE i,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_abaplist&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;abaplist&nbsp;OCCURS&nbsp;0&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+DATA: BEGIN OF t_user OCCURS 0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;i,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selection&nbsp;&nbsp;&nbsp;TYPE&nbsp;c,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mandt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;sy-mandt,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;sy-uname,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name_first&nbsp;&nbsp;LIKE&nbsp;v_adrp_cp-name_first,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name_last&nbsp;&nbsp;&nbsp;LIKE&nbsp;v_adrp_cp-name_last,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;department&nbsp;&nbsp;LIKE&nbsp;v_adrp_cp-department,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tel_number&nbsp;&nbsp;LIKE&nbsp;v_adrp_cp-tel_number,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;t_user&nbsp;.<br />
+DATA: l_client        LIKE sy-mandt,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_userid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;uinfo-bname,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_opcode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;x,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_funct_code(1)&nbsp;TYPE&nbsp;c,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_test(200)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;c.<br />
+l_opcode = 2.<br />
+CALL 'ThUsrInfo' ID 'OPCODE' FIELD l_opcode<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'TAB'&nbsp;FIELD&nbsp;usr_tabl-*sys*&nbsp;.<br />
+CLEAR t_user.<br />
+REFRESH t_user.<br />
+LOOP AT usr_tabl.<br />
+&nbsp;&nbsp;t_user-mandt&nbsp;=&nbsp;usr_tabl-mandt.<br />
+&nbsp;&nbsp;t_user-bname&nbsp;=&nbsp;usr_tabl-bname.<br />
+&nbsp;&nbsp;APPEND&nbsp;t_user.<br />
+ENDLOOP.<br />
+SORT t_user.<br />
+DELETE ADJACENT DUPLICATES FROM t_user.<br />
+LOOP AT t_user.<br />
+&nbsp;&nbsp;t_user-counter&nbsp;=&nbsp;sy-tabix.<br />
+&nbsp;&nbsp;SELECT&nbsp;v~name_first<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v~name_last<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v~department<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v~tel_number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;(t_user-name_first,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_user-name_last,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_user-department,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_user-tel_number)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;usr21&nbsp;AS&nbsp;u<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JOIN&nbsp;v_adrp_cp&nbsp;AS&nbsp;v<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;u~persnumber&nbsp;=&nbsp;v~persnumber&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u~addrnumber&nbsp;=&nbsp;v~addrnumber<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;u~bname&nbsp;=&nbsp;t_user-bname.<br />
+&nbsp;&nbsp;ENDSELECT.<br />
+&nbsp;&nbsp;MODIFY&nbsp;t_user.<br />
+ENDLOOP.<br />
+SORT t_user BY department name_last.<br />
+PERFORM display_list.<br />
+TOP-OF-PAGE.<br />
+&nbsp;&nbsp;PERFORM&nbsp;display_menu.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;End&nbsp;of&nbsp;top-of-page<br />
+   </div>
+   <div class="code">
+TOP-OF-PAGE DURING LINE-SELECTION .<br />
+&nbsp;&nbsp;PERFORM&nbsp;display_menu.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;End&nbsp;of&nbsp;top-of-page&nbsp;during&nbsp;line-selection<br />
+<br />
+   </div>
+   <div class="code">
+AT LINE-SELECTION.<br />
+&nbsp;&nbsp;IF&nbsp;sy-curow&nbsp;=&nbsp;4&nbsp;or&nbsp;sy-curow&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-cucol&nbsp;&lt;&nbsp;19.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t_user-selection&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;t_user&nbsp;TRANSPORTING&nbsp;selection&nbsp;WHERE&nbsp;selection&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;display_list.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;sy-cucol&nbsp;&lt;&nbsp;36.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;t_user-selection.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;t_user&nbsp;TRANSPORTING&nbsp;selection&nbsp;WHERE&nbsp;selection&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;display_list.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;sy-cucol&nbsp;&lt;&nbsp;50.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;transfer_selection.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;popup_msg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;sy-cucol&nbsp;&lt;&nbsp;67.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;transfer_selection.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;t_user&nbsp;BY&nbsp;name_last.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;display_list.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;sy-cucol&nbsp;&lt;&nbsp;81.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;transfer_selection.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;t_user&nbsp;BY&nbsp;name_first.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;display_list.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;sy-cucol&nbsp;&lt;&nbsp;93.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;transfer_selection.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;t_user&nbsp;BY&nbsp;mandt.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;display_list.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;DISPLAY_LIST<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM display_list.<br />
+&nbsp;&nbsp;sy-lsind&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_NORMAL&nbsp;INTENSIFIED&nbsp;OFF.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;t_user.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;sy-vline,&nbsp;t_user-selection&nbsp;AS&nbsp;CHECKBOX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;t_user-mandt,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;t_user-bname,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;t_user-name_first(15),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;t_user-name_last(15),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;t_user-department(20),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;t_user-tel_number(20),&nbsp;sy-vline.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HIDE:&nbsp;t_user-counter,&nbsp;t_user-selection.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;OFF.<br />
+&nbsp;&nbsp;WRITE:&nbsp;/(108)&nbsp;sy-uline.<br />
+ENDFORM.                    " DISPLAY_LIST<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;DISPLAY_MENU<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM display_menu.<br />
+&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_HEADING&nbsp;HOTSPOT.<br />
+&nbsp;&nbsp;WRITE:&nbsp;&nbsp;&nbsp;(91)&nbsp;sy-uline,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;sy-vline&nbsp;NO-GAP,&nbsp;(4)&nbsp;icon_select_all&nbsp;NO-GAP,&nbsp;&nbsp;&nbsp;&nbsp;'选择全部&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline&nbsp;NO-GAP,&nbsp;(4)&nbsp;icon_deselect_all&nbsp;NO-GAP,&nbsp;&nbsp;'全部不选择&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline&nbsp;NO-GAP,&nbsp;(4)&nbsp;icon_short_message&nbsp;NO-GAP,&nbsp;'发送消息&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline&nbsp;NO-GAP,&nbsp;(4)&nbsp;icon_sort_up&nbsp;NO-GAP,&nbsp;'Last&nbsp;Name'&nbsp;NO-GAP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline&nbsp;NO-GAP,&nbsp;(4)&nbsp;icon_sort_up&nbsp;NO-GAP,&nbsp;'First&nbsp;Name'&nbsp;NO-GAP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline&nbsp;NO-GAP,&nbsp;(4)&nbsp;icon_sort_up&nbsp;NO-GAP,&nbsp;'Client'&nbsp;NO-GAP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/(91)&nbsp;sy-uline,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/(108)&nbsp;sy-uline.<br />
+&nbsp;&nbsp;FORMAT&nbsp;HOTSPOT&nbsp;OFF.<br />
+&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;sy-vline,&nbsp;'&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;'Cli',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;'User&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;'First&nbsp;Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;'Last&nbsp;Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;'Department&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,&nbsp;'Telephone&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-vline,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/(108)&nbsp;sy-uline.<br />
+&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;OFF.<br />
+ENDFORM.                    " DISPLAY_MENU<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;TRANSFER_SELECTION<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM transfer_selection.<br />
+&nbsp;&nbsp;DO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;LINE&nbsp;sy-index&nbsp;FIELD&nbsp;VALUE&nbsp;t_user-selection.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;t_user&nbsp;TRANSPORTING&nbsp;selection<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;counter&nbsp;=&nbsp;t_user-counter.<br />
+&nbsp;&nbsp;ENDDO.<br />
+&nbsp;&nbsp;CLEAR&nbsp;t_user.<br />
+ENDFORM.                    " TRANSFER_SELECTION<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;POPUP_MSG<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM popup_msg.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_msg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;sm04dic-popupmsg&nbsp;VALUE&nbsp;'Experimental&nbsp;Message',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_len&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;i,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_ret&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;c.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;t_user&nbsp;WHERE&nbsp;selection&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;get_message&nbsp;CHANGING&nbsp;l_msg&nbsp;l_ret.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;IF&nbsp;l_ret&nbsp;=&nbsp;'A'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"User&nbsp;cancelled&nbsp;the&nbsp;message<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;Get&nbsp;the&nbsp;message&nbsp;text<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;l_len&nbsp;=&nbsp;STRLEN(&nbsp;l_msg&nbsp;).<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;t_user&nbsp;WHERE&nbsp;selection&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'TH_POPUP'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;t_user-mandt<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;t_user-bname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_msg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message_len&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_length<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CUT_BLANKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user_not_found&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;'User&nbsp;',&nbsp;t_user-bname,&nbsp;'not&nbsp;found.'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Big&nbsp;error!&nbsp;No&nbsp;user&nbsp;has&nbsp;been&nbsp;selected.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;'AT'&nbsp;TYPE&nbsp;'E'&nbsp;NUMBER&nbsp;'315'&nbsp;WITH&nbsp;'至少选择一个用户!'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                    " POPUP_MSG<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;GET_MESSAGE<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM get_message CHANGING p_l_msg LIKE sm04dic-popupmsg<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_returncode&nbsp;TYPE&nbsp;c.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;fields&nbsp;OCCURS&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;STRUCTURE&nbsp;sval.<br />
+&nbsp;&nbsp;DATA:&nbsp;END&nbsp;OF&nbsp;fields,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returncode&nbsp;TYPE&nbsp;c.<br />
+&nbsp;&nbsp;fields-tabname&nbsp;=&nbsp;'SM04DIC'.<br />
+&nbsp;&nbsp;fields-fieldname&nbsp;=&nbsp;'POPUPMSG'.<br />
+&nbsp;&nbsp;fields-fieldtext&nbsp;=&nbsp;'Message&nbsp;:'.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'&nbsp;-&nbsp;Msg&nbsp;from'&nbsp;sy-uname&nbsp;'.'&nbsp;INTO&nbsp;fields-value&nbsp;SEPARATED&nbsp;BY&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;APPEND&nbsp;fields.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_GET_VALUES'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;popup_title&nbsp;=&nbsp;'Supply&nbsp;the&nbsp;popup&nbsp;message'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returncode&nbsp;&nbsp;=&nbsp;p_returncode<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fields&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;fields.<br />
+&nbsp;&nbsp;IF&nbsp;p_returncode&nbsp;=&nbsp;'A'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;fields&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;p_l_msg&nbsp;=&nbsp;fields-value.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                    " GET_MESSAGE<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

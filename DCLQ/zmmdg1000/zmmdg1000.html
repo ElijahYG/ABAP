@@ -1,0 +1,896 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMDG1000</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMDG1000</h2>
+<h3> Description: 期初库存导入</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZMMDG1000.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&变量声明<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:I_HEADER        TYPE BAPI2017_GM_HEAD_01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_GOODSMVT_CODE&nbsp;TYPE&nbsp;BAPI2017_GM_CODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;BAPI2017_GM_ITEM_CREATE&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_SERIALNUMBER&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;BAPI2017_GM_SERIALNUMBER&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;BAPIRET2&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+DATA: L_GOODSMVT_HEADRET LIKE BAPI2017_GM_HEAD_RET.<br />
+<br />
+DATA: GT_DATA TYPE ALSMEX_TABLINE OCCURS 0 WITH HEADER LINE.<br />
+<br />
+<br />
+DATA:BEGIN OF IT_ITAB OCCURS 0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-BUDAT_MKPF,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"过账日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CPUDT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-CPUDT_MKPF,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HEADER(25)&nbsp;&nbsp;&nbsp;TYPE&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"抬头文本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STGE_LOC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-LGORT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-MENGE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-MEINS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUALT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-BUALT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"价格<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-BWART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MSEG-MBLNR,&nbsp;&nbsp;&nbsp;&nbsp;"生成的物料凭证号<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE(200)&nbsp;TYPE&nbsp;C,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;IT_ITAB.<br />
+<br />
+<br />
+<br />
+TABLES:  SSCRFIELDS.    "选择屏幕上的字段<br />
+DATA FUNCTXT TYPE SMP_DYNTXT.<br />
+<br />
+DATA: GV_CLASS_NAME TYPE SEOCLSNAME VALUE 'ZMM',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_CLASS_TYPE&nbsp;TYPE&nbsp;BDS_CLSTYP&nbsp;VALUE&nbsp;'OT',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_OBJECT_KEY&nbsp;TYPE&nbsp;BDS_TYPEID&nbsp;VALUE&nbsp;'ZMMDG0010'.<br />
+<br />
+<br />
+DATA: GV_D_TITLE TYPE STRING VALUE '期初库存批量导入_模板'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&nbsp;ALV层级关系定义<br />
+*---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+DATA: WT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WT_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_LAYOUT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WT_EVENTS&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_EVENT.<br />
+DATA: WS_EVENTS LIKE LINE OF WT_EVENTS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK A1 WITH FRAME TITLE TEXT-001.<br />
+PARAMETERS: P_PATH LIKE IBIPPARMS-PATH.<br />
+SELECTION-SCREEN SKIP 1.<br />
+PARAMETERS : P_CK AS CHECKBOX DEFAULT 'X'.<br />
+SELECTION-SCREEN END OF BLOCK A1.<br />
+<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK A2 WITH FRAME TITLE TEXT-001.<br />
+<br />
+SELECTION-SCREEN BEGIN OF LINE.<br />
+SELECTION-SCREEN COMMENT (79) MESSAGE1.<br />
+SELECTION-SCREEN END OF LINE.<br />
+<br />
+SELECTION-SCREEN BEGIN OF LINE.<br />
+SELECTION-SCREEN COMMENT (79) MESSAGE3.<br />
+SELECTION-SCREEN END OF LINE.<br />
+<br />
+SELECTION-SCREEN BEGIN OF LINE.<br />
+SELECTION-SCREEN COMMENT (79) MESSAGE2.<br />
+SELECTION-SCREEN END OF LINE.<br />
+<br />
+SELECTION-SCREEN BEGIN OF LINE.<br />
+SELECTION-SCREEN COMMENT (70) MESSAGE4.<br />
+SELECTION-SCREEN END OF LINE .<br />
+<br />
+<br />
+SELECTION-SCREEN END OF BLOCK A2.<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&****创建&nbsp;下载模板&nbsp;按钮<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN FUNCTION KEY 1.<br />
+<br />
+<br />
+AT SELECTION-SCREEN.<br />
+&nbsp;&nbsp;IF&nbsp;SSCRFIELDS-UCOMM&nbsp;=&nbsp;'FC01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_DOWNDLOAD_TEMPLATE&nbsp;USING&nbsp;GV_CLASS_NAME&nbsp;&nbsp;GV_CLASS_TYPE&nbsp;GV_OBJECT_KEY.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;P_PATH&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'请选择模板！'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&用户选择<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR P_PATH.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'F4_FILENAME'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILE_NAME&nbsp;=&nbsp;P_PATH.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化屏幕<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;FUNCTXT-ICON_ID&nbsp;&nbsp;&nbsp;=&nbsp;ICON_XLS.<br />
+&nbsp;&nbsp;FUNCTXT-ICON_TEXT&nbsp;=&nbsp;'下载模板'.<br />
+<br />
+&nbsp;&nbsp;SSCRFIELDS-FUNCTXT_01&nbsp;=&nbsp;FUNCTXT.<br />
+<br />
+&nbsp;&nbsp;MESSAGE1&nbsp;=&nbsp;'导入EXCEL格式：'.<br />
+&nbsp;&nbsp;MESSAGE2&nbsp;=&nbsp;'过账日期&nbsp;&nbsp;&nbsp;凭证日期&nbsp;&nbsp;&nbsp;抬头文本&nbsp;&nbsp;&nbsp;物料号&nbsp;&nbsp;&nbsp;工厂&nbsp;&nbsp;&nbsp;库位&nbsp;&nbsp;&nbsp;数量&nbsp;&nbsp;&nbsp;单位&nbsp;&nbsp;价格&nbsp;移动类型&nbsp;供应商&nbsp;批次号'.<br />
+&nbsp;&nbsp;MESSAGE3&nbsp;=&nbsp;'数据从第2行开始取&nbsp;&nbsp;单元格格式为文本&nbsp;日期8位！'.<br />
+&nbsp;&nbsp;MESSAGE4&nbsp;=&nbsp;'每个凭证最多只能有450个凭证行项目！'.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&开始执行<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_EXCEL_DATA.<br />
+<br />
+END-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_DISPLAY_ALV_DATA.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;ALV显示<br />
+*----------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+FORM FRM_DISPLAY_ALV_DATA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;&nbsp;WLT_FIELDCAT&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;WT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BUDAT'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'过账日期'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CPUDT'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'凭证日期'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'HEADER'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'抬头文本'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'MATNR'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'物料号'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PLANT'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'工厂'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'STGE_LOC'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'库位'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'MENGE'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'数量'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'MEINS&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'单位'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BUALT&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'价格'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BWART'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'移动类型'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'LIFNR'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'供应商'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CHARG'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'批次号'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WLT_FIELDCAT.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'MESSAGE'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ITAB'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'日志信息'.<br />
+&nbsp;&nbsp;WLT_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WLT_FIELDCAT&nbsp;TO&nbsp;WT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;WT_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-CPROG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WT_LAYOUT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'ALV_TOP_OF_PAGE'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'STANDARD1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DEFAULT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'PROCESS_USER_COMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WT_FIELDCAT[]<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_EVENTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WT_EVENTS<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_ITAB.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM STANDARD1 USING RT_EXTAB TYPE SLIS_T_EXTAB.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZMMDG1000_PF'.<br />
+ENDFORM.<br />
+<br />
+FORM PROCESS_USER_COMMAND USING UCOMM LIKE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;UCOMM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'CREATE'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_CALL_BAPI.<br />
+<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;SELFIELD-REFRESH&nbsp;=&nbsp;'X'&nbsp;.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM FRM_GET_EXCEL_DATA.<br />
+   </div>
+   <div class="codeComment">
+*倒入EXCEL数据到内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ALSM_EXCEL_TO_INTERNAL_TABLE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILENAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;P_PATH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BEGIN_COL&nbsp;=&nbsp;'1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BEGIN_ROW&nbsp;=&nbsp;'2'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_END_COL&nbsp;&nbsp;&nbsp;=&nbsp;'12'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_END_ROW&nbsp;&nbsp;&nbsp;=&nbsp;'65000'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_DATA.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_DATA&nbsp;BY&nbsp;ROW&nbsp;COL&nbsp;VALUE.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_DATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;GT_DATA-COL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;1.&nbsp;&nbsp;IT_ITAB-BUDAT&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;2.&nbsp;&nbsp;IT_ITAB-CPUDT&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;3.&nbsp;&nbsp;IT_ITAB-HEADER&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;4.&nbsp;&nbsp;IT_ITAB-MATNR&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;5.&nbsp;&nbsp;IT_ITAB-PLANT&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;6.&nbsp;&nbsp;IT_ITAB-STGE_LOC&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;7.&nbsp;&nbsp;IT_ITAB-MENGE&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;8.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;9.&nbsp;&nbsp;IT_ITAB-BUALT&nbsp;=&nbsp;GT_DATA-VALUE.&nbsp;&nbsp;&nbsp;"价格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;10.&nbsp;&nbsp;IT_ITAB-BWART&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;11.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_DATA-VALUE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_ITAB-LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ITAB-CHARG&nbsp;=&nbsp;GT_DATA-VALUE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MEINS&nbsp;INTO&nbsp;IT_ITAB-MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;IT_ITAB-MATNR.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;ROW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;IT_ITAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_ITAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+FORM FRM_DOWNDLOAD_TEMPLATE  USING P_CLNM  TYPE SEOCLSNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_CLTYP&nbsp;TYPE&nbsp;BDS_CLSTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_KEY&nbsp;&nbsp;&nbsp;TYPE&nbsp;BDS_TYPEID.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;L_FILE&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_PATH&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NAME&nbsp;TYPE&nbsp;STRING.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BDS_INSTANCE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_BDS_DOCUMENT_SET,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ITAB_DOC_SIGNATURE&nbsp;&nbsp;TYPE&nbsp;SBDST_SIGNATURE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ITAB_DOC_COMPONENTS&nbsp;LIKE&nbsp;BAPICOMPON&nbsp;OCCURS&nbsp;5&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_BAPIFILES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;BAPIFILES&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&&nbsp;获取保存路径<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_FILEPATH&nbsp;CHANGING&nbsp;&nbsp;L_NAME&nbsp;L_PATH&nbsp;L_FILE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&&nbsp;如果选择保存路径,则可进行数据模板下载<br />
+*&nbsp;&nbsp;CHECK&nbsp;&nbsp;l_name&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;L_NAME&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S398(00)&nbsp;WITH&nbsp;'已取消下载!'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;BDS_INSTANCE.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;BDS_INSTANCE-&gt;GET_INFO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASSNAME&nbsp;&nbsp;=&nbsp;P_CLNM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASSTYPE&nbsp;&nbsp;=&nbsp;P_CLTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJECT_KEY&nbsp;=&nbsp;P_KEY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPONENTS&nbsp;=&nbsp;L_ITAB_DOC_COMPONENTS[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SIGNATURE&nbsp;&nbsp;=&nbsp;L_ITAB_DOC_SIGNATURE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;L_ITAB_DOC_COMPONENTS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BAPIFILES-DOC_COUNT&nbsp;&nbsp;=&nbsp;L_ITAB_DOC_COMPONENTS-DOC_COUNT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BAPIFILES-COMP_COUNT&nbsp;=&nbsp;L_ITAB_DOC_COMPONENTS-COMP_COUNT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BAPIFILES-COMP_ID&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_ITAB_DOC_COMPONENTS-COMP_ID.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BAPIFILES-DIRECTORY&nbsp;&nbsp;=&nbsp;L_PATH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BAPIFILES-FILENAME&nbsp;&nbsp;&nbsp;=&nbsp;L_NAME&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_BAPIFILES.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BDS_BUSINESSDOCUMENT_GET_FILES'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASSNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;P_CLNM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASSTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;P_CLTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJECT_KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;P_KEY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_BAPIFILES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SIGNATURE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_ITAB_DOC_SIGNATURE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOTHING_FOUND&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARAMETER_ERROR&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOT_ALLOWED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_KPRO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERNAL_ERROR&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOT_AUTHORIZED&nbsp;&nbsp;=&nbsp;6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID&nbsp;TYPE&nbsp;SY-MSGTY&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;TEXT-M01.<br />
+<br />
+ENDFORM.                    " FRM_DOWNDLOAD_TEMPLATE<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_FILEPATH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_L_NAME&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_L_PATH&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_L_FILE&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_FILEPATH  CHANGING  L_NAME  TYPE STRING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_PATH&nbsp;TYPE&nbsp;STRING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FILE&nbsp;TYPE&nbsp;STRING.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_GUI_FRONTEND_SERVICES=&gt;FILE_SAVE_DIALOG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WINDOW_TITLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GV_D_TITLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT_EXTENSION&nbsp;=&nbsp;'*.xlsx'&nbsp;&nbsp;"xls'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT_FILE_NAME&nbsp;=&nbsp;GV_D_TITLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILE_FILTER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;CL_GUI_FRONTEND_SERVICES=&gt;FILETYPE_EXCEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILENAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_NAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_PATH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FULLPATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_FILE.<br />
+<br />
+<br />
+<br />
+<br />
+ENDFORM.                    " FRM_GET_FILEPATH<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CALL_BAPI<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_CALL_BAPI .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&***测试运行<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;P_CK&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_CHECK_DATA.<br />
+<br />
+&nbsp;&nbsp;ELSE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_CALL_BAPI_FOR_CREATE.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.                    " FRM_CALL_BAPI<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CHECK_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;测试运行<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_CHECK_DATA .<br />
+<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ITAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&***抬头信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:I_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_SET_BAPI_HEADER&nbsp;USING&nbsp;IT_ITAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&***行项目信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:IT_ITEM,IT_ITEM[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_SET_BAPI_ITEM&nbsp;USING&nbsp;IT_ITAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&***CALL&nbsp;BAPI&nbsp;创建移动凭证<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_CALL_BAPI_FOR_CREATE_PZ&nbsp;USING&nbsp;IT_ITAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ITAB&nbsp;TRANSPORTING&nbsp;MBLNR&nbsp;MESSAGE.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.                    " FRM_CHECK_DATA<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CALL_BAPI_FOR_CREATE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_CALL_BAPI_FOR_CREATE .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;L_COUNT&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;LIKE&nbsp;SY-TABIX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_V_TABIX&nbsp;LIKE&nbsp;SY-TABIX.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ITAB&nbsp;LIKE&nbsp;IT_ITAB.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_FLAG&nbsp;TYPE&nbsp;C.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&*****根据工厂&nbsp;库存地点&nbsp;拆分凭证，但是当行项目数量大于450条时，也许要分拆<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_ITAB&nbsp;BY&nbsp;PLANT&nbsp;STGE_LOC.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ITAB&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;L_COUNT&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_ITAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_V_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;-&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ITAB&nbsp;INTO&nbsp;LS_ITAB&nbsp;INDEX&nbsp;L_V_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_ITAB-PLANT&nbsp;&lt;&gt;&nbsp;LS_ITAB-PLANT&nbsp;OR&nbsp;IT_ITAB-STGE_LOC&nbsp;&lt;&gt;&nbsp;LS_ITAB-STGE_LOC&nbsp;&nbsp;OR&nbsp;L_FLAG&nbsp;=&nbsp;'N'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;L_FLAG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_SET_BAPI_HEADER&nbsp;USING&nbsp;IT_ITAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_SET_BAPI_ITEM&nbsp;USING&nbsp;IT_ITAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_COUNT&nbsp;&gt;=&nbsp;450&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FLAG&nbsp;=&nbsp;'N'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_CALL_BAPI_FOR_CREATE_PZ&nbsp;USING&nbsp;IT_ITAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ITAB&nbsp;INDEX&nbsp;L_TABIX&nbsp;TRANSPORTING&nbsp;MBLNR&nbsp;MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_ITAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_V_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ITAB&nbsp;INTO&nbsp;LS_ITAB&nbsp;INDEX&nbsp;L_V_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_ITAB-PLANT&nbsp;&lt;&gt;&nbsp;LS_ITAB-PLANT&nbsp;OR&nbsp;IT_ITAB-STGE_LOC&nbsp;&lt;&gt;&nbsp;LS_ITAB-STGE_LOC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FLAG&nbsp;=&nbsp;'N'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_CALL_BAPI_FOR_CREATE_PZ&nbsp;USING&nbsp;IT_ITAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ITAB&nbsp;INDEX&nbsp;L_TABIX&nbsp;TRANSPORTING&nbsp;MBLNR&nbsp;MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.                    " FRM_CALL_BAPI_FOR_CREATE<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_SET_BAPI_HEADER<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_WA_ITAB&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_SET_BAPI_HEADER  USING    PA_ITAB LIKE IT_ITAB.<br />
+   </div>
+   <div class="codeComment">
+*&**过账日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;PA_ITAB-BUDAT&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_HEADER-PSTNG_DATE&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_HEADER-PSTNG_DATE&nbsp;=&nbsp;PA_ITAB-BUDAT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&***凭证日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;PA_ITAB-CPUDT&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_HEADER-DOC_DATE&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_HEADER-DOC_DATE&nbsp;&nbsp;&nbsp;=&nbsp;PA_ITAB-CPUDT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;I_HEADER-PR_UNAME&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;I_HEADER-HEADER_TXT&nbsp;=&nbsp;'期初库存'.<br />
+<br />
+&nbsp;&nbsp;I_GOODSMVT_CODE-GM_CODE&nbsp;=&nbsp;'05'.<br />
+<br />
+ENDFORM.                    " FRM_SET_BAPI_HEADER<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_SET_BAPI_ITEM<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_IT_ITAB&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_SET_BAPI_ITEM  USING    PA_ITAB LIKE IT_ITAB.<br />
+&nbsp;&nbsp;IT_ITEM-MATERIAL&nbsp;=&nbsp;PA_ITAB-MATNR.<br />
+&nbsp;&nbsp;IT_ITEM-VENDOR&nbsp;&nbsp;&nbsp;=&nbsp;PA_ITAB-LIFNR.<br />
+&nbsp;&nbsp;IT_ITEM-MOVE_TYPE&nbsp;=&nbsp;PA_ITAB-BWART.<br />
+&nbsp;&nbsp;IT_ITEM-BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;PA_ITAB-CHARG.<br />
+<br />
+&nbsp;&nbsp;IT_ITEM-PLANT&nbsp;=&nbsp;PA_ITAB-PLANT.<br />
+&nbsp;&nbsp;IT_ITEM-STGE_LOC&nbsp;=&nbsp;PA_ITAB-STGE_LOC.<br />
+&nbsp;&nbsp;IT_ITEM-ENTRY_QNT&nbsp;=&nbsp;PA_ITAB-MENGE.<br />
+&nbsp;&nbsp;IT_ITEM-ENTRY_UOM&nbsp;=&nbsp;PA_ITAB-MEINS.<br />
+<br />
+&nbsp;&nbsp;IT_ITEM-AMOUNT_LC&nbsp;=&nbsp;PA_ITAB-BUALT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IT_ITEM-ORDERPR_UN&nbsp;=&nbsp;'CNY'.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;IT_ITEM.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_ITEM.<br />
+ENDFORM.                    " FRM_SET_BAPI_ITEM<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CALL_BAPI_FOR_CREATE_PZ<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_IT_ITAB&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_CALL_BAPI_FOR_CREATE_PZ  USING    PA_ITAB LIKE IT_ITAB.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_MESSAGE(200)&nbsp;TYPE&nbsp;C.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&***CALL&nbsp;BAPI&nbsp;创建移动凭证<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:L_MESSAGE,IT_RETURN,IT_RETURN[].<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_GOODSMVT_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_HEADER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_GOODSMVT_CODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TESTRUN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;P_CK<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_REF_EWM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_HEADRET&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_GOODSMVT_HEADRET<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATERIALDOCUMENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATDOCUMENTYEAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_SERIALNUMBER&nbsp;=&nbsp;IT_SERIALNUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_RETURN.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;GOODSMVT_SERV_PART_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;EXTENSIONIN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;P_CK&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_RETURN&nbsp;WITH&nbsp;KEY&nbsp;TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;L_MESSAGE&nbsp;IT_RETURN-MESSAGE&nbsp;INTO&nbsp;L_MESSAGE&nbsp;SEPARATED&nbsp;BY&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PA_ITAB-MESSAGE&nbsp;=&nbsp;L_MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_RETURN&nbsp;WITH&nbsp;KEY&nbsp;TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;L_MESSAGE&nbsp;IT_RETURN-MESSAGE&nbsp;INTO&nbsp;L_MESSAGE&nbsp;SEPARATED&nbsp;BY&nbsp;SPACE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PA_ITAB-MESSAGE&nbsp;=&nbsp;L_MESSAGE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PA_ITAB-MBLNR&nbsp;=&nbsp;L_GOODSMVT_HEADRET-MAT_DOC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;I_HEADER,I_GOODSMVT_CODE.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_ITEM,IT_SERIALNUMBER,IT_ITEM[],IT_SERIALNUMBER[].<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;001&nbsp;初始库存导入（仅上线用）<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_CK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;测试运行<br />
+*&nbsp;P_PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选择批导文件<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*398&nbsp;&nbsp;&nbsp;&&nbsp;&&nbsp;&&nbsp;&<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

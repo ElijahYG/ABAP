@@ -1,0 +1,699 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTEST_LN02</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTEST_LN02</h2>
+<h3> Description: 退货打印TEST</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZTEST_LN02.<br />
+<br />
+DATA:<br />
+&nbsp;&nbsp;IT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;IT_CHARG_CHARACTERS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG_CHARACTERS.<br />
+<br />
+DATA:<br />
+&nbsp;&nbsp;GO_CONTAINER&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_DOCKING_CONTAINER,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"容器<br />
+&nbsp;&nbsp;GO_ALV_HEAD&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"head&nbsp;alv<br />
+&nbsp;&nbsp;GO_ALV_ITEM&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"ITEM&nbsp;alv<br />
+&nbsp;&nbsp;GO_SPLIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_EASY_SPLITTER_CONTAINER,&nbsp;&nbsp;"分离器<br />
+&nbsp;&nbsp;OK_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-UCOMM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入选择屏幕表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:<br />
+&nbsp;&nbsp;ZMMRP0050_HEAD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;TYT_MBLNR&nbsp;TYPE&nbsp;MBLNR&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zmmrp0050_head/dictionary-zmmrp0050_head.html">ZMMRP0050_HEAD</a>.<br />
+TYPES:<br />
+&nbsp;&nbsp;SEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;RS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR4,<br />
+&nbsp;&nbsp;STYTLE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_T_STYL,<br />
+&nbsp;&nbsp;MBLNR_TAB&nbsp;TYPE&nbsp;TYT_MBLNR,<br />
+&nbsp;&nbsp;PRINT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR4,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_HEAD,<br />
+&nbsp;&nbsp;TYT_HEAD&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;TY_HEAD.<br />
+TYPES: BEGIN OF TY1,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;TYPE&nbsp;MSEG-MJAHR,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY2,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;TYPE&nbsp;MSEG-MJAHR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;TYPE&nbsp;MSEG-ZEILE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY2.<br />
+<br />
+DATA: GT_HEAD TYPE STANDARD TABLE OF TY1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_HEAD&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ITEM&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;TY2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_ITEM&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY2.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&CLASS&nbsp;定义<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+CLASS LCL_EVENT_RECEIVER DEFINITION.<br />
+&nbsp;&nbsp;PUBLIC&nbsp;SECTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HANDLE_TOOLBAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;EVENT&nbsp;TOOLBAR&nbsp;OF&nbsp;CL_GUI_ALV_GRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_OBJECT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HANDLE_USER_COMMAND&nbsp;FOR&nbsp;EVENT&nbsp;USER_COMMAND&nbsp;OF&nbsp;CL_GUI_ALV_GRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_UCOMM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HANDLE_DOUBLE_CLICK&nbsp;FOR&nbsp;EVENT&nbsp;DOUBLE_CLICK&nbsp;OF&nbsp;CL_GUI_ALV_GRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING&nbsp;E_ROW&nbsp;E_COLUMN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HANDLE_CELL_CLICK&nbsp;&nbsp;&nbsp;FOR&nbsp;EVENT&nbsp;HOTSPOT_CLICK&nbsp;OF&nbsp;CL_GUI_ALV_GRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_ROW_ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_COLUMN_ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ES_ROW_NO.<br />
+ENDCLASS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&CLASS&nbsp;实现<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+CLASS LCL_EVENT_RECEIVER IMPLEMENTATION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;修改工具栏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;METHOD&nbsp;HANDLE_TOOLBAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_SET_TOOLBAR&nbsp;CHANGING&nbsp;E_OBJECT.<br />
+&nbsp;&nbsp;ENDMETHOD.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"HANDLE_TOOLBAR<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;响应用户命令<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;METHOD&nbsp;HANDLE_USER_COMMAND.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_USER_COMMAND&nbsp;USING&nbsp;E_UCOMM.<br />
+&nbsp;&nbsp;ENDMETHOD.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"HANDLE_USER_COMMAND<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;双击事件<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;METHOD&nbsp;HANDLE_DOUBLE_CLICK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_DOUBLE_CLICK&nbsp;USING&nbsp;E_ROW&nbsp;E_COLUMN.<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;热键事件<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;METHOD&nbsp;HANDLE_CELL_CLICK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_HOTSPOT_CLICK&nbsp;USING&nbsp;E_ROW_ID&nbsp;E_COLUMN_ID&nbsp;ES_ROW_NO.<br />
+&nbsp;&nbsp;ENDMETHOD.<br />
+ENDCLASS.<br />
+<br />
+START-OF-SELECTION.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;SCREEN&nbsp;8000.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;STATUS_8000&nbsp;&nbsp;OUTPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE STATUS_8000 OUTPUT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;状态<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STATUS_8000'.<br />
+&nbsp;&nbsp;SET&nbsp;TITLEBAR&nbsp;&nbsp;'TITLE_8000'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;ALV初始化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT_ALV.<br />
+ENDMODULE.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Module&nbsp;&nbsp;USER_COMMAND_8000&nbsp;&nbsp;INPUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+MODULE USER_COMMAND_8000 INPUT.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_CODE&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-UCOMM.<br />
+<br />
+&nbsp;&nbsp;L_CODE&nbsp;=&nbsp;OK_CODE.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;L_CODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&F03'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&F15'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;PROGRAM.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+ENDMODULE.<br />
+<br />
+FORM FM_GET_DATA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BUDAT&nbsp;BETWEEN&nbsp;'20151101'&nbsp;AND&nbsp;'20151111'.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&ALV初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;如果容器为空，则实例化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;GO_CONTAINER&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REPID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DYNNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'8000'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTENSION&nbsp;=&nbsp;2050<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SIDE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;CL_GUI_DOCKING_CONTAINER=&gt;PROPERTY_FLOATING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"THIS&nbsp;SPIT&nbsp;THE&nbsp;CONTAINER&nbsp;INTO&nbsp;TWO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_SPLIT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GO_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORIENTATION&nbsp;&nbsp;&nbsp;=&nbsp;CL_GUI_EASY_SPLITTER_CONTAINER=&gt;ORIENTATION_VERTICAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SASH_POSITION&nbsp;=&nbsp;100<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH_BORDER&nbsp;&nbsp;&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_ALV_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;GO_SPLIT-&gt;TOP_LEFT_CONTAINER.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;ALV显示<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_DISPLAY_HEAD.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&显示ALV<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_DISPLAY_HEAD.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LO_EVENT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;LCL_EVENT_RECEIVER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_FIELDCAT&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&2&nbsp;=&nbsp;'MBLNR'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-HOTSPOT&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_FIELDCAT&nbsp;TO&nbsp;LT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;STEP1:创建FIELDCAT<br />
+*&nbsp;固定部分<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DF_ADD_FIELDCAT:<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;'MBLNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品凭证'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;&nbsp;''&nbsp;&nbsp;''&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;'MJAHR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'凭证年度'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'C'&nbsp;''&nbsp;&nbsp;''&nbsp;&nbsp;''&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LW_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;LW_LAYOUT-STYLEFNAME&nbsp;=&nbsp;'STYTLE'.&nbsp;&nbsp;"设置样式<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LW_LAYOUT-SEL_MODE&nbsp;&nbsp;&nbsp;=&nbsp;'D'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择方式，任意多选<br />
+*&nbsp;显示ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_HEAD-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;=&nbsp;LT_FIELDCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;事件注册<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;LO_EVENT.<br />
+&nbsp;&nbsp;SET&nbsp;HANDLER&nbsp;LO_EVENT-&gt;HANDLE_USER_COMMAND&nbsp;FOR&nbsp;GO_ALV_HEAD.<br />
+&nbsp;&nbsp;SET&nbsp;HANDLER&nbsp;LO_EVENT-&gt;HANDLE_TOOLBAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;GO_ALV_HEAD.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_HEAD-&gt;SET_TOOLBAR_INTERACTIVE.<br />
+&nbsp;&nbsp;SET&nbsp;HANDLER&nbsp;LO_EVENT-&gt;HANDLE_DOUBLE_CLICK&nbsp;FOR&nbsp;GO_ALV_HEAD.<br />
+&nbsp;&nbsp;SET&nbsp;HANDLER&nbsp;LO_EVENT-&gt;HANDLE_CELL_CLICK&nbsp;&nbsp;&nbsp;FOR&nbsp;GO_ALV_HEAD.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设定工具栏<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_SET_TOOLBAR CHANGING C_OBJECT TYPE REF TO CL_ALV_EVENT_TOOLBAR_SET.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TOOLBAR&nbsp;TYPE&nbsp;STB_BUTTON.<br />
+<br />
+&nbsp;&nbsp;DEFINE&nbsp;ADD_TOOLBAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TOOLBAR-FUNCTION&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TOOLBAR-ICON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TOOLBAR-QUICKINFO&nbsp;&nbsp;=&nbsp;&3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TOOLBAR-DISABLED&nbsp;&nbsp;&nbsp;=&nbsp;&4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_TOOLBAR&nbsp;TO&nbsp;C_OBJECT-&gt;MT_TOOLBAR&nbsp;.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;删除没用的按钮<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DELETE&nbsp;C_OBJECT-&gt;MT_TOOLBAR&nbsp;WHERE&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&DETAIL'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&SORT_ASC&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&SORT_DSC&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&FIND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&FIND_MORE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&MB_SUM&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&MB_SUBTOT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&MB_FILTER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&COL0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FUNCTION&nbsp;&lt;&gt;&nbsp;'&GRAPH&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;.<br />
+&nbsp;&nbsp;ADD_TOOLBAR:<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'ALL'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'@4B@'&nbsp;&nbsp;&nbsp;'全选'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'DALL'&nbsp;&nbsp;&nbsp;&nbsp;'@4D@'&nbsp;&nbsp;&nbsp;'取消全选'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'EXEC'&nbsp;&nbsp;&nbsp;&nbsp;'@15@'&nbsp;&nbsp;&nbsp;'再处理'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''.<br />
+ENDFORM.                    " SET_TOOLBAR1<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设定用户响应事件<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_USER_COMMAND USING I_UCOMM TYPE SY-UCOMM.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_HEAD&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;TY1.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;刷新内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_HEAD-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;CASE&nbsp;I_UCOMM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ALL'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_ALL.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'DALL'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_DALL.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDCASE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;刷新ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_REFRESH_ALV.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT_ITEM.<br />
+&nbsp;&nbsp;IF&nbsp;GT_ITEM&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GO_ALV_ITEM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GO_ALV_ITEM-&gt;FREE(&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_SPLIT-&gt;SET_SASH_POSITION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SASH_POSITION&nbsp;=&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FREE:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GO_ALV_ITEM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;GO_ALV_ITEM&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_SPLIT-&gt;SET_SASH_POSITION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SASH_POSITION&nbsp;=&nbsp;60.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;GO_ALV_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;GO_SPLIT-&gt;BOTTOM_RIGHT_CONTAINER.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;显示明细<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_DISPLAY_ITEM.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&ITEM&nbsp;ALV初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_DISPLAY_ITEM.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_FIELDCAT&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&1&nbsp;&lt;&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-FIX_COLUMN&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_FIELDCAT&nbsp;TO&nbsp;LT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据转换（GT_IN_TAB=&gt;GT_HEAD）<br />
+*&nbsp;STEP1:创建FIELDCAT<br />
+*&nbsp;固定部分<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DF_ADD_FIELDCAT:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;'MBLNR'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;'MJAHR'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-025&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;'ZEILE'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-025&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;'MATNR'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-026&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;'CHARG'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-027&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LW_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;LW_LAYOUT-SEL_MODE&nbsp;&nbsp;&nbsp;=&nbsp;'D'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择方式，任意多选<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;显示ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_ITEM-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;=&nbsp;LT_FIELDCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;事件注册<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FM_GET_ITEM<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_ITEM USING E_ROW E_COLUMN.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_HEAD&nbsp;LIKE&nbsp;GT_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_HEAD&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ROWS&nbsp;TYPE&nbsp;LVC_T_ROW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ROWS&nbsp;TYPE&nbsp;LVC_S_ROW.<br />
+   </div>
+   <div class="codeComment">
+**&nbsp;获取选中行<br />
+*&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_HEAD-&gt;GET_SELECTED_ROWS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_INDEX_ROWS&nbsp;=&nbsp;LT_ROWS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;IF&nbsp;LT_ROWS&nbsp;IS&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'没有选中任何数据'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+**&nbsp;数据加入LT_HEAD<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_ROWS&nbsp;BY&nbsp;INDEX&nbsp;DESCENDING.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_ROWS&nbsp;INTO&nbsp;LW_ROWS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_HEAD&nbsp;INTO&nbsp;LW_HEAD&nbsp;INDEX&nbsp;LW_ROWS-INDEX.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_HEAD&nbsp;TO&nbsp;LT_HEAD.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_HEAD&nbsp;INTO&nbsp;LW_HEAD&nbsp;INDEX&nbsp;E_ROW.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取明细<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_ITEM<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;MBLNR&nbsp;=&nbsp;LW_HEAD-MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MJAHR&nbsp;=&nbsp;LW_HEAD-MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&刷新ALV数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_REFRESH_ALV.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_STABLE&nbsp;TYPE&nbsp;LVC_S_STBL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据刷新到屏幕<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LW_STABLE-ROW&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LW_STABLE-COL&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_HEAD-&gt;REFRESH_TABLE_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_STABLE&nbsp;=&nbsp;LW_STABLE.<br />
+&nbsp;&nbsp;IF&nbsp;GO_ALV_ITEM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;GO_ALV_ITEM-&gt;REFRESH_TABLE_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_STABLE&nbsp;=&nbsp;LW_STABLE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&双击<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_DOUBLE_CLICK USING E_ROW E_COLUMN.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取明细数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_ITEM&nbsp;USING&nbsp;E_ROW&nbsp;E_COLUMN.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;初始化alv&nbsp;item<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT_ITEM.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;刷新ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_REFRESH_ALV.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&热键事件<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_HOTSPOT_CLICK USING E_ROW_ID     TYPE LVC_S_ROW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_COLUMN_ID&nbsp;&nbsp;TYPE&nbsp;LVC_S_COL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ES_ROW_NO&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_ROID.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MBLNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SELTAB&nbsp;TYPE&nbsp;RSPARAMS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB&nbsp;TYPE&nbsp;RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_HEAD&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY1.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_HEAD&nbsp;INTO&nbsp;LW_HEAD&nbsp;&nbsp;INDEX&nbsp;&nbsp;E_ROW_ID-INDEX.<br />
+&nbsp;&nbsp;CASE&nbsp;E_COLUMN_ID.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'MBLNR'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_HEAD&nbsp;INTO&nbsp;LW_HEAD&nbsp;INDEX&nbsp;E_ROW_ID.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取明细<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MBLNR&nbsp;=&nbsp;LW_HEAD-MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MJAHR&nbsp;=&nbsp;LW_HEAD-MJAHR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_INIT_ITEM.<br />
+<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZQC_POS_RE_BATCH_CHECK_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZQC_POS_RE_BATCH_CHECK_F01</h2>
+<h3> Description: Include ZQC_BATCH_CHECK_F01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZQC_BATCH_CHECK_F01<br />
+*&---------------------------------------------------------------------*<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_SELECT_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_SELECT_DATA .<br />
+&nbsp;&nbsp;IF&nbsp;RB_1&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_BATCH_RETURN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZQC_POS_RE_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SEQ&nbsp;IN&nbsp;S_SEQ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MATNR&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHKFLG&nbsp;IN&nbsp;(&nbsp;'','E'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZZHAS_IMPORT&nbsp;&lt;&gt;&nbsp;'S'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SEQ&nbsp;MATNR&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_CHARG_DUPLICATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZQC_POS_RE_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;CHARG&nbsp;IN&nbsp;(&nbsp;SELECT&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZQC_POS_RE_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SEQ&nbsp;IN&nbsp;S_SEQ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MATNR&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHKFLG&nbsp;IN&nbsp;(&nbsp;'','E'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZZHAS_IMPORT&nbsp;&lt;&gt;&nbsp;'S'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HAVING&nbsp;COUNT(*)&nbsp;&gt;&nbsp;1&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;RB_2&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_BATCH_RETURN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZQC_POS_RE_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SEQ&nbsp;IN&nbsp;S_SEQ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MATNR&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZZHAS_IMPORT&nbsp;&lt;&gt;&nbsp;'S'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SEQ&nbsp;MATNR&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_CHARG_DUPLICATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZQC_POS_RE_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;CHARG&nbsp;IN&nbsp;(&nbsp;SELECT&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZQC_POS_RE_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SEQ&nbsp;IN&nbsp;S_SEQ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MATNR&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZZHAS_IMPORT&nbsp;&lt;&gt;&nbsp;'S'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HAVING&nbsp;COUNT(*)&nbsp;&gt;&nbsp;1&nbsp;)&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CHECK_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_CHECK_DATA .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_BATCH_ERROR&nbsp;LIKE&nbsp;GT_BATCH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BATCH_RIGHT&nbsp;LIKE&nbsp;GT_BATCH.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;GS_BATCH&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_BATCH_IN_SAP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MCH1-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MCH1-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_BATCH_IN_SAP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BATCH_IN_SAP&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_BATCH_IN_SAP.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_BATCH_RETURN&nbsp;LIKE&nbsp;GT_BATCH_RETURN&nbsp;.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BATCH_RETURN&nbsp;TO&nbsp;GT_BATCH&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_BATCH[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GV_NUM_ALL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GV_NUM_ERR&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;GV_NUM_ALL&nbsp;=&nbsp;LINES(&nbsp;GT_BATCH&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_batch_check/zmm_batch_check.html">'ZMM_BATCH_CHECK'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_IS_QC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_BATCH_RIGHT&nbsp;=&nbsp;LT_BATCH_RIGHT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_BATCH_ERROR&nbsp;=&nbsp;LT_BATCH_ERROR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;检查一个批次号码是否分配给了多个商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_CHARG_DUPLICATE&nbsp;INTO&nbsp;GS_CHARG_DUPLICATE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_BATCH_ERROR&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH&gt;&nbsp;WITH&nbsp;KEY&nbsp;SEQ&nbsp;=&nbsp;GS_CHARG_DUPLICATE-SEQ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'批次号相同的有多条;'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_BATCH_RIGHT&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH&gt;&nbsp;WITH&nbsp;KEY&nbsp;SEQ&nbsp;=&nbsp;GS_CHARG_DUPLICATE-SEQ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'批次号相同的有多条;'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&lt;GS_BATCH&gt;&nbsp;TO&nbsp;LT_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_BATCH_RIGHT&nbsp;WHERE&nbsp;CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;检查批次号码在SAP中是否已经存在，且分配给了其他商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BATCH&nbsp;TO&nbsp;LT_BATCH_IN_SAP&nbsp;.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_BATCH_IN_SAP&nbsp;.<br />
+&nbsp;&nbsp;MODIFY&nbsp;LT_BATCH_IN_SAP&nbsp;FROM&nbsp;LS_BATCH_IN_SAP&nbsp;TRANSPORTING&nbsp;MATNR&nbsp;WHERE&nbsp;CHARG&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_BATCH_IN_SAP&nbsp;BY&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_BATCH_IN_SAP&nbsp;COMPARING&nbsp;CHARG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_BATCH_IN_SAP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCH1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_BATCH_IN_SAP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;CHARG&nbsp;=&nbsp;LT_BATCH_IN_SAP-CHARG&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_BATCH_ERROR&nbsp;BY&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_BATCH_RIGHT&nbsp;BY&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_BATCH_IN_SAP&nbsp;INTO&nbsp;LS_BATCH_IN_SAP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_BATCH_ERROR&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH&gt;&nbsp;WITH&nbsp;KEY&nbsp;CHARG&nbsp;=&nbsp;LS_BATCH_IN_SAP-CHARG&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH_IN_SAP-MATNR&nbsp;&lt;&gt;&nbsp;&lt;GS_BATCH&gt;-MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'该批次号在系统中已经被分配给其他商品'&nbsp;&&&nbsp;LS_BATCH_IN_SAP-MATNR&nbsp;&&&nbsp;';'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'该商品+批次号在系统中已经存在，请人工检查/更新商品在门店和DC的移动平均价;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_BATCH_RIGHT&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH&gt;&nbsp;WITH&nbsp;KEY&nbsp;CHARG&nbsp;=&nbsp;LS_BATCH_IN_SAP-CHARG&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH_IN_SAP-MATNR&nbsp;&lt;&gt;&nbsp;&lt;GS_BATCH&gt;-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'该批次在系统中已经被分配给其他商品'&nbsp;&&&nbsp;LS_BATCH_IN_SAP-MATNR&nbsp;&&&nbsp;';'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'该商品+批次号在系统中已经存在，请人工检查/更新商品在门店和DC的移动平均价;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&lt;GS_BATCH&gt;&nbsp;TO&nbsp;LT_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_BATCH_RIGHT&nbsp;WHERE&nbsp;CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;REFRESH:&nbsp;GT_BATCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_BATCH_RIGHT&nbsp;TO&nbsp;GT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_BATCH_ERROR&nbsp;TO&nbsp;GT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;REFRESH:&nbsp;LT_BATCH_RIGHT,LT_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;"&nbsp;取得地点<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_WERKS)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"取得结算方式<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_JSFS)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMDG0010_JSFS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;取得已有条形码数据<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ZTINN_ZSPTM&nbsp;TYPE&nbsp;ATINN&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_ATWRT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSPTM&nbsp;TYPE&nbsp;AUSP-ATWRT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_ATWRT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ATWRT&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ATWRT.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;'ZSPTM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_ZTINN_ZSPTM.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BATCH&nbsp;TO&nbsp;LT_ATWRT&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ATWRT&nbsp;BY&nbsp;ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_ATWRT&nbsp;COMPARING&nbsp;ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;SELECT&nbsp;C~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;C~CHARG&nbsp;AS&nbsp;CHARG,&nbsp;P~ATWRT&nbsp;AS&nbsp;ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_ZSPTM)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCH1&nbsp;AS&nbsp;C<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;AUSP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~OBJEK&nbsp;=&nbsp;C~CUOBJ_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~ATINN&nbsp;=&nbsp;@LV_ZTINN_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;@LT_ATWRT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;P~ATWRT&nbsp;=&nbsp;@LT_ATWRT-ZSPTM&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"取得商品+地点数据<br />
+&nbsp;&nbsp;SELECT&nbsp;MATNR,&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_MARC)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;@GT_BATCH_RETURN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;@GT_BATCH_RETURN-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;(&nbsp;WERKS&nbsp;=&nbsp;@GT_BATCH_RETURN-WERKS_ST&nbsp;OR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;@GT_BATCH_RETURN-WERKS_DC&nbsp;)&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_BATCH_RETURN&nbsp;BY&nbsp;SEQ&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_BATCH&nbsp;BY&nbsp;SEQ&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_WERKS&nbsp;BY&nbsp;WERKS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_JSFS&nbsp;BY&nbsp;BM&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ATWRT&nbsp;BY&nbsp;ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MARC&nbsp;BY&nbsp;MATNR&nbsp;WERKS&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;GS_BATCH_RETURN&gt;&nbsp;LIKE&nbsp;GS_BATCH_RETURN&nbsp;.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;GV_NUM_ERR,&nbsp;GV_NUM_RIGHT,GV_NUM_NEED_IMPORT&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_BATCH_RETURN&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH_RETURN&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_BATCH&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH&gt;&nbsp;WITH&nbsp;KEY&nbsp;SEQ&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-SEQ&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-CHKFLG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查调整门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_ST&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'调整门店WERKS_ST不能为空;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_WERKS&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_ST&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'调整门店WERKS_ST在系统中不存在：'&nbsp;&&&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_ST&nbsp;&&&nbsp;';'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MARC&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_ST&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'商品没有列表到调整门店：'&nbsp;&&&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_ST&nbsp;&&&nbsp;';'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查调整DC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_DC&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'调整DC&nbsp;WERKS_DC不能为空;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_WERKS&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_DC&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'调整DC&nbsp;WERKS_DC在系统中不存在：'&nbsp;&&&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_DC&nbsp;&&&nbsp;';'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MARC&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_DC&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'商品没有列表到调整DC：'&nbsp;&&&nbsp;&lt;GS_BATCH_RETURN&gt;-WERKS_DC&nbsp;&&&nbsp;';'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_JSFS&nbsp;INTO&nbsp;DATA(LS_JSFS)&nbsp;WITH&nbsp;KEY&nbsp;BM&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ZLYJSFS&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-SFLY&nbsp;=&nbsp;LS_JSFS-SFLY&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_JSFS-SFLY&nbsp;=&nbsp;''&nbsp;AND&nbsp;&lt;GS_BATCH_RETURN&gt;-VERPR&nbsp;&lt;=&nbsp;0&nbsp;.&nbsp;"&nbsp;自营商品必须有成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'自营商品必须要有成本(正数);'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LS_JSFS-SFLY&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;&lt;GS_BATCH_RETURN&gt;-VERPR&nbsp;&lt;&gt;&nbsp;0&nbsp;.&nbsp;"&nbsp;联营商品不能有成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'联营商品不能有成本;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'结算方式在系统中不存在：'&nbsp;&&&nbsp;&lt;GS_BATCH_RETURN&gt;-ZLYJSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查条形码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZSPTM&nbsp;INTO&nbsp;DATA(LS_ZSPTM)&nbsp;WITH&nbsp;KEY&nbsp;ZSPTM&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ZSPTM&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;&&&nbsp;'该条形码在系统中已经被商品：'&nbsp;&&&nbsp;LS_ZSPTM-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&&nbsp;'和批次号：'&nbsp;&&&nbsp;LS_ZSPTM-CHARG&nbsp;&&&nbsp;'使用了！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'在检查结果中没有找到该批次，请联系IT同事Debug检查！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_BATCH_RETURN&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-NEED_IMPORT&nbsp;=&nbsp;'N'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_NUM_ERR&nbsp;=&nbsp;GV_NUM_ERR&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH_RETURN&gt;-NEED_IMPORT&nbsp;=&nbsp;'Y'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_NUM_RIGHT&nbsp;=&nbsp;GV_NUM_RIGHT&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_NUM_NEED_IMPORT&nbsp;=&nbsp;GV_NUM_NEED_IMPORT&nbsp;+&nbsp;&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;GT_BATCH&nbsp;.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_SAVE_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_SAVE_DATA .<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_BATCH_RETURN[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;MODIFY&nbsp;ZQC_POS_RE_BATCH&nbsp;FROM&nbsp;TABLE&nbsp;GT_BATCH_RETURN&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BATCH_COMPARE<br />
+**&---------------------------------------------------------------------*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+**----------------------------------------------------------------------*<br />
+**&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+**&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+**----------------------------------------------------------------------*<br />
+*FORM&nbsp;FRM_BATCH_COMPARE&nbsp;.<br />
+*&nbsp;&nbsp;DATA:&nbsp;LS_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARACTERS,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_CHARACTERS,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH_CHARACTERS&nbsp;LIKE&nbsp;LS_CHARACTERS.<br />
+*&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;GS_BATCH&gt;&nbsp;LIKE&nbsp;GS_BATCH&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BATCH&nbsp;TO&nbsp;LT_CHARG&nbsp;.<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_CHARG&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+*&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_CHARG&nbsp;COMPARING&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCH1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LT_CHARG-MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;LT_CHARG-CHARG&nbsp;.<br />
+*&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_CHARG&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_BATCH&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH&gt;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG&nbsp;INTO&nbsp;LS_CHARG&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;GS_BATCH&gt;-MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-ERR_MSG&nbsp;&&&nbsp;'该商品+批次在系统中已经存在;'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ZSDRP0020_FM_01'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;LT_CHARACTERS.<br />
+*<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_CHARACTERS&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_BATCH&nbsp;ASSIGNING&nbsp;&lt;GS_BATCH&gt;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARACTERS&nbsp;INTO&nbsp;LS_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;GS_BATCH&gt;-MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;&lt;GS_BATCH&gt;-CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_BATCH_CHARACTERS&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;&lt;GS_BATCH&gt;&nbsp;TO&nbsp;LS_BATCH_CHARACTERS&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;以下字段不需要比较<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_CHARACTERS-SFLY,LS_BATCH_CHARACTERS-SFLY&nbsp;.&nbsp;&nbsp;&nbsp;"是否联营<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_CHARACTERS-ZZZ,LS_BATCH_CHARACTERS-ZZZ&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"总重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_CHARACTERS-ZDPJS,LS_BATCH_CHARACTERS-ZDPJS&nbsp;.&nbsp;"&nbsp;单品件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果上传批次在SAP已经存在，且批次属性相同，就不需要再次导入了，否则就需要导入<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH_CHARACTERS&nbsp;=&nbsp;LS_CHARACTERS&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-NEED_IMPORT&nbsp;=&nbsp;'N'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-NEED_IMPORT&nbsp;=&nbsp;'Y'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_NUM_NEED_IMPORT&nbsp;=&nbsp;GV_NUM_NEED_IMPORT&nbsp;+&nbsp;1&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果上传批次在SAP不存在，则需要导入<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_BATCH&gt;-NEED_IMPORT&nbsp;=&nbsp;'Y'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_NUM_NEED_IMPORT&nbsp;=&nbsp;GV_NUM_NEED_IMPORT&nbsp;+&nbsp;1&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+*ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

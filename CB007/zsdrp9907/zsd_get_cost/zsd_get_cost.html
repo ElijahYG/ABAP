@@ -1,0 +1,472 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSD_GET_COST</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZSD_GET_COST</h2>
+<h3> Description: 根据物料、批次、数量（注意：传入的数量一定是件数！）获取成本</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZSD_GET_COST.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     REFERENCE(I_MATNR) TYPE  MATNR<br />
+*"     REFERENCE(I_CHARG) TYPE  CHARG_D<br />
+*"     REFERENCE(I_WERKS) TYPE  WERKS_D<br />
+*"     REFERENCE(I_MENGE) TYPE  MENGE_D<br />
+*"     VALUE(I_TUIHUO) TYPE  CHAR1 OPTIONAL<br />
+*"  EXPORTING<br />
+*"     REFERENCE(E_VERPR) TYPE  VERPR<br />
+*"     REFERENCE(E_MENGE) TYPE  MENGE_D<br />
+*"----------------------------------------------------------------------<br />
+* 逻辑描述：<br />
+* 一.没有批次，直接在MBEW中取成本<br />
+* 二.有批次<br />
+*    1.联营商品：按联营方式计算（7种情况）<br />
+*    2.经销商品：<br />
+*       2.1 PC，直接去MBEW中取成本<br />
+*       2.2 G，数量转换后，取成本<br />
+
+<div class="codeComment">*       <a href ="global-zsd_get_cost.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MBEW&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEW-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEW-BWKEY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTAR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEW-BWTAR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VERPR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEW-VERPR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LBKUM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEW-LBKUM,"库存数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALK3&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEW-SALK3,"总价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MBEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LIANYING&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_CHARACTER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSJJ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,&nbsp;"结算克金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSKGF&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,&nbsp;"结算克工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,&nbsp;"金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZCKLSJ&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,&nbsp;"参考零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSDKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,&nbsp;"结算克倒扣<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSYKJ&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,&nbsp;"联营结算一口价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJSKL&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,&nbsp;"结算扣率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGYSDM&nbsp;&nbsp;&nbsp;TYPE&nbsp;LIFNR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"供应商<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_CHARACTER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_ZTJJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KBETR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_ZKSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KBETR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_KLTZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSDRP0020_KLTZ&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_KLTZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSDRP0020_KLTZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS&nbsp;OCCURS&nbsp;0.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE.<br />
+   </div>
+   <div class="codeComment">
+* 转换<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_MATN1_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* 批次为空时,直接计算<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;I_CHARG&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTAR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VERPR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LBKUM&nbsp;&nbsp;&nbsp;"库存数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALK3&nbsp;&nbsp;&nbsp;"总价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LW_MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;L_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BWKEY&nbsp;=&nbsp;I_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BWTAR&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*   小于库存，乘得；等于库存，总成本;大于库存，无法计算<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;E_MENGE&nbsp;&lt;&nbsp;LW_MBEW-LBKUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;LW_MBEW-VERPR&nbsp;*&nbsp;E_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;E_MENGE&nbsp;=&nbsp;LW_MBEW-LBKUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;LW_MBEW-SALK3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;E_VERPR.&nbsp;"大于库存，无法计算<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;I_TUIHUO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;LW_MBEW-VERPR&nbsp;*&nbsp;E_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE&nbsp;=&nbsp;I_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 获取批次信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LW_CHARG-MATNR&nbsp;=&nbsp;L_MATNR.<br />
+&nbsp;&nbsp;LW_CHARG-CHARG&nbsp;=&nbsp;I_CHARG.<br />
+&nbsp;&nbsp;APPEND&nbsp;LW_CHARG&nbsp;TO&nbsp;LT_CHARG.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARG_CHARACTERS&nbsp;BY&nbsp;ATNAM.<br />
+   </div>
+   <div class="codeComment">
+* 获取需要的特性<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_CHARG_CHARACTERS-ATNAM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZJSJJ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTER-ZJSJJ&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZJSKGF'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTER-ZJSKGF&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZJZ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTER-ZJZ&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZCKLSJ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTER-ZCKLSJ&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZJSDKZ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTER-ZJSDKZ&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZLYJSYKJ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTER-ZLYJSYKJ&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZJSKL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTER-ZJSKL&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZGYSDM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATWRT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_CHARACTER-ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;ATNAM&nbsp;=&nbsp;'ZLYJSFS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* 联营商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LW_CHARG_CHARACTERS-ATWRT&nbsp;=&nbsp;'Z04'<br />
+&nbsp;&nbsp;OR&nbsp;LW_CHARG_CHARACTERS-ATWRT&nbsp;=&nbsp;'Z05'<br />
+&nbsp;&nbsp;OR&nbsp;LW_CHARG_CHARACTERS-ATWRT&nbsp;=&nbsp;'Z06'<br />
+&nbsp;&nbsp;OR&nbsp;LW_CHARG_CHARACTERS-ATWRT&nbsp;=&nbsp;'Z07'<br />
+&nbsp;&nbsp;OR&nbsp;LW_CHARG_CHARACTERS-ATWRT&nbsp;=&nbsp;'Z10'<br />
+&nbsp;&nbsp;OR&nbsp;LW_CHARG_CHARACTERS-ATWRT&nbsp;=&nbsp;'Z11'<br />
+&nbsp;&nbsp;OR&nbsp;LW_CHARG_CHARACTERS-ATWRT&nbsp;=&nbsp;'Z12'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LIANYING&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*   获取成本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_CHARG_CHARACTERS-ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z04'.<br />
+   </div>
+   <div class="codeComment">
+*       (结算克金价+结算克工费)*金重*数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;(&nbsp;LW_CHARACTER-ZJSJJ&nbsp;+&nbsp;LW_CHARACTER-ZJSKGF&nbsp;)&nbsp;*&nbsp;LW_CHARACTER-ZJZ&nbsp;*&nbsp;I_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z05'.<br />
+   </div>
+   <div class="codeComment">
+*       (参考零售价-结算克倒扣值 * 金重)*数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;(&nbsp;LW_CHARACTER-ZCKLSJ&nbsp;-&nbsp;LW_CHARACTER-ZJSDKZ&nbsp;&nbsp;*&nbsp;LW_CHARACTER-ZJZ&nbsp;)&nbsp;*&nbsp;I_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z06'.<br />
+   </div>
+   <div class="codeComment">
+*       联营结算一口价*数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;LW_CHARACTER-ZLYJSYKJ&nbsp;*&nbsp;I_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z07'.<br />
+   </div>
+   <div class="codeComment">
+*       (1 - 结算扣率 - 门店扣率) * 零售价 * 数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_KLTZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZSDRP0020_KLTZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;=&nbsp;LW_CHARACTER-ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;L_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_KLTZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_KLTZ&nbsp;INTO&nbsp;LW_KLTZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;LIFNR&nbsp;&nbsp;=&nbsp;LW_CHARACTER-ZGYSDM<br />
+   </div>
+   <div class="codeComment">
+*                               WERKS  = I_WERKS<br />
+*                               ZSPDL  = L_EXTWG<br />
+*                               ZSPKS  = L_MATNR<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_KLTZ&nbsp;INTO&nbsp;LW_KLTZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;LIFNR&nbsp;=&nbsp;LW_CHARACTER-ZGYSDM<br />
+   </div>
+   <div class="codeComment">
+*                                 WERKS = I_WERKS<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_KLTZ&nbsp;INTO&nbsp;LW_KLTZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;LIFNR&nbsp;=&nbsp;LW_CHARACTER-ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;(&nbsp;100&nbsp;-&nbsp;LW_CHARACTER-ZJSKL&nbsp;-&nbsp;LW_KLTZ-ZKLTZ&nbsp;)&nbsp;*&nbsp;LW_CHARACTER-ZCKLSJ&nbsp;*&nbsp;I_MENGE&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z10'.<br />
+   </div>
+   <div class="codeComment">
+*       取投资克基础价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_KBETR&nbsp;USING&nbsp;I_MATNR&nbsp;'ZTJJ'&nbsp;L_ZTJJ.<br />
+   </div>
+   <div class="codeComment">
+*       取销售克工费档加价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_KBETR&nbsp;USING&nbsp;I_MATNR&nbsp;'ZKSG'&nbsp;L_ZKSG.<br />
+   </div>
+   <div class="codeComment">
+*       [(投资克基础价+销售克工费档加价)*（1-结算扣率)]*金重*数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;(&nbsp;L_ZTJJ&nbsp;+&nbsp;L_ZKSG&nbsp;)&nbsp;*&nbsp;(&nbsp;100&nbsp;-&nbsp;LW_CHARACTER-ZJSKL&nbsp;)&nbsp;*&nbsp;LW_CHARACTER-ZJZ&nbsp;*&nbsp;I_MENGE&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z11'.<br />
+   </div>
+   <div class="codeComment">
+*       取投资克基础价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_KBETR&nbsp;USING&nbsp;I_MATNR&nbsp;'ZTJJ'&nbsp;L_ZTJJ.<br />
+   </div>
+   <div class="codeComment">
+*       (投资克基础价+结算克工费）*金重*数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;(&nbsp;L_ZTJJ&nbsp;+&nbsp;LW_CHARACTER-ZJSKGF&nbsp;)&nbsp;*&nbsp;LW_CHARACTER-ZJZ&nbsp;*&nbsp;I_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z12'.<br />
+   </div>
+   <div class="codeComment">
+*       取投资克基础价<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_KBETR&nbsp;USING&nbsp;I_MATNR&nbsp;'ZTJJ'&nbsp;L_ZTJJ.<br />
+   </div>
+   <div class="codeComment">
+*       投资克基础价*(1+结算扣率）*金重*数量<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;L_ZTJJ&nbsp;*&nbsp;(&nbsp;100&nbsp;+&nbsp;LW_CHARACTER-ZJSKL&nbsp;)&nbsp;&nbsp;*&nbsp;LW_CHARACTER-ZJZ&nbsp;*&nbsp;I_MENGE&nbsp;/&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 取基本单位<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;L_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;LW_MARA-MEINS&nbsp;=&nbsp;'ST'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE&nbsp;=&nbsp;I_MENGE.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;LW_MARA-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;ATNAM&nbsp;=&nbsp;'ZJZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE&nbsp;=&nbsp;I_MENGE&nbsp;*&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+* 计算经销方式的成本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CHECK&nbsp;L_LIANYING&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTAR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VERPR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LBKUM&nbsp;&nbsp;&nbsp;"库存数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALK3&nbsp;&nbsp;&nbsp;"总价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LW_MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;L_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BWKEY&nbsp;=&nbsp;I_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BWTAR&nbsp;=&nbsp;I_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* 小于库存，乘得；等于库存，总成本;大于库存，无法计算<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;E_MENGE&nbsp;&lt;&nbsp;LW_MBEW-LBKUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;LW_MBEW-VERPR&nbsp;*&nbsp;E_MENGE.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;E_MENGE&nbsp;=&nbsp;LW_MBEW-LBKUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;LW_MBEW-SALK3.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;E_VERPR.&nbsp;"大于库存，无法计算<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;I_TUIHUO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_VERPR&nbsp;=&nbsp;LW_MBEW-VERPR&nbsp;*&nbsp;E_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFUNCTION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------<br />
+* 取投资克基础价<br />
+*----------------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FM_GET_KBETR USING I_MATNR TYPE MATNR I_TYPE TYPE CHAR4 E_KBETR TYPE KBETR.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_KNUMH&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KNUMH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_EX_GJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZDE_MMEX0010_GJS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;EXTWG.<br />
+   </div>
+   <div class="codeComment">
+* 取大类<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;EXTWG&nbsp;EX_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;(L_EXTWG,L_EX_GJS)<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;=&nbsp;I_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+* 取条件价格<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A908<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;KSCHL&nbsp;=&nbsp;I_TYPE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;=&nbsp;L_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_GJS&nbsp;=&nbsp;L_EX_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATBI&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;KBETR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UP&nbsp;TO&nbsp;1&nbsp;ROWS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;KONP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;E_KBETR<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;KSCHL&nbsp;=&nbsp;I_TYPE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KNUMH&nbsp;=&nbsp;L_KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ENDSELECT.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,816 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP9910</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP9910</h2>
+<h3> Description: ZSDRP9910-门店赠品领用报表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP9910<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;SD-RP-9910<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;门店赠品领用<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;GUOYUE<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2016/01/05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GUOYUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+************************************************************************<br />
+*调BAPI填写的数量是在ZMMIF0020_IDOC_INPUT接口中直接转换好的，所以直接取ITEM表<br />
+*中的BAPI_ENTRY_QNT字段。<br />
+*调BAPI填写的批号是在ZMMIF0020_IDOC_INPUT接口中直接转换好的，直接取ITEM表<br />
+*中的BAPI_BATCH字段。<br />
+*调BAPI填写的移动类型是在ZMMIF0020_IDOC_INPUT接口中直接转换好的，直接取ITEM表<br />
+*中的MOVE_TYPE字段。<br />
+************************************************************************<br />
+<br />
+   </div>
+   <div class="code">
+REPORT ZSDRP9910.<br />
+<br />
+TYPE-POOLS:SLIS.  "ALV 显示使用到的共享池<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入选择屏幕表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:ZMMIF0020_HEAD,ZMMIF0020_ITEM.       "通知sap我在这里需要用到的表<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;定义ALV显示字段的内表<br />
+   </div>
+   <div class="code">
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT   TYPE SLIS_LAYOUT_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+*定义ALV显示结构<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0010,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"领用地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SEL_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR1,&nbsp;"前端打勾选项所用语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-XBLNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"POS单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-CHARG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PSTNG_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-PSTNG_DATE,&nbsp;&nbsp;"过账日期（pos传入）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZSUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-ZSUM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量（正为领用，负负为赠品退货）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-LGORT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-KOSTL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"成本中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CFLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-CFLAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标识（1为领用，2为退货）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZFLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_HEAD-ZFLAG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标识（‘&nbsp;’-初始，‘X'-已过账&nbsp;‘E’-错误）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_HEAD-MBLNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SAP商品凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_HEAD-BUDAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SAP凭证过账日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-MOVE_TYPE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"传入BAPI移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BAPI_BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-BAPI_BATCH,&nbsp;&nbsp;&nbsp;&nbsp;"传入BAPI批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BAPI_ENTRY_QNT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM-BAPI_ENTRY_QNT,&nbsp;&nbsp;"传入BAPI数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR300,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0010.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA IT_TABLE   TYPE STANDARD TABLE OF STRU_0010.<br />
+DATA WA_TABLE   TYPE                   STRU_0010.<br />
+DATA IT_HEAD    LIKE TABLE OF ZMMIF0020_HEAD.<br />
+DATA: LT_TABLE LIKE IT_TABLE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TABLE&nbsp;LIKE&nbsp;WA_TABLE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:S_WERKS       FOR ZMMIF0020_ITEM-WERKS OBLIGATORY DEFAULT '8001' .   "门店<br />
+SELECT-OPTIONS:S_DATE        FOR SY-DATUM ."OBLIGATORY ."日期（POS传入业务日期）<br />
+PARAMETERS: P_BUDAT TYPE SY-DATUM OBLIGATORY."SAP过账日期<br />
+PARAMETERS:    Z01 RADIOBUTTON GROUP GP1 MODIF ID BL1, "查询<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z02&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;GP1&nbsp;MODIF&nbsp;ID&nbsp;BL1.&nbsp;"手动过账(展现ALV,按照选择过账)<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z03&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;GP1.&nbsp;"自动过账（不展现ALV，把取出的数据，直接按照门店过账）<br />
+   </div>
+   <div class="code">
+PARAMETERS Z03 AS CHECKBOX USER-COMMAND FLAG."自动过账（不展现ALV，把取出的数据，直接按照门店过账）<br />
+SELECTION-SCREEN END OF BLOCK B1.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;P_BUDAT&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'28'."默认过账日期为每个月的28号。<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&&nbsp;PBO处理<br />
+**&---------------------------------------------------------------------*<br />
+*AT&nbsp;SELECTION-SCREEN&nbsp;OUTPUT.<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN OUTPUT.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;SCREEN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;Z03&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;SCREEN-GROUP1&nbsp;=&nbsp;'BL1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCREEN-ACTIVE&nbsp;=&nbsp;'0'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置组内设置屏幕的显示和隐藏<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;SCREEN.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"把弃置应用到当前屏幕<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.   "开始事件操作<br />
+&nbsp;&nbsp;IF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z02&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;Z03&nbsp;=&nbsp;'&nbsp;'."手动过账<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA02.&nbsp;&nbsp;&nbsp;&nbsp;"取数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW.&nbsp;&nbsp;&nbsp;&nbsp;"调用函数显示<br />
+&nbsp;&nbsp;ELSEIF&nbsp;Z01&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;Z03&nbsp;=&nbsp;'&nbsp;'."查询<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA01.&nbsp;&nbsp;&nbsp;&nbsp;"取数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW.&nbsp;&nbsp;&nbsp;&nbsp;"调用函数显示<br />
+&nbsp;&nbsp;ELSEIF&nbsp;Z03&nbsp;=&nbsp;'X'."自动过账<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA02.&nbsp;&nbsp;&nbsp;&nbsp;"取数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;PASS_TABLE."传表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_BAPI.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;IT_TABLE[].<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA02.           "调用函数取数<br />
+&nbsp;&nbsp;SELECT&nbsp;A~ZFLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标识（‘&nbsp;’-初始，‘X'-已过账&nbsp;‘E’-错误&nbsp;）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SAP商品凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SAP凭证过账日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~XBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"POS单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~PSTNG_DATE&nbsp;&nbsp;&nbsp;&nbsp;"过账日期（业务）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"领用地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ZSUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量（正为领用，负负为赠品退货）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"成本中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CFLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标识（1为领用，2为退货）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MOVE_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"传入BAPI移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BAPI_BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"传入BAPI批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BAPI_ENTRY_QNT&nbsp;&nbsp;"传入BAPI数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE<br />
+&nbsp;FROM&nbsp;ZMMIF0020_HEAD&nbsp;&nbsp;&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM&nbsp;&nbsp;&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~XBLNR&nbsp;=&nbsp;B~XBLNR&nbsp;AND&nbsp;A~PSTNG_DATE&nbsp;=&nbsp;B~PSTNG_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;A~PSTNG_DATE&nbsp;IN&nbsp;S_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;A~ZFLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NE&nbsp;'X'."没有过账的<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TABLE&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有数据.'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA01.           "调用函数取数<br />
+&nbsp;&nbsp;SELECT&nbsp;A~ZFLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标识（‘&nbsp;’-初始，‘X'-已过账‘E’-错误）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SAP商品凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"SAP凭证过账日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~XBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"POS单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~PSTNG_DATE&nbsp;&nbsp;&nbsp;&nbsp;"过账日期（业务）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"领用地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ZSUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量（正为领用，负负为赠品退货）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"成本中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CFLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标识（1为领用，2为退货）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MOVE_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"传入BAPI移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BAPI_BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"传入BAPI批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BAPI_ENTRY_QNT&nbsp;&nbsp;"传入BAPI数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE<br />
+&nbsp;FROM&nbsp;ZMMIF0020_HEAD&nbsp;&nbsp;&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0020_ITEM&nbsp;&nbsp;&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~XBLNR&nbsp;=&nbsp;B~XBLNR&nbsp;AND&nbsp;A~PSTNG_DATE&nbsp;=&nbsp;B~PSTNG_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;A~PSTNG_DATE&nbsp;IN&nbsp;S_DATE.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TABLE&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有数据.'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&ALV<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM ALV_SHOW.  "定义这个显示函数<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;TITLE&nbsp;TYPE&nbsp;LVC_TITLE."抬头标题<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;"表名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;"字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;"列描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-OUTPUTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;"参考字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;"参考表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-DRDN_FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;"设置下拉菜单<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;"此字段为'X'，整列变为可编辑状态，当与STYLE冲突时STYLE优先。<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;"隐藏字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&9.&nbsp;&nbsp;&nbsp;"隐藏前导零<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度<br />
+*&nbsp;&nbsp;&nbsp;I_OUTPUTLEN&nbsp;TYPE&nbsp;DD03P-OUTPUTLEN.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'XBLNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'POS单号'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MATNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'商品'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'CHARG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'批次'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'PSTNG_DATE'&nbsp;&nbsp;&nbsp;&nbsp;'POS传入日期'&nbsp;&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'WERKS'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'领用地点'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;''&nbsp;&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ZSUM'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'数量（正为赠品领用，负为赠品退货）'&nbsp;&nbsp;''&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'LGORT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'库存地点'&nbsp;&nbsp;&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'KOSTL'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'成本中心'&nbsp;&nbsp;&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'CFLAG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'标识（1为领用，2为退货）'&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ZFLAG'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'过账标识'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MBLNR'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAP商品凭证'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'BUDAT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SAP凭证过账日期'&nbsp;''&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MESSAGE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'消息'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'100'&nbsp;.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+**--------------打勾用------------------------<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清空工作区<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表表名<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'SEL_COL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表字段名，必须大写<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'&nbsp;'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"项目表题目名称<br />
+*&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"界面增加一列CHECKBOX，属性已被选中<br />
+*&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在设置ALV列属性的时候对这个字段赋值<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"把工作区添加到内表<br />
+*<br />
+**--------------打勾用------------------------<br />
+<br />
+<br />
+*&nbsp;&nbsp;TITLE&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;统计日期:'&nbsp;&&&nbsp;GW_TABLE-ZDAT_BEGIN&nbsp;&&&nbsp;GW_TABLE-ZDAT_END&nbsp;&nbsp;."'<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"列宽度优化（宽度自动调整）<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"前面补零，补前导零<br />
+&nbsp;&nbsp;WA_LAYOUT-NO_INPUT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;WA_LAYOUT-BOX_FIELDNAME&nbsp;=&nbsp;'SEL_COL'."选择&nbsp;框<br />
+<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID&nbsp;&nbsp;&nbsp;&nbsp;"传入程序ID，系统程序变量ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;"传入三个参数布局<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]&nbsp;"内容输出<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_GRID_TITLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;TITLE&nbsp;"抬头标题<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;"回调状态&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;回调用户命令&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_EVENTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WS_EVENTS[]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"出口程序触发事件<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_TABLE&nbsp;&nbsp;"输出的数据信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+"以下是建立小图标用的语句<br />
+FORM PF_STATUS_SET USING P_EXTAB TYPE SLIS_T_EXTAB..<br />
+&nbsp;&nbsp;"Set&nbsp;the&nbsp;Button&nbsp;using&nbsp;the&nbsp;staus<br />
+&nbsp;&nbsp;"Copy&nbsp;the&nbsp;Standard&nbsp;status&nbsp;from&nbsp;the&nbsp;program&nbsp;SAPLKKBL&nbsp;status<br />
+&nbsp;&nbsp;"&nbsp;STANDARD&nbsp;using&nbsp;SE41,&nbsp;and&nbsp;use&nbsp;that&nbsp;here.<br />
+&nbsp;&nbsp;"Pf&nbsp;status<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;Z01&nbsp;=&nbsp;'X'."查询<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'BTN_GO'&nbsp;)&nbsp;).&nbsp;"填写不显示的功能码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZSDRP9910_PF'&nbsp;EXCLUDING&nbsp;P_EXTAB.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击设置自己的按钮<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;Z02&nbsp;=&nbsp;'X'."过账<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZSDRP9910_PF'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击设置自己的按钮<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+   </div>
+   <div class="code">
+FORM USER_COMMAND USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;FREE&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"按下按钮各自执行函数<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_GO'."调BAPI过账<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;TS.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;REFRESH_TABLE_DISPLAY.<br />
+   </div>
+   <div class="codeComment">
+*设置刷新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*保证行、列位置在自动刷新时不变<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;RS_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+ENDFORM.<br />
+<br />
+FORM FM_BAPI."按照门店 调BAPI过账，如果BAPI报错则ROLLBACK，不报错则更新自建表，更新成功COMMIT，不成功则ROLLBACK。<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPIRET2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_RETURN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_NUM_ERR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BATCH_UPDATE&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;ZQC_BATCH.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_BAPIBATCHCTRL&nbsp;TYPE&nbsp;BAPIBATCHCTRL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_STR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;LT_TABLE&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_TABLE&nbsp;.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*&nbsp;&nbsp;调用发货过账BAPI<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;:&nbsp;&nbsp;&nbsp;IT_GOODSMVT_HEADER&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;BAPI2017_GM_HEAD_01,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BAPI&nbsp;通讯结构：物料凭证抬头数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADER&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_01,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BAPI&nbsp;通讯结构：物料凭证抬头数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_CODE&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_CODE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MMIM:&nbsp;分配给库存管理的新码&nbsp;GM_CODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_GOODSMVT_ITEM&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;BAPI2017_GM_ITEM_CREATE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BAPI&nbsp;通讯结构：创建物料凭证项目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_ITEM_CREATE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;BAPIRET2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"返回参数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPIRET2.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADRET&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_RET,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MMIM:&nbsp;有关一般的FM到记帐货物移动的输入结构<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MATERIALDOCUMENT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_RET-MAT_DOC,&nbsp;&nbsp;"MMIM:&nbsp;有关一般的FM到记帐货物移动的输入结构<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MATDOCUMENTYEAR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_RET-DOC_YEAR.&nbsp;"MMIM:&nbsp;有关一般的FM到记帐货物移动的输入结构<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;LW_BAPI&nbsp;LIKE&nbsp;WA_TABLE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*定义调用事物代码<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_GOODSMVT_CODE&nbsp;=&nbsp;'03'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"03——&gt;MB1A<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_TABLE.<br />
+   </div>
+   <div class="codeComment">
+*安装门店排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_TABLE&nbsp;BY&nbsp;WERKS.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TABLE&nbsp;INTO&nbsp;LW_TABLE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;防止*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_BAPI&nbsp;=&nbsp;LW_TABLE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADER-PSTNG_DATE&nbsp;&nbsp;=&nbsp;&nbsp;P_BUDAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证中的过帐日期（财务过账日期）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADER-DOC_DATE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证中的凭证日期(自然日期)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADER-REF_DOC_NO&nbsp;&nbsp;=&nbsp;&nbsp;''.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考外部单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADER-PR_UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-MOVE_TYPE&nbsp;&nbsp;=&nbsp;LW_BAPI-MOVE_TYPE."移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-MATERIAL&nbsp;&nbsp;&nbsp;=&nbsp;LW_BAPI-MATNR.&nbsp;&nbsp;&nbsp;&nbsp;"商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_BAPI-WERKS.&nbsp;&nbsp;&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-STGE_LOC&nbsp;&nbsp;&nbsp;=&nbsp;LW_BAPI-LGORT.&nbsp;&nbsp;&nbsp;&nbsp;"库位<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_SGM_INFO-CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-ENTRY_QNT&nbsp;&nbsp;=&nbsp;WA_SGM_INFO-SUM.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;POS传回的数量都是件数，如果商品的单位不是PC，则还要根据批次信息将件数换算成重量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_BAPI-BAPI_BATCH.&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-ENTRY_QNT&nbsp;&nbsp;=&nbsp;LW_BAPI-BAPI_ENTRY_QNT.&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-COSTCENTER&nbsp;=&nbsp;LW_BAPI-KOSTL.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"成本中心<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-ITEM_TEXT&nbsp;=&nbsp;LW_BAPI-XBLNR.&nbsp;"POS单号（不是必填项，填入为了后面回填信息查找用）<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_GOODSMVT_ITEM&nbsp;TO&nbsp;IT_GOODSMVT_ITEM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_GOODSMVT_ITEM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;WERKS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;LV_MATDOCNUM&nbsp;&nbsp;TYPE&nbsp;BAPI2017_GM_HEAD_RET-MAT_DOC&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;LV_MATDOCYEAR&nbsp;TYPE&nbsp;BAPI2017_GM_HEAD_RET-DOC_YEAR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LV_MATDOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_GOODSMVT_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_HEADER&nbsp;&nbsp;=&nbsp;WA_GOODSMVT_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_CODE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_GOODSMVT_CODE<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TESTRUN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_REF_EWM&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_HEADRET&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATERIALDOCUMENT&nbsp;=&nbsp;LV_MATDOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATDOCUMENTYEAR&nbsp;&nbsp;=&nbsp;LV_MATDOCYEAR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_ITEM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_GOODSMVT_ITEM<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_SERIALNUMBER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_RETURN<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_SERV_PART_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTENSIONIN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*&nbsp;&nbsp;COMMIT单据<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_RETURN&nbsp;INTO&nbsp;WA_RETURN&nbsp;WITH&nbsp;KEY&nbsp;TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_RETURN&nbsp;INTO&nbsp;WA_RETURN&nbsp;WHERE&nbsp;TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LV_STR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;WA_RETURN-ID&nbsp;TYPE&nbsp;WA_RETURN-TYPE&nbsp;NUMBER&nbsp;WA_RETURN-NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LV_STR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;WA_RETURN-MESSAGE_V1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN-MESSAGE_V4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_STR&nbsp;=&nbsp;LV_STR&nbsp;&&&nbsp;';'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TABLE&nbsp;INTO&nbsp;WA_TABLE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_GOODSMVT_ITEM&nbsp;INTO&nbsp;WA_GOODSMVT_ITEM&nbsp;WITH&nbsp;KEY&nbsp;ITEM_TEXT&nbsp;=&nbsp;WA_TABLE-XBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE-ZFLAG&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE-MESSAGE&nbsp;=&nbsp;LV_STR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE&nbsp;FROM&nbsp;WA_TABLE&nbsp;TRANSPORTING&nbsp;ZFLAG&nbsp;MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IT_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TABLE&nbsp;TO&nbsp;IT_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMIF0020_HEAD&nbsp;FROM&nbsp;TABLE&nbsp;IT_HEAD."把生成的物料凭证回填回HEAD表。<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA&nbsp;L_ERROR&nbsp;LIKE&nbsp;IT_RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_ERROR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ERROR&nbsp;=&nbsp;IT_RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;L_ERROR&nbsp;WHERE&nbsp;TYPE&nbsp;NE&nbsp;'E'.<br />
+   </div>
+   <div class="codeComment">
+*****************计算内表行数********************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;ZNUM&nbsp;TYPE&nbsp;I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;L_LINE&nbsp;&nbsp;TYPE&nbsp;I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;L_ERROR&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZNUM&nbsp;=&nbsp;ZNUM&nbsp;+&nbsp;L_LINE.<br />
+   </div>
+   <div class="codeComment">
+*****************计算内表行数********************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'共有'&nbsp;&&&nbsp;ZNUM&nbsp;&&&nbsp;'个错误!'&nbsp;&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/&nbsp;'123'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;LT_TABLE&nbsp;INTO&nbsp;LW_TABLE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_GOODSMVT_ITEM&nbsp;INTO&nbsp;WA_GOODSMVT_ITEM&nbsp;WITH&nbsp;KEY&nbsp;ITEM_TEXT&nbsp;=&nbsp;LW_TABLE-XBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TABLE-ZFLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TABLE-MBLNR&nbsp;=&nbsp;LV_MATDOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TABLE-BUDAT&nbsp;=&nbsp;P_BUDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_TABLE&nbsp;FROM&nbsp;LW_TABLE&nbsp;TRANSPORTING&nbsp;ZFLAG&nbsp;MBLNR&nbsp;BUDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IT_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_TABLE&nbsp;TO&nbsp;IT_HEAD.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMIF0020_HEAD&nbsp;FROM&nbsp;TABLE&nbsp;IT_HEAD."把生成的物料凭证回填回HEAD表。<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE&nbsp;,LW_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE&nbsp;INTO&nbsp;WA_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_TABLE&nbsp;INTO&nbsp;LW_TABLE&nbsp;WITH&nbsp;KEY&nbsp;&nbsp;XBLNR&nbsp;=&nbsp;WA_TABLE-XBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TABLE-ZFLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE-ZFLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE-MBLNR&nbsp;=&nbsp;LW_TABLE-MBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE-BUDAT&nbsp;=&nbsp;LW_TABLE-BUDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE&nbsp;FROM&nbsp;WA_TABLE&nbsp;TRANSPORTING&nbsp;&nbsp;ZFLAG&nbsp;MBLNR&nbsp;BUDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE&nbsp;,&nbsp;LW_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;&nbsp;'过账成功'&nbsp;&nbsp;DISPLAY&nbsp;LIKE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'错误信息：'&nbsp;&&&nbsp;'更新自建表失败！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IT_GOODSMVT_ITEM[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_GOODSMVT_ITEM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_GOODSMVT_HEADER.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+FORM TS.<br />
+&nbsp;&nbsp;LT_TABLE&nbsp;=&nbsp;IT_TABLE.<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_TABLE&nbsp;WHERE&nbsp;SEL_COL&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;IF&nbsp;LT_TABLE&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'请选择需要过账的数据.'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_TABLE&nbsp;INTO&nbsp;LW_TABLE&nbsp;WITH&nbsp;KEY&nbsp;ZFLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'选择数据中含有已过账数据'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;DATA&nbsp;L_WEAK&nbsp;LIKE&nbsp;IT_TABLE.<br />
+*&nbsp;&nbsp;CLEAR&nbsp;L_WEAK.<br />
+*&nbsp;&nbsp;L_WEAK&nbsp;=&nbsp;IT_TABLE.<br />
+*&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;L_WEAK&nbsp;COMPARING&nbsp;WERKS.<br />
+******************计算内表行数********************<br />
+*&nbsp;&nbsp;DATA:&nbsp;L_LINE&nbsp;&nbsp;TYPE&nbsp;I.<br />
+*&nbsp;&nbsp;CLEAR&nbsp;L_LINE.<br />
+*&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;L_WEAK&nbsp;).<br />
+******************计算内表行数********************<br />
+*&nbsp;&nbsp;IF&nbsp;&nbsp;L_LINE&nbsp;&lt;&gt;&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'所选行项目必须为同一个门店！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+*----------------弹出对话框函数-----------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;:&nbsp;L_ANSWER(01)&nbsp;TYPE&nbsp;C.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_CONFIRM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TITLEBAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'确认'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT_QUESTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'领用商品转成本过账日期为'&nbsp;&&&nbsp;P_BUDAT&nbsp;&&&nbsp;',是否确认？&nbsp;&nbsp;&nbsp;（确认继续！取消返回！）'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT_BUTTON_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'确认'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT_BUTTON_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'取消'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DISPLAY_CANCEL_BUTTON&nbsp;=&nbsp;'&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT_BUTTON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'2'&nbsp;"默认为2（否）<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;START_COLUMN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;25<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;START_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ANSWER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_ANSWER.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT_NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;L_ANSWER&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_BAPI.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_ANSWER&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*----------------弹出对话框函数-----------------*<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+FORM PASS_TABLE."自动过账时传表<br />
+&nbsp;&nbsp;CLEAR&nbsp;LT_TABLE.<br />
+&nbsp;&nbsp;LT_TABLE&nbsp;=&nbsp;IT_TABLE.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;输入查询条件<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;过账日期<br />
+*&nbsp;S_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;业务日期<br />
+*&nbsp;S_WERKS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;Z01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查询<br />
+*&nbsp;Z02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;手动过账<br />
+*&nbsp;Z03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自动过账（无ALV）后台任务使用，人工过账请勿选择！<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

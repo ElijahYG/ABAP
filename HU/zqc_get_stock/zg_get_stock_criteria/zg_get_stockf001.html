@@ -1,0 +1,1064 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZG_GET_STOCKF001</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZG_GET_STOCKF001</h2>
+<h3> Description: Include ZG_GET_STOCKF001</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZG_GET_STOCKF001<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_STOCK_CRITERIA_MAIN<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查询库存的主程序FORM<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_STOCK_CRITERIA_MAIN .<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_STOCK&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;REFRESH:&nbsp;GT_STOCK_NORMAL,&nbsp;GT_STOCK_SIT_CC,&nbsp;GT_STOCK_SIT_SC,&nbsp;GT_STOCK_SIV&nbsp;.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_JSFS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取得正常在库库存<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;GM_GET_STOCK_NORMAL&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取得批次库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_STOCK_FOR_BATCH&nbsp;TABLES&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK&nbsp;TO&nbsp;GT_STOCK_NORMAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取得非批次管理库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_STOCK_FOR_NON_BATCH&nbsp;TABLES&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK&nbsp;TO&nbsp;GT_STOCK_NORMAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取得在途库存<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;GM_GET_SIT_CC&nbsp;=&nbsp;'X'&nbsp;OR&nbsp;GM_GET_SIT_SC&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_STOCK_IN_TRANSIT&nbsp;TABLES&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GM_GET_SIT_CC&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK&nbsp;TO&nbsp;GT_STOCK_SIT_CC&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"$001和$002是跨公司在途<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_STOCK_SIT_CC&nbsp;WHERE&nbsp;NOT&nbsp;(&nbsp;LGORT&nbsp;=&nbsp;'$001'&nbsp;OR&nbsp;LGORT&nbsp;=&nbsp;'$002'&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GM_GET_SIT_SC&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK&nbsp;TO&nbsp;GT_STOCK_SIT_SC&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"@001和@002是同公司在途<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_STOCK_SIT_SC&nbsp;WHERE&nbsp;NOT&nbsp;(&nbsp;LGORT&nbsp;=&nbsp;'@001'&nbsp;OR&nbsp;LGORT&nbsp;=&nbsp;'@002'&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;"&nbsp;取得委外加工原料库存<br />
+&nbsp;&nbsp;IF&nbsp;GM_GET_SIV&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_STOCK_IN_VENDOR&nbsp;TABLES&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK&nbsp;TO&nbsp;GT_STOCK_SIV&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH&nbsp;LT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_JSFS<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;根据传入的结算方式和是否联营标志，取得结算方式，作为后续查询的条件<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_JSFS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_JSFS&nbsp;&nbsp;TYPE&nbsp;ZMMDG0010_JSFS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_JSFS&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_JSFS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LRS_JSFS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GRT_JSFS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;处理传入的联营结算方式和是否联营标记<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;REFRESH:&nbsp;GRT_JSFS&nbsp;.<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_JSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMDG0010_JSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BM&nbsp;IN&nbsp;GRT_ZLYJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SFLY&nbsp;IN&nbsp;GRT_SFLY&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_JSFS&nbsp;INTO&nbsp;LS_JSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LRS_JSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-LOW&nbsp;=&nbsp;LS_JSFS-BM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_JSFS&nbsp;TO&nbsp;GRT_JSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;有部分批次结算方式没有维护，为了避免查询不出库存，这里加一条记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LRS_JSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-LOW&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_JSFS&nbsp;TO&nbsp;GRT_JSFS&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_BATCH_STOCK<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得批次管理商品的库存<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;对于批次管理的商品，从MCHB查询库存，有以下两种情况：<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;启用了批次管理，没有启用分割评估<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;启用了批次管理，启用了分割评估<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_STOCK_FOR_BATCH TABLES ET_STOCK_BATCH TYPE ZCB01_TY_T_ZG_GET_STOCK .<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK_BATCH&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;首先查询启用了批次管理，且启用了分割评估的库存，关键在于MBEW~BWTTY&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;MBEW~BWTAR&nbsp;=&nbsp;批次号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;B~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;B~CHARG&nbsp;AS&nbsp;CHARG,&nbsp;B~WERKS&nbsp;AS&nbsp;WERKS,&nbsp;B~LGORT&nbsp;AS&nbsp;LGORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CLABS&nbsp;AS&nbsp;LBKUM,&nbsp;A~MEINS&nbsp;AS&nbsp;MEINS,&nbsp;Z~ZSPTM&nbsp;AS&nbsp;ZSPTM,&nbsp;Z~ZJZ&nbsp;AS&nbsp;ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_STOCK_MCHB)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;&nbsp;Z~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;B~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTAR&nbsp;=&nbsp;B~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;B~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTTY&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;启用了分割评估<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~LGORT&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CLABS&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品批次属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZSPTM&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGJSCZ&nbsp;&nbsp;IN&nbsp;@GRT_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSKGFD&nbsp;IN&nbsp;@GRT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSJGJLDW&nbsp;IN&nbsp;@GRT_ZXSJGJLDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGYSDM&nbsp;&nbsp;IN&nbsp;@GRT_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZLYJSFS&nbsp;IN&nbsp;@GRT_JSFS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;然后查询启用了批次管理，但没有启用分割评估的库存，关键在于MBEW~BWTTY&nbsp;=&nbsp;''&nbsp;MBEW~BWTAR&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;B~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;B~CHARG&nbsp;AS&nbsp;CHARG,&nbsp;B~WERKS&nbsp;AS&nbsp;WERKS,&nbsp;B~LGORT&nbsp;AS&nbsp;LGORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CLABS&nbsp;AS&nbsp;LBKUM,&nbsp;A~MEINS&nbsp;AS&nbsp;MEINS,&nbsp;Z~ZSPTM&nbsp;AS&nbsp;ZSPTM,&nbsp;Z~ZJZ&nbsp;AS&nbsp;ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPENDING&nbsp;TABLE&nbsp;@LT_STOCK_MCHB<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_STOCK_MCHB)<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;&nbsp;Z~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;B~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;B~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTAR&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTTY&nbsp;=&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;没有启用了分割评估<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~LGORT&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CLABS&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品批次属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZSPTM&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGJSCZ&nbsp;&nbsp;IN&nbsp;@GRT_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSKGFD&nbsp;IN&nbsp;@GRT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSJGJLDW&nbsp;IN&nbsp;@GRT_ZXSJGJLDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGYSDM&nbsp;&nbsp;IN&nbsp;@GRT_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZLYJSFS&nbsp;IN&nbsp;@GRT_JSFS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_STOCK_MCHB[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_MCHB&nbsp;INTO&nbsp;DATA(LS_STOCK_MCHB)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_STOCK_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_MCHB&nbsp;TO&nbsp;LS_STOCK_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_STOCK_BATCH-MEINS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;/&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ST'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;*&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;根据MBEW的（总估价金额/总估价数量）*库存地点的数量，得出库存地点的库存价值，计算结果到精确小数点后6位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;注意：LS_STOCK_BATCH没有STOCK_VAL_TOTAL和LBKUM_TOTAL字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK_MCHB-LBKUM_TOTAL&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_STOCK_MCHB-STOCK_VAL_TOTAL&nbsp;*&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;/&nbsp;LS_STOCK_MCHB-LBKUM_TOTAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&nbsp;LS_STOCK_BATCH&nbsp;TO&nbsp;ET_STOCK_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_BATCH_STOCK<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得不用批次管理商品的库存<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_STOCK_FOR_NON_BATCH TABLES ET_STOCK_NON_BATCH TYPE ZCB01_TY_T_ZG_GET_STOCK .<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK_NON_BATCH&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+&nbsp;&nbsp;CHECK&nbsp;GV_GET_BATCH_ONLY&nbsp;=&nbsp;''&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;对于非批次管理的商品，从MARD查询库存<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;D~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;D~WERKS&nbsp;AS&nbsp;WERKS,&nbsp;D~LGORT&nbsp;AS&nbsp;LGORT,&nbsp;D~LABST&nbsp;AS&nbsp;LBKUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MEINS&nbsp;AS&nbsp;MEINS,&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_STOCK_MARD)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARD&nbsp;AS&nbsp;D<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;D~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;D~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;&nbsp;C~MATNR&nbsp;=&nbsp;D~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;C~WERKS&nbsp;=&nbsp;D~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;D~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;D~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;D~MATNR&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;D~WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;D~LGORT&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;D~LABST&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;C~XCHAR&nbsp;&nbsp;&nbsp;=&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;没有批次管理的商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_MARD&nbsp;INTO&nbsp;DATA(LS_STOCK_MARD)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_STOCK_NON_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_MARD&nbsp;TO&nbsp;LS_STOCK_NON_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_STOCK_NON_BATCH-MEINS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对于无批次管理的商品，无法按克重换算件数，因为没有批次单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ST'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&nbsp;对于无批次管理的商品，无法按件数换算克重，因为没有批次单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;根据MBEW的（总估价金额/总估价数量）*库存地点的数量，得出库存地点的库存价值，计算结果到精确小数点后6位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;注意：LS_STOCK_NON_BATCH没有STOCK_VAL_TOTAL和LBKUM_TOTAL字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK_MARD-LBKUM_TOTAL&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_STOCK_MARD-STOCK_VAL_TOTAL&nbsp;*&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;/&nbsp;LS_STOCK_MARD-LBKUM_TOTAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_STOCK_NON_BATCH&nbsp;TO&nbsp;ET_STOCK_NON_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_STOCK_IN_TRANSIT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得在途库存<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_STOCK_IN_TRANSIT TABLES ET_STOCK_SIT TYPE ZCB01_TY_T_ZG_GET_STOCK .<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_STOCK_SIT&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MB_ADD_TRANSFER_QUANTITY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CUMULATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CROSS_COMPANY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_NON_CROSS_COMPANY&nbsp;=&nbsp;'X'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CROSS_COMPANY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GM_GET_SIT_CC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_NON_CROSS_COMPANY&nbsp;=&nbsp;GM_GET_SIT_SC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XMATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GRT_MATNR<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xberid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;berid<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XWERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GRT_WERKS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XLGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IRT_LGORT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xresbi&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;resbi<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xreswk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;reswk<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xreslo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;reslo<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xsobkz&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;sobkz<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xelikz&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;elikz<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xloekz&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;loekz<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XTAB6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_XTAB6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;AND&nbsp;GT_XTAB6[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;注意：上面的FM由于查询条件有限，查询出来的商品和批次有可能超出用户查询条件指定的范围<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;所有接下来还要分为有批次管理的商品和无批次管理的商品进行分别处理<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_SIT_BATCH&nbsp;TABLES&nbsp;LT_STOCK_SIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK_SIT&nbsp;TO&nbsp;ET_STOCK_SIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;LT_STOCK_SIT&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_SIT_NON_BATCH&nbsp;TABLES&nbsp;LT_STOCK_SIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK_SIT&nbsp;TO&nbsp;ET_STOCK_SIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;LT_STOCK_SIT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_SIT_BATCH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得在途库存（批次商品），本功能被FRM_GET_STOCK_IN_TRANSIT调用。有以下两种情况：<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;启用了批次管理，没有启用分割评估<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;启用了批次管理，启用了分割评估<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_SIT_BATCH TABLES ET_STOCK_SIT TYPE ZCB01_TY_T_ZG_GET_STOCK.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK_BATCH&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_STOCK_BATCH_TEMP&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_STOCK_BATCH_TEMP&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_EKPO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-EBELP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-BWTAR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETPO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-RETPO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSPTM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;ZMM_CHARACTERS-ZSPTM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;ZMM_CHARACTERS-ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LBKUM_TOTAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MBEW-LBKUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STOCK_VAL_TOTAL&nbsp;LIKE&nbsp;MBEW-SALK3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_EKPO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EKPO&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_EKPO.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_XTAB6[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;首先查询启用了批次管理，且启用了分割评估的库存，关键在于MBEW~BWTTY&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;MBEW~BWTAR&nbsp;=&nbsp;批次号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;P~EBELN&nbsp;AS&nbsp;EBELN,&nbsp;P~EBELP&nbsp;AS&nbsp;EBELP&nbsp;,&nbsp;P~MATNR&nbsp;AS&nbsp;MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~BWTAR&nbsp;AS&nbsp;CHARG,&nbsp;P~RETPO&nbsp;AS&nbsp;RETPO&nbsp;,&nbsp;P~KZWI3&nbsp;AS&nbsp;KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z~ZSPTM&nbsp;AS&nbsp;ZSPTM,&nbsp;Z~ZJZ&nbsp;AS&nbsp;ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@LT_EKPO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKPO&nbsp;AS&nbsp;P<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;&nbsp;Z~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;P~BWTAR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是同公司调拨，其库存数量和库存价值已经在MBEW中了;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是跨公司调拨，其库存数量和库存价值还没有累计到MBEW，所以用LEFT&nbsp;OUTER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;跨公司调拨的库存价值可以从EKPO-KZWI3取得<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTAR&nbsp;=&nbsp;P~BWTAR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;P~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTTY&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;启用了分割评估<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;@GT_XTAB6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;P~EBELN&nbsp;=&nbsp;@GT_XTAB6-EBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~EBELP&nbsp;=&nbsp;@GT_XTAB6-EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;&nbsp;IN&nbsp;@GRT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~XCHPF&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;批次管理的商品，不用这个条件限制，在上面Inner&nbsp;Join&nbsp;ZMMRP0210_BATCH就限制了必须是有批次的商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品批次属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZSPTM&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGJSCZ&nbsp;&nbsp;IN&nbsp;@GRT_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSKGFD&nbsp;IN&nbsp;@GRT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSJGJLDW&nbsp;IN&nbsp;@GRT_ZXSJGJLDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGYSDM&nbsp;&nbsp;IN&nbsp;@GRT_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZLYJSFS&nbsp;IN&nbsp;@GRT_JSFS&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;然后查询启用了批次管理，但没有启用分割评估的库存，关键在于MBEW~BWTTY&nbsp;=&nbsp;''&nbsp;MBEW~BWTAR&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;P~EBELN&nbsp;AS&nbsp;EBELN,&nbsp;P~EBELP&nbsp;AS&nbsp;EBELP&nbsp;,&nbsp;P~MATNR&nbsp;AS&nbsp;MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~BWTAR&nbsp;AS&nbsp;CHARG,&nbsp;P~RETPO&nbsp;AS&nbsp;RETPO&nbsp;,&nbsp;P~KZWI3&nbsp;AS&nbsp;KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z~ZSPTM&nbsp;AS&nbsp;ZSPTM,&nbsp;Z~ZJZ&nbsp;AS&nbsp;ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPENDING&nbsp;TABLE&nbsp;@LT_EKPO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKPO&nbsp;AS&nbsp;P<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;&nbsp;Z~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;P~BWTAR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是同公司调拨，其库存数量和库存价值已经在MBEW中了;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是跨公司调拨，其库存数量和库存价值还没有累计到MBEW，所以用LEFT&nbsp;OUTER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;跨公司调拨的库存价值可以从EKPO-KZWI3取得<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;P~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTAR&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTTY&nbsp;=&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;没有启用了分割评估<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;@GT_XTAB6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;P~EBELN&nbsp;=&nbsp;@GT_XTAB6-EBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~EBELP&nbsp;=&nbsp;@GT_XTAB6-EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;&nbsp;IN&nbsp;@GRT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~XCHPF&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;批次管理的商品，不用这个条件限制，在上面Inner&nbsp;Join&nbsp;ZMMRP0210_BATCH就限制了必须是有批次的商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品批次属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZSPTM&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGJSCZ&nbsp;&nbsp;IN&nbsp;@GRT_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSKGFD&nbsp;IN&nbsp;@GRT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSJGJLDW&nbsp;IN&nbsp;@GRT_ZXSJGJLDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGYSDM&nbsp;&nbsp;IN&nbsp;@GRT_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZLYJSFS&nbsp;IN&nbsp;@GRT_JSFS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_EKPO[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;GT_XTAB6&nbsp;BY&nbsp;EBELN&nbsp;EBELP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_EKPO&nbsp;BY&nbsp;EBELN&nbsp;EBELP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_XTAB6&nbsp;INTO&nbsp;GS_XTAB6&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_STOCK_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EKPO&nbsp;INTO&nbsp;LS_EKPO&nbsp;WITH&nbsp;KEY&nbsp;EBELN&nbsp;=&nbsp;GS_XTAB6-EBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP&nbsp;=&nbsp;GS_XTAB6-EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-MATNR&nbsp;=&nbsp;LS_EKPO-MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-CHARG&nbsp;=&nbsp;LS_EKPO-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-ZSPTM&nbsp;=&nbsp;LS_EKPO-ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-WERKS&nbsp;=&nbsp;GS_XTAB6-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;=&nbsp;GS_XTAB6-MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-MEINS&nbsp;=&nbsp;GS_XTAB6-MEINS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;=&nbsp;LS_EKPO-ZJZ&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL_TOTAL&nbsp;=&nbsp;LS_EKPO-STOCK_VAL_TOTAL&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_TOTAL&nbsp;=&nbsp;LS_EKPO-LBKUM_TOTAL&nbsp;.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;在途商品没有库存地点，以下用四个特殊字符串代替<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;'T'&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;''.&nbsp;"&nbsp;T&nbsp;是同公司调拨<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LGORT&nbsp;=&nbsp;'@001'&nbsp;.&nbsp;"&nbsp;同公司调拨在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;'T'&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LGORT&nbsp;=&nbsp;'@002'&nbsp;.&nbsp;"&nbsp;同公司返库在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;''&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LGORT&nbsp;=&nbsp;'$001'&nbsp;.&nbsp;"&nbsp;跨公司调拨在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;''&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LGORT&nbsp;=&nbsp;'$002'&nbsp;.&nbsp;"&nbsp;跨公司返库在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;处理克重数量和件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_STOCK_BATCH-MEINS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;/&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ST'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;*&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;处理在途库存价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是同公司调拨，其库存数量和库存价值已经在MBEW中了;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是跨公司调拨，其库存价值可以从EKPO-KZWI3取得<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;'T'&nbsp;.&nbsp;"&nbsp;T&nbsp;是同公司调拨<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_EKPO-LBKUM_TOTAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_EKPO-STOCK_VAL_TOTAL&nbsp;*&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;/&nbsp;LS_EKPO-LBKUM_TOTAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.&nbsp;&nbsp;"&nbsp;跨公司调拨，其金额在采购订单行项目中<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_EKPO-KZWI3&nbsp;.&nbsp;"&nbsp;To-Do部分发货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_STOCK_BATCH_TEMP&nbsp;ASSIGNING&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_STOCK_BATCH-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LS_STOCK_BATCH-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;LS_STOCK_BATCH-WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;=&nbsp;LS_STOCK_BATCH-LGORT&nbsp;.&nbsp;"这里不能用BINARY&nbsp;SEARCH，因为后面可能要APPEND记录进去<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-LBKUM&nbsp;=&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-LBKUM&nbsp;+&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-LBKUM_G&nbsp;=&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-LBKUM_G&nbsp;+&nbsp;LS_STOCK_BATCH-LBKUM_G&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-LBKUM_PC&nbsp;=&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-LBKUM_PC&nbsp;+&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-STOCK_VAL&nbsp;=&nbsp;&lt;FS_STOCK_BATCH_TEMP&gt;-STOCK_VAL&nbsp;+&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_STOCK_BATCH&nbsp;TO&nbsp;LT_STOCK_BATCH_TEMP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK_BATCH_TEMP&nbsp;TO&nbsp;ET_STOCK_SIT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_SIT_NON_BATCH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得在途库存（非批次管理商品），本功能被FRM_GET_STOCK_IN_TRANSIT调用。<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_SIT_NON_BATCH TABLES ET_STOCK_SIT TYPE ZCB01_TY_T_ZG_GET_STOCK.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK_NON_BATCH&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_STOCK_NON_BATCH_TEMP&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_STOCK_NON_BATCH_TEMP&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_EKPO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-EBELP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-BWTAR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETPO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-RETPO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EKPO-KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSPTM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;ZMM_CHARACTERS-ZSPTM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;ZMM_CHARACTERS-ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LBKUM_TOTAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;MBEW-LBKUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STOCK_VAL_TOTAL&nbsp;LIKE&nbsp;MBEW-SALK3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_EKPO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EKPO&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_EKPO.<br />
+<br />
+&nbsp;&nbsp;CHECK&nbsp;GV_GET_BATCH_ONLY&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;GT_XTAB6[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;P~EBELN&nbsp;AS&nbsp;EBELN,&nbsp;P~EBELP&nbsp;AS&nbsp;EBELP&nbsp;,&nbsp;P~MATNR&nbsp;AS&nbsp;MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~RETPO&nbsp;AS&nbsp;RETPO&nbsp;,&nbsp;P~KZWI3&nbsp;AS&nbsp;KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;@LT_EKPO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKPO&nbsp;AS&nbsp;P<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;&nbsp;C~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;C~WERKS&nbsp;=&nbsp;P~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是同公司调拨，其库存数量和库存价值已经在MBEW中了;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是跨公司调拨，其库存数量和库存价值还没有累计到MBEW，所以用LEFT&nbsp;OUTER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;跨公司调拨的库存价值可以从EKPO-KZWI3取得<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT&nbsp;OUTER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;P~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;@GT_XTAB6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;P~EBELN&nbsp;=&nbsp;@GT_XTAB6-EBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~EBELP&nbsp;=&nbsp;@GT_XTAB6-EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;C~XCHAR&nbsp;&nbsp;&nbsp;=&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;批次管理的商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;GT_XTAB6&nbsp;BY&nbsp;EBELN&nbsp;EBELP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_EKPO&nbsp;BY&nbsp;EBELN&nbsp;EBELP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_XTAB6&nbsp;INTO&nbsp;GS_XTAB6&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_STOCK_NON_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EKPO&nbsp;INTO&nbsp;LS_EKPO&nbsp;WITH&nbsp;KEY&nbsp;EBELN&nbsp;=&nbsp;GS_XTAB6-EBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP&nbsp;=&nbsp;GS_XTAB6-EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-MATNR&nbsp;=&nbsp;LS_EKPO-MATNR&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-CHARG&nbsp;=&nbsp;LS_EKPO-CHARG&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-ZSPTM&nbsp;=&nbsp;LS_EKPO-ZSPTM&nbsp;.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-WERKS&nbsp;=&nbsp;GS_XTAB6-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;=&nbsp;GS_XTAB6-MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-MEINS&nbsp;=&nbsp;GS_XTAB6-MEINS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;=&nbsp;LS_EKPO-ZJZ&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL_TOTAL&nbsp;=&nbsp;LS_EKPO-STOCK_VAL_TOTAL&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_TOTAL&nbsp;=&nbsp;LS_EKPO-LBKUM_TOTAL&nbsp;.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;在途商品没有库存地点，以下用四个特殊字符串代替<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;'T'&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;''.&nbsp;"&nbsp;T&nbsp;是同公司调拨<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LGORT&nbsp;=&nbsp;'@001'&nbsp;.&nbsp;"&nbsp;同公司调拨在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;'T'&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LGORT&nbsp;=&nbsp;'@002'&nbsp;.&nbsp;"&nbsp;同公司返库在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;''&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LGORT&nbsp;=&nbsp;'$001'&nbsp;.&nbsp;"&nbsp;跨公司调拨在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;''&nbsp;AND&nbsp;LS_EKPO-RETPO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LGORT&nbsp;=&nbsp;'$002'&nbsp;.&nbsp;"&nbsp;跨公司返库在途<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;处理克重数量和件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_STOCK_NON_BATCH-MEINS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对于无批次管理的商品，无法按克重换算件数，因为没有批次单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ST'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&nbsp;对于无批次管理的商品，无法按件数换算克重，因为没有批次单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;处理在途库存价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是同公司调拨，其库存数量和库存价值已经在MBEW中了;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果是跨公司调拨，其库存价值可以从EKPO-KZWI3取得<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GS_XTAB6-BSAKZ&nbsp;=&nbsp;'T'&nbsp;.&nbsp;"&nbsp;T&nbsp;是同公司调拨<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_EKPO-LBKUM_TOTAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_EKPO-STOCK_VAL_TOTAL&nbsp;*&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;/&nbsp;LS_EKPO-LBKUM_TOTAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.&nbsp;&nbsp;"&nbsp;跨公司调拨，其金额在采购订单行项目中<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_EKPO-KZWI3&nbsp;.&nbsp;"&nbsp;To-Do部分发货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_STOCK_NON_BATCH_TEMP&nbsp;ASSIGNING&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_STOCK_NON_BATCH-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;LS_STOCK_NON_BATCH-WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;=&nbsp;LS_STOCK_NON_BATCH-LGORT&nbsp;.&nbsp;"这里不能用BINARY&nbsp;SEARCH，因为后面可能要APPEND记录进去<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-LBKUM&nbsp;=&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-LBKUM&nbsp;+&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-LBKUM_G&nbsp;=&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-LBKUM_G&nbsp;+&nbsp;LS_STOCK_NON_BATCH-LBKUM_G&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-LBKUM_PC&nbsp;=&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-LBKUM_PC&nbsp;+&nbsp;LS_STOCK_NON_BATCH-LBKUM_PC&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-STOCK_VAL&nbsp;=&nbsp;&lt;FS_STOCK_NON_BATCH_TEMP&gt;-STOCK_VAL&nbsp;+&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_STOCK_NON_BATCH&nbsp;TO&nbsp;LT_STOCK_NON_BATCH_TEMP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK_NON_BATCH_TEMP&nbsp;TO&nbsp;ET_STOCK_SIT&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_STOCK_IN_VENDOR<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得委外加工商品的库存<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_STOCK_IN_VENDOR TABLES ET_STOCK_SIV TYPE ZCB01_TY_T_ZG_GET_STOCK.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_STOCK_SIV&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+&nbsp;&nbsp;"取得委外加工原料的库存（批次管理）<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_SIV_BATCH&nbsp;TABLES&nbsp;LT_STOCK_SIV.<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK_SIV&nbsp;TO&nbsp;ET_STOCK_SIV&nbsp;.<br />
+&nbsp;&nbsp;REFRESH&nbsp;LT_STOCK_SIV&nbsp;.<br />
+&nbsp;&nbsp;"取得委外加工商品的库存（非批次管理）<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_SIV_NON_BATCH&nbsp;TABLES&nbsp;LT_STOCK_SIV.<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK_SIV&nbsp;TO&nbsp;ET_STOCK_SIV&nbsp;.<br />
+&nbsp;&nbsp;REFRESH&nbsp;LT_STOCK_SIV&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_SIV_BATCH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得委外加工原料的库存（批次管理），有以下两种情况：<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;启用了批次管理，没有启用分割评估<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;启用了批次管理，启用了分割评估<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_SIV_BATCH TABLES ET_STOCK_SIV TYPE ZCB01_TY_T_ZG_GET_STOCK.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK_BATCH&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;对于批次管理的委外加工原料，从MSLB查询库存<br />
+*&nbsp;首先查询启用了批次管理，且启用了分割评估的库存，关键在于MBEW~BWTTY&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;MBEW~BWTAR&nbsp;=&nbsp;批次号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;B~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;B~CHARG&nbsp;AS&nbsp;CHARG,&nbsp;B~WERKS&nbsp;AS&nbsp;WERKS,&nbsp;B~LIFNR&nbsp;AS&nbsp;LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~LBLAB&nbsp;AS&nbsp;LBKUM,&nbsp;A~MEINS&nbsp;AS&nbsp;MEINS,&nbsp;Z~ZSPTM&nbsp;AS&nbsp;ZSPTM,&nbsp;Z~ZJZ&nbsp;AS&nbsp;ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_STOCK_MSLB)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSLB&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;&nbsp;Z~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;B~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTAR&nbsp;=&nbsp;B~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;B~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTTY&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~LBLAB&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品批次属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZSPTM&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGJSCZ&nbsp;&nbsp;IN&nbsp;@GRT_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSKGFD&nbsp;IN&nbsp;@GRT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSJGJLDW&nbsp;IN&nbsp;@GRT_ZXSJGJLDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGYSDM&nbsp;&nbsp;IN&nbsp;@GRT_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZLYJSFS&nbsp;IN&nbsp;@GRT_JSFS&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;然后查询启用了批次管理，但没有启用分割评估的库存，关键在于MBEW~BWTTY&nbsp;=&nbsp;''&nbsp;MBEW~BWTAR&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;B~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;B~CHARG&nbsp;AS&nbsp;CHARG,&nbsp;B~WERKS&nbsp;AS&nbsp;WERKS,&nbsp;B~LIFNR&nbsp;AS&nbsp;LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~LBLAB&nbsp;AS&nbsp;LBKUM,&nbsp;A~MEINS&nbsp;AS&nbsp;MEINS,&nbsp;Z~ZSPTM&nbsp;AS&nbsp;ZSPTM,&nbsp;Z~ZJZ&nbsp;AS&nbsp;ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPENDING&nbsp;TABLE&nbsp;@LT_STOCK_MSLB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSLB&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;&nbsp;Z~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;B~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;B~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTAR&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWTTY&nbsp;=&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;没有启用批次管理<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~LBLAB&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品批次属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZSPTM&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGJSCZ&nbsp;&nbsp;IN&nbsp;@GRT_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSKGFD&nbsp;IN&nbsp;@GRT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZXSJGJLDW&nbsp;IN&nbsp;@GRT_ZXSJGJLDW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZGYSDM&nbsp;&nbsp;IN&nbsp;@GRT_ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZLYJSFS&nbsp;IN&nbsp;@GRT_JSFS&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;LT_STOCK_MSLB[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_MSLB&nbsp;INTO&nbsp;DATA(LS_STOCK_MSLB)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_STOCK_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_MSLB&nbsp;TO&nbsp;LS_STOCK_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LGORT&nbsp;=&nbsp;'&001'&nbsp;.&nbsp;"&nbsp;使用&001代表委外加工库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_STOCK_BATCH-MEINS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;/&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ST'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;*&nbsp;LS_STOCK_BATCH-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;根据MBEW的（总估价金额/总估价数量）*库存地点的数量，得出库存地点的库存价值，计算结果到精确小数点后6位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;注意：LS_STOCK_MSLB没有STOCK_VAL_TOTAL和LBKUM_TOTAL字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK_MSLB-LBKUM_TOTAL&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_STOCK_MSLB-STOCK_VAL_TOTAL&nbsp;*&nbsp;LS_STOCK_BATCH-LBKUM&nbsp;/&nbsp;LS_STOCK_MSLB-LBKUM_TOTAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_BATCH-STOCK_VAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&nbsp;LS_STOCK_BATCH&nbsp;TO&nbsp;ET_STOCK_SIV&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_SIV_NON_BATCH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取得委外加工商品的库存（非批次管理）<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_SIV_NON_BATCH TABLES ET_STOCK_SIV TYPE ZCB01_TY_T_ZG_GET_STOCK.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK_NON_BATCH&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CHECK&nbsp;GV_GET_BATCH_ONLY&nbsp;=&nbsp;''&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;对于非批次管理的委外加工原料，从MSLB查询库存<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;B~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;B~WERKS&nbsp;AS&nbsp;WERKS,&nbsp;B~LIFNR&nbsp;AS&nbsp;LIFNR,&nbsp;B~LBLAB&nbsp;AS&nbsp;LBKUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MEINS&nbsp;AS&nbsp;MEINS,&nbsp;W~LBKUM&nbsp;AS&nbsp;LBKUM_TOTAL,&nbsp;W~SALK3&nbsp;AS&nbsp;STOCK_VAL_TOTAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_STOCK_MSLB)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSLB&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;E&nbsp;ON&nbsp;E~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;&nbsp;C~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;C~WERKS&nbsp;=&nbsp;B~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MBEW&nbsp;AS&nbsp;W&nbsp;ON&nbsp;&nbsp;W~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;W~BWKEY&nbsp;=&nbsp;B~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~LBLAB&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;C~XCHAR&nbsp;&nbsp;&nbsp;=&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;没有批次管理的商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~RAUBE&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MTART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MATKL&nbsp;&nbsp;&nbsp;IN&nbsp;@GRT_MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品款式附加属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ01&nbsp;IN&nbsp;@GRT_EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ02&nbsp;IN&nbsp;@GRT_EX_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ03&nbsp;IN&nbsp;@GRT_EX_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_PZ04&nbsp;IN&nbsp;@GRT_EX_PZ04<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA01&nbsp;IN&nbsp;@GRT_EX_TA01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_TA02&nbsp;IN&nbsp;@GRT_EX_TA02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT01&nbsp;IN&nbsp;@GRT_EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT02&nbsp;IN&nbsp;@GRT_EX_ZT02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;E~EX_ZT03&nbsp;IN&nbsp;@GRT_EX_ZT03&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_MSLB&nbsp;INTO&nbsp;DATA(LS_STOCK_MSLB)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_STOCK_NON_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_MSLB&nbsp;TO&nbsp;LS_STOCK_NON_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LGORT&nbsp;=&nbsp;'&001'&nbsp;.&nbsp;"&nbsp;使用&001代表委外加工库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_STOCK_NON_BATCH-MEINS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LBKUM_G&nbsp;=&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对于无批次管理的商品，无法按克重换算件数，因为没有批次单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ST'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-LBKUM_PC&nbsp;=&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&nbsp;对于无批次管理的商品，无法按件数换算克重，因为没有批次单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;根据MBEW的（总估价金额/总估价数量）*库存地点的数量，得出库存地点的库存价值，计算结果到精确小数点后6位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;注意：LS_STOCK_NON_BATCH没有STOCK_VAL_TOTAL和LBKUM_TOTAL字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_STOCK_MSLB-LBKUM_TOTAL&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;=&nbsp;LS_STOCK_MSLB-STOCK_VAL_TOTAL&nbsp;*&nbsp;LS_STOCK_NON_BATCH-LBKUM&nbsp;/&nbsp;LS_STOCK_MSLB-LBKUM_TOTAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_NON_BATCH-STOCK_VAL&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_STOCK_NON_BATCH&nbsp;TO&nbsp;ET_STOCK_SIV&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

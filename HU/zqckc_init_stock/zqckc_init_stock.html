@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZQCKC_INIT_STOCK</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZQCKC_INIT_STOCK</h2>
+<h3> Description: 期初库存导入-创建商品凭证导入库存-前台执行</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZQCKC_INIT_STOCK.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+<br />
+*&&nbsp;Report&nbsp;&nbsp;ZMM_RP0018<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+*&<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+TYPES: TS_XLS_100 TYPE ZMM_QCKC .<br />
+TYPES: TT_XLS_100 TYPE TABLE OF TS_XLS_100 .<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01 .<br />
+PARAMETERS: P_WERKS TYPE T001W-WERKS OBLIGATORY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_BUDAT&nbsp;TYPE&nbsp;MKPF-BUDAT&nbsp;OBLIGATORY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_MAX&nbsp;&nbsp;TYPE&nbsp;MBLPO&nbsp;OBLIGATORY.<br />
+SELECTION-SCREEN END OF BLOCK B1 .<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK B2 WITH FRAME TITLE TEXT-T02 .<br />
+PARAMETERS: RB_1 RADIOBUTTON GROUP R1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RB_2&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;R1.<br />
+SELECTION-SCREEN END OF BLOCK B2 .<br />
+<br />
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;IF&nbsp;P_BUDAT&nbsp;&gt;=&nbsp;'20151201'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'过账日期必须在2015年12月之前！'&nbsp;''&nbsp;''&nbsp;''&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;P_MAX&nbsp;&lt;&nbsp;490&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'每张商品凭证最大行数不能低于490'&nbsp;''&nbsp;''&nbsp;''&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;ONLI_100.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'库存导入完成，请使用程序ZQCKC_IMP_DATA查询导入结果！'&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;onli_100<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM ONLI_100.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_XLS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TS_XLS_100,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XLS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TT_XLS_100,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XLS_TMP&nbsp;TYPE&nbsp;TT_XLS_100.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_RETURN&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;BAPIRET2&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_MBLNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBLNR.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_LINES&nbsp;TYPE&nbsp;INT4,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM_OF_DOC&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MSG1&nbsp;TYPE&nbsp;sy-msgv1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MSG2&nbsp;TYPE&nbsp;sy-msgv1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MSG3&nbsp;TYPE&nbsp;sy-msgv1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MSG4&nbsp;TYPE&nbsp;sy-msgv1&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_HAS_IMPORT&nbsp;TYPE&nbsp;ZMM_QCKC-ZZHAS_IMPORT&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;RB_1&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_HAS_IMPORT&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;RB_2&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_HAS_IMPORT&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;Z~SEQ&nbsp;&nbsp;&nbsp;&nbsp;Z~WERKS&nbsp;&nbsp;&nbsp;Z~LGORT&nbsp;&nbsp;&nbsp;Z~MATNR&nbsp;&nbsp;&nbsp;Z~CHARG&nbsp;&nbsp;&nbsp;Z~BWART&nbsp;&nbsp;&nbsp;Z~CHKFLG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z~ZXSJS&nbsp;&nbsp;Z~ZXSKZ&nbsp;&nbsp;&nbsp;Z~AMOUNT&nbsp;&nbsp;Z~LIFNR&nbsp;&nbsp;&nbsp;Z~ERDAT&nbsp;&nbsp;&nbsp;Z~ERZET&nbsp;&nbsp;&nbsp;Z~ERNAM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_XLS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMM_QCKC&nbsp;AS&nbsp;Z<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;Z~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;P_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHKFLG&nbsp;=&nbsp;'S'&nbsp;"&nbsp;只有检查正确的数据才能导入库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZZHAS_IMPORT&nbsp;=&nbsp;LV_HAS_IMPORT.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有需要导入的期初库存数据！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;L_LINES&nbsp;=&nbsp;LINES(&nbsp;LT_XLS&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;L_NUM_OF_DOC&nbsp;=&nbsp;L_LINES&nbsp;/&nbsp;P_MAX&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;(&nbsp;L_NUM_OF_DOC&nbsp;MOD&nbsp;1&nbsp;)&nbsp;&gt;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NUM_OF_DOC&nbsp;=&nbsp;L_NUM_OF_DOC&nbsp;+&nbsp;&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;L_MSG1&nbsp;=&nbsp;'本次将导入'&nbsp;&&&nbsp;L_LINES&nbsp;&&&nbsp;'条记录；'&nbsp;.<br />
+&nbsp;&nbsp;L_MSG2&nbsp;=&nbsp;'每张商品凭证最多'&nbsp;&&&nbsp;P_MAX&nbsp;&&&nbsp;'条；'&nbsp;.<br />
+&nbsp;&nbsp;L_MSG3&nbsp;=&nbsp;'预计创建商品凭证'&nbsp;&&&nbsp;L_NUM_OF_DOC&nbsp;&&&nbsp;'张；'&nbsp;.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;L_MSG1&nbsp;L_MSG2&nbsp;L_MSG3&nbsp;''&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_XLS&nbsp;BY&nbsp;WERKS&nbsp;SEQ&nbsp;.&nbsp;"&nbsp;后面不要再对该表排序<br />
+&nbsp;&nbsp;CLEAR:&nbsp;L_LINES,L_NUM_OF_DOC&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_XLS&nbsp;INTO&nbsp;WA_XLS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHECK&nbsp;WA_XLS-ZZHAS_IMPORT&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINES&nbsp;=&nbsp;L_LINES&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;CONV_INPUT&nbsp;IN&nbsp;PROGRAM&nbsp;ZQCKC_PUB_F01&nbsp;CHANGING&nbsp;WA_XLS-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_XLS&nbsp;TO&nbsp;LT_XLS_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_LINES&nbsp;EQ&nbsp;P_MAX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM_OF_DOC&nbsp;=&nbsp;L_NUM_OF_DOC&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'第'&nbsp;L_NUM_OF_DOC&nbsp;'张商品凭证：'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始准备数据！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;BAPI_100&nbsp;TABLES&nbsp;LT_XLS_TMP&nbsp;LT_RETURN&nbsp;CHANGING&nbsp;L_MBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;AFTER_BAPI_100&nbsp;TABLES&nbsp;LT_XLS_TMP&nbsp;LT_RETURN&nbsp;&nbsp;USING&nbsp;L_MBLNR&nbsp;L_NUM_OF_DOC&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;L_LINES,&nbsp;L_MBLNR,&nbsp;LT_XLS_TMP,&nbsp;LT_XLS_TMP[],&nbsp;LT_RETURN,&nbsp;LT_RETURN[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;L_LINES&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;LT_XLS_TMP[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NUM_OF_DOC&nbsp;=&nbsp;L_NUM_OF_DOC&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'第'&nbsp;L_NUM_OF_DOC&nbsp;'张商品凭证：'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始准备数据！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;BAPI_100&nbsp;TABLES&nbsp;LT_XLS_TMP&nbsp;LT_RETURN&nbsp;CHANGING&nbsp;L_MBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;AFTER_BAPI_100&nbsp;TABLES&nbsp;LT_XLS_TMP&nbsp;LT_RETURN&nbsp;&nbsp;USING&nbsp;L_MBLNR&nbsp;L_NUM_OF_DOC&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;L_LINES,&nbsp;L_MBLNR,&nbsp;LT_XLS_TMP,&nbsp;LT_XLS_TMP[],&nbsp;LT_RETURN,&nbsp;LT_RETURN[].<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'库存初始化导入完成！'.<br />
+<br />
+ENDFORM.                    "onli_100<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;bapi_100<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;调用bapi进行入库<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;IT_XLS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;OT_RETURN&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM BAPI_100 TABLES IT_XLS     TYPE TT_XLS_100<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OT_RETURN&nbsp;&nbsp;STRUCTURE&nbsp;BAPIRET2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;C_MBLNR&nbsp;&nbsp;TYPE&nbsp;MBLNR.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;WA_XLS&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_XLS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用BAPI产生商品凭证<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;:&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADER&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_01,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BAPI&nbsp;通讯结构：物料凭证抬头数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_CODE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_CODE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MMIM:&nbsp;分配给库存管理的新码&nbsp;GM_CODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_GOODSMVT_ITEM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;BAPI2017_GM_ITEM_CREATE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BAPI&nbsp;通讯结构：创建物料凭证项目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_ITEM_CREATE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;BAPIRET2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"返回参数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPIRET2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_HEADRET&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_RET,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MMIM:&nbsp;有关一般的FM到记帐货物移动的输入结构<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MATERIALDOCUMENT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_RET-MAT_DOC,&nbsp;&nbsp;"MMIM:&nbsp;有关一般的FM到记帐货物移动的输入结构<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MATDOCUMENTYEAR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BAPI2017_GM_HEAD_RET-DOC_YEAR.&nbsp;"MMIM:&nbsp;有关一般的FM到记帐货物移动的输入结构<br />
+<br />
+&nbsp;&nbsp;"BAPI表头数据<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_GOODSMVT_HEADER.<br />
+&nbsp;&nbsp;REFRESH&nbsp;IT_GOODSMVT_ITEM&nbsp;.<br />
+&nbsp;&nbsp;WA_GOODSMVT_HEADER-PSTNG_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;P_BUDAT.&nbsp;&nbsp;&nbsp;&nbsp;"凭证中的过帐日期<br />
+&nbsp;&nbsp;WA_GOODSMVT_HEADER-DOC_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;SY-DATUM.&nbsp;&nbsp;&nbsp;&nbsp;"凭证中的凭证日期<br />
+&nbsp;&nbsp;WA_GOODSMVT_HEADER-REF_DOC_NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;''.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"参考凭证编号<br />
+&nbsp;&nbsp;WA_GOODSMVT_CODE&nbsp;=&nbsp;'05'.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;BAPI&nbsp;行项目数据<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_XLS&nbsp;ASSIGNING&nbsp;&lt;WA_XLS&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_GOODSMVT_ITEM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-PLANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&lt;WA_XLS&gt;-WERKS..&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-STGE_LOC&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&lt;WA_XLS&gt;-LGORT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-MATERIAL&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&lt;WA_XLS&gt;-MATNR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&lt;WA_XLS&gt;-CHARG.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_XLS&gt;-MEINS&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-MENGE&nbsp;=&nbsp;&lt;WA_XLS&gt;-ZXSKZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-MENGE&nbsp;=&nbsp;&lt;WA_XLS&gt;-ZXSJS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-ENTRY_QNT&nbsp;&nbsp;=&nbsp;&nbsp;&lt;WA_XLS&gt;-MENGE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-MOVE_TYPE&nbsp;&nbsp;=&nbsp;&nbsp;&lt;WA_XLS&gt;-BWART.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;移动类型<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-DMBTR&nbsp;=&nbsp;ROUND(&nbsp;VAL&nbsp;=&nbsp;&lt;WA_XLS&gt;-AMOUNT&nbsp;DEC&nbsp;=&nbsp;2&nbsp;)&nbsp;.&nbsp;"&nbsp;四舍五入到小数点后两位<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-DMBTR&nbsp;=&nbsp;&lt;WA_XLS&gt;-AMOUNT&nbsp;.&nbsp;"&nbsp;经过讨论，导入程序不对金额进行加工，应该在外部准备数据就准备好<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-AMOUNT_LC&nbsp;&nbsp;=&nbsp;&lt;WA_XLS&gt;-DMBTR.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"记帐金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-VENDOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&lt;WA_XLS&gt;-LIFNR&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;供应商<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_GOODSMVT_ITEM-LINE_ID&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&lt;WA_XLS&gt;-SEQ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_GOODSMVT_ITEM&nbsp;TO&nbsp;IT_GOODSMVT_ITEM&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始CALL&nbsp;BAPI！'&nbsp;.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_GOODSMVT_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_HEADER&nbsp;&nbsp;=&nbsp;WA_GOODSMVT_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_CODE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_GOODSMVT_CODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_HEADRET&nbsp;=&nbsp;WA_GOODSMVT_HEADRET<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATERIALDOCUMENT&nbsp;=&nbsp;C_MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATDOCUMENTYEAR&nbsp;&nbsp;=&nbsp;LV_MATDOCUMENTYEAR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GOODSMVT_ITEM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_GOODSMVT_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;OT_RETURN.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_RETURN.<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;OT_RETURN&nbsp;INTO&nbsp;WA_RETURN&nbsp;WITH&nbsp;KEY&nbsp;TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果成功，BAPI&nbsp;Commit在Form&nbsp;AFTER_BAPI_100&nbsp;更新完数据库日志后一起提交<br />
+&nbsp;&nbsp;ENDIF&nbsp;.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;结束CALL&nbsp;BAPI！'&nbsp;.<br />
+ENDFORM.                    "bapi_100<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;AFTER_BAPI_100<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;&nbsp;执行完后，记录错误信息和成功信息<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;IT_XLS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;IT_RETURN&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;CT_ERR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;CT_SUCC&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM AFTER_BAPI_100 TABLES IT_XLS       TYPE TT_XLS_100<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_RETURN&nbsp;&nbsp;&nbsp;&nbsp;STRUCTURE&nbsp;BAPIRET2<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_ERR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TT_ERR_100<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_SUCC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TT_SUCC_100<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USING&nbsp;U_MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U_NUM_OF_DOC&nbsp;&nbsp;TYPE&nbsp;I&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_ERRMSG1&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ERRMSG2&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MESSAGE&nbsp;TYPE&nbsp;BAPI_MSG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MSG1&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGV1&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;WA_XLS&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_XLS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_MSG1&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;U_MBLNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始处理成功消息！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_XLS&nbsp;ASSIGNING&nbsp;&lt;WA_XLS&gt;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-MBLNR&nbsp;=&nbsp;U_MBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-ZZHAS_IMPORT&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-ERR_MSG&nbsp;=&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMM_QCKC&nbsp;FROM&nbsp;TABLE&nbsp;IT_XLS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始BAPI_TRANSACTION_COMMIT！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_MSG1&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;第'&nbsp;&&&nbsp;U_NUM_OF_DOC&nbsp;&&&nbsp;'张商品凭证创建成功：'&nbsp;&&&nbsp;U_MBLNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;L_MSG1&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始处理失败消息！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_RETURN&nbsp;WHERE&nbsp;(&nbsp;TYPE&nbsp;EQ&nbsp;'E'&nbsp;OR&nbsp;TYPE&nbsp;EQ&nbsp;'A'&nbsp;)&nbsp;AND&nbsp;ROW&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ERRMSG1&nbsp;=&nbsp;L_ERRMSG1&nbsp;&&&nbsp;IT_RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_XLS&nbsp;ASSIGNING&nbsp;&lt;WA_XLS&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_ERRMSG2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_RETURN&nbsp;WHERE&nbsp;(&nbsp;TYPE&nbsp;EQ&nbsp;'E'&nbsp;OR&nbsp;TYPE&nbsp;EQ&nbsp;'A'&nbsp;)&nbsp;AND&nbsp;ROW&nbsp;=&nbsp;SY-TABIX."&nbsp;wa_xls-seq.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ERRMSG2&nbsp;=&nbsp;L_ERRMSG2&nbsp;&&&nbsp;IT_RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-MBLNR&nbsp;=&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-ZZHAS_IMPORT&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-ERR_MSG&nbsp;=&nbsp;L_ERRMSG1&nbsp;&&&nbsp;L_ERRMSG2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_XLS&gt;-ERR_MSG&nbsp;EQ&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_XLS&gt;-ERR_MSG&nbsp;=&nbsp;'导入失败！'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&lt;WA_XLS&gt;-MENGE,&lt;WA_XLS&gt;-MEINS,&lt;WA_XLS&gt;-DMBTR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMM_QCKC&nbsp;FROM&nbsp;TABLE&nbsp;IT_XLS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始BAPI_TRANSACTION_COMMIT！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_MSG1&nbsp;=&nbsp;'E&nbsp;&nbsp;&nbsp;&nbsp;第'&nbsp;&&&nbsp;U_NUM_OF_DOC&nbsp;&&&nbsp;'张商品凭证创建失败！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;L_MSG1&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;清除Memory，避免Dump&nbsp;MEMORY_NO_MORE_PAGING&nbsp;.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;MIDDB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE(1)&nbsp;&nbsp;&nbsp;TYPE&nbsp;C&nbsp;VALUE&nbsp;'M',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEMID(10)&nbsp;TYPE&nbsp;N,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;&nbsp;&nbsp;OF&nbsp;MIDDB.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;IDDB&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODE(1)&nbsp;TYPE&nbsp;C,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KLART&nbsp;&nbsp;&nbsp;LIKE&nbsp;KLAH-KLART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASS&nbsp;&nbsp;&nbsp;LIKE&nbsp;KLAH-CLASS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJEK&nbsp;&nbsp;&nbsp;LIKE&nbsp;KSSK-OBJEK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAFID&nbsp;&nbsp;&nbsp;LIKE&nbsp;KSSK-MAFID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATUM&nbsp;&nbsp;&nbsp;LIKE&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEMID&nbsp;&nbsp;&nbsp;LIKE&nbsp;SY-TABIX,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPRAS&nbsp;&nbsp;&nbsp;LIKE&nbsp;RCTMS-SPRAS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"H100421<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;&nbsp;&nbsp;OF&nbsp;IDDB.<br />
+<br />
+&nbsp;&nbsp;IMPORT&nbsp;IDDB&nbsp;FROM&nbsp;MEMORY&nbsp;ID&nbsp;MIDDB.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IDDB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MIDDB-MEMID&nbsp;=&nbsp;IDDB-MEMID.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FREE&nbsp;MEMORY&nbsp;ID&nbsp;MIDDB.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;清除批次特性Buffer<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CLAP_DDB_INIT_CLASSIFICATION'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"921353<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"921353<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INIT_ALL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+ENDFORM.                    "AFTER_BAPI_100<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;F4_WERKS_100<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM F4_WERKS_100." USING u_flag.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LT_HELP&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;T001W-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;TYPE&nbsp;T001W-NAME1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LT_HELP.<br />
+&nbsp;&nbsp;SELECT&nbsp;DISTINCT&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_HELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMM_QCKC.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_HELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;NAME1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LT_HELP-NAME1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;LT_HELP-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_HELP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;F4_HELP&nbsp;IN&nbsp;PROGRAM&nbsp;ZQCKC_PUB_F01&nbsp;TABLES&nbsp;LT_HELP&nbsp;USING&nbsp;'WERKS'&nbsp;'p_werks'.<br />
+ENDFORM.                    "F4_WERKS_100<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;选择导入库存的地点和日期<br />
+*&nbsp;T02&nbsp;选择导入库存的数据范围<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_BUDAT&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;P_MAX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;每张商品凭证最大行数（最小不低于490）<br />
+*&nbsp;P_WERKS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;RB_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;只提取没有导入库存的数据，进行导入！<br />
+*&nbsp;RB_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;只提取上次导入库存有错误的数据，重新导入！<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

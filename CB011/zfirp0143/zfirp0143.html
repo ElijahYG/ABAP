@@ -1,0 +1,569 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0143</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0143</h2>
+<h3> Description: 联营结算自建表结算金额检查更新</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZFIRP0143.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;包含程序<br />
+*&---------------------------------------------------------------------*<br />
+*INCLUDE&nbsp;ZFI_COMMON_FORM.<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示相关<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPE-POOLS: SLIS.               "ALV显示使用到的共享池<br />
+<br />
+DATA: L_GRID      TYPE REF TO CL_GUI_ALV_GRID.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;引用表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES: SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义结构体<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF STRU_HEAD.<br />
+TYPES:   FLAG TYPE FLAG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zfirp0140_header/dictionary-zfirp0140_header.html">ZFIRP0140_HEADER</a>.<br />
+TYPES: END OF STRU_HEAD,<br />
+BEGIN OF STRU_ALV,<br />
+&nbsp;&nbsp;FLAG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FLAG,<br />
+&nbsp;&nbsp;ZJSD_NO&nbsp;TYPE&nbsp;ZFIRP0140_HEADER-ZJSD_NO,<br />
+&nbsp;&nbsp;ZHDJE&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZDE_ZCKLSJ,<br />
+&nbsp;&nbsp;ZHDCB&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZDE_ZCKLSJ,<br />
+&nbsp;&nbsp;ZITJE&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZDE_ZCKLSJ,<br />
+&nbsp;&nbsp;ZITCB&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZDE_ZCKLSJ,<br />
+END OF STRU_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义常量,定义宏<br />
+*&---------------------------------------------------------------------*<br />
+*定义ALV显示宏<br />
+   </div>
+   <div class="code">
+DEFINE ADD_ALV.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_FIELDCAT.<br />
+&nbsp;&nbsp;LS_FIELDCAT-COL_POS&nbsp;=&nbsp;LINES(&nbsp;LT_FIELDCAT&nbsp;)&nbsp;+&nbsp;1&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;WA_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;LS_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"中文描述字段名<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度(筛选时),默认长度10<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-FIX_COLUMN&nbsp;&nbsp;=&nbsp;ABAP_TRUE.&nbsp;"固定列<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;LS_FIELDCAT&nbsp;TO&nbsp;LT_FIELDCAT.<br />
+END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+*定义变量<br />
+   </div>
+   <div class="code">
+DATA: GL_CHECK TYPE CHAR1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*定义内表<br />
+   </div>
+   <div class="code">
+DATA: IT_HEAD  TYPE STANDARD TABLE OF STRU_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ITEM1&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZFIRP0140_ITEM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-100.<br />
+<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;&nbsp;S_JZDNO&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZFIRP0140_HEADER-ZJSD_NO&nbsp;OBLIGATORY&nbsp;NO&nbsp;INTERVALS&nbsp;NO-EXTENSION.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料编号<br />
+<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+   </div>
+   <div class="codeComment">
+*SELECTION-SCREEN:&nbsp;BEGIN&nbsp;OF&nbsp;BLOCK&nbsp;B9&nbsp;WITH&nbsp;FRAME&nbsp;TITLE&nbsp;TEXT-099.<br />
+*PARAMETERS&nbsp;P_VARI&nbsp;TYPE&nbsp;SLIS_VARI.<br />
+*SELECTION-SCREEN:&nbsp;END&nbsp;OF&nbsp;BLOCK&nbsp;B9.<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;PBO处理<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*AT&nbsp;SELECTION-SCREEN&nbsp;ON&nbsp;VALUE-REQUEST&nbsp;FOR&nbsp;P_VARI.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;F_ALV_VARIANT_F4&nbsp;CHANGING&nbsp;P_VARI.<br />
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_CAL_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕结束<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+END-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_ALVSHOW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;GL_CHECK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;F_ALV_VARIANT_F4<br />
+*&---------------------------------------------------------------------*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+**----------------------------------------------------------------------*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_P_VARI&nbsp;&nbsp;text<br />
+**----------------------------------------------------------------------*<br />
+*FORM&nbsp;F_ALV_VARIANT_F4&nbsp;CHANGING&nbsp;P_P_VARI&nbsp;TYPE&nbsp;SLIS_VARI.<br />
+*&nbsp;&nbsp;DATA:&nbsp;RS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT.<br />
+*<br />
+*&nbsp;&nbsp;RS_VARIANT-REPORT&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID.<br />
+*&nbsp;&nbsp;RS_VARIANT-USERNAME&nbsp;=&nbsp;SY-UNAME.<br />
+*<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_VARIANT_F4'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'A'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ES_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+*&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;P_P_VARI&nbsp;=&nbsp;RS_VARIANT-VARIANT.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*ENDFORM.&nbsp;"&nbsp;F_ALV_VARIANT_F4<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;取数逻辑<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA.<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ITEM1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;EQ&nbsp;S_JZDNO-LOW.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;EQ&nbsp;S_JZDNO-LOW.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;计算逻辑<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CAL_DATA.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_JSJE&nbsp;TYPE&nbsp;ZDE_ZCKLSJ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_JSCB&nbsp;TYPE&nbsp;ZDE_ZCKLSJ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM&nbsp;&nbsp;TYPE&nbsp;I.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ITEM1&nbsp;TYPE&nbsp;ZFIRP0140_ITEM1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_HEAD&nbsp;&nbsp;TYPE&nbsp;STRU_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRU_ALV.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ITEM1&nbsp;INTO&nbsp;LS_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_JSJE&nbsp;=&nbsp;L_JSJE&nbsp;+&nbsp;LS_ITEM1-ZJSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_JSCB&nbsp;=&nbsp;L_JSCB&nbsp;+&nbsp;LS_ITEM1-ZJSCB.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_HEAD&nbsp;INTO&nbsp;LS_HEAD&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV-ZJSD_NO&nbsp;=&nbsp;LS_HEAD-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV-ZHDJE&nbsp;&nbsp;&nbsp;=&nbsp;LS_HEAD-ZZJSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV-ZHDCB&nbsp;&nbsp;&nbsp;=&nbsp;LS_HEAD-ZZJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV-ZITJE&nbsp;&nbsp;&nbsp;=&nbsp;L_JSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV-ZITCB&nbsp;&nbsp;&nbsp;=&nbsp;L_JSCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_ALV&nbsp;TO&nbsp;IT_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_JSJE&nbsp;NE&nbsp;LS_HEAD-ZZJSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_HEAD-ZZJSJE&nbsp;=&nbsp;L_JSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM&nbsp;&nbsp;=&nbsp;L_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_JSCB&nbsp;NE&nbsp;LS_HEAD-ZZJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_HEAD-ZZJE&nbsp;=&nbsp;L_JSCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM&nbsp;=&nbsp;L_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_NUM&nbsp;NE&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_HEAD&nbsp;FROM&nbsp;LS_HEAD&nbsp;INDEX&nbsp;1&nbsp;TRANSPORTING&nbsp;ZZJE&nbsp;ZZJSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_ALVSHOW.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_FIELDCAT&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_VARIANT&nbsp;&nbsp;TYPE&nbsp;DISVARIANT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GV_LINES&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;LS_ALV&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRU_ALV.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LT_FIELDCAT[].<br />
+<br />
+&nbsp;&nbsp;ADD_ALV:<br />
+&nbsp;&nbsp;'ZJSD_NO'&nbsp;&nbsp;TEXT-001,<br />
+&nbsp;&nbsp;'ZHDJE'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-002,&nbsp;"&nbsp;'含税结算总金额'<br />
+&nbsp;&nbsp;'ZHDCB'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-003,&nbsp;"&nbsp;'结算总金额'<br />
+&nbsp;&nbsp;'ZITJE'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-004,<br />
+&nbsp;&nbsp;'ZITCB'&nbsp;&nbsp;&nbsp;&nbsp;TEXT-005<br />
+&nbsp;&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调整ALV显示布局<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LS_LAYOUT.<br />
+&nbsp;&nbsp;LS_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;LS_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LS_LAYOUT-BOX_FNAME&nbsp;=&nbsp;'FLAG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择行头按钮<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;管理布局结构<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LS_VARIANT.<br />
+&nbsp;&nbsp;LS_VARIANT-REPORT&nbsp;=&nbsp;SY-REPID.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LS_VARIANT-VARIANT&nbsp;=&nbsp;P_VARI&nbsp;.<br />
+<br />
+*&nbsp;&nbsp;GV_LINES&nbsp;=&nbsp;LINES(&nbsp;IT_HEAD&nbsp;).<br />
+*&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'共有'&nbsp;GV_LINES&nbsp;'数据！'&nbsp;.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_ALV&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有查到相应数据'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV&nbsp;INTO&nbsp;LS_ALV&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_ALV-ZHDCB&nbsp;=&nbsp;LS_ALV-ZITCB&nbsp;AND&nbsp;LS_ALV-ZHDJE&nbsp;=&nbsp;LS_ALV-ZITJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'数据没有差异'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'数据存在差异'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'FM_GUI_STATUS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'FM_USER_COMMAND'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do：确定是否需要Top&nbsp;Page<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_HTML_HEIGHT_TOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do：确定Top&nbsp;Page的高度<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_VARIANT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_SAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'A'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"保存布局<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;HTML_TOP_OF_PAGE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM HTML_TOP_OF_PAGE USING CL_DD TYPE REF TO CL_DD_DOCUMENT.<br />
+&nbsp;&nbsp;DATA&nbsp;LV_TEXT&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;255&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;To-Do：定义Top&nbsp;Page输出的内容<br />
+**********************************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA(LV_LINE)&nbsp;=&nbsp;LINES(&nbsp;IT_HEAD&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;LV_TEXT&nbsp;=&nbsp;'找到'&nbsp;&&&nbsp;LV_LINE&nbsp;&&&nbsp;'条数据！'&nbsp;.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+ENDFORM .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设置ALV的GUI状态<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GUI_STATUS USING P_EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&RNT_PREV'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"填写不显示的功能码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&AQW'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'%SL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&INFO'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&VEXCEL'&nbsp;)&nbsp;).<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZFIRP0143_PF'&nbsp;EXCLUDING&nbsp;P_EXTAB.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设置用户命令<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_USER_COMMAND USING RS_UCOMM    LIKE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;FREE&nbsp;L_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;L_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;L_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;L_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;L_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ALV&nbsp;TYPE&nbsp;STRU_ALV.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;RS_UCOMM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"捕捉用户动作<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV&nbsp;INTO&nbsp;LS_ALV&nbsp;WITH&nbsp;KEY&nbsp;FLAG&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_SAVE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'请先选中一条数据'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*设置刷新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*保证行、列位置在自动刷新时不变<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;RS_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM FM_SAVE.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_HEAD&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZFIRP0140_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_HEAD&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_HEADER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_ALV.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_HEAD&nbsp;TO&nbsp;LT_HEAD.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_HEAD&nbsp;INTO&nbsp;LS_HEAD&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV&nbsp;INTO&nbsp;LS_ALV&nbsp;WITH&nbsp;KEY&nbsp;ZJSD_NO&nbsp;=&nbsp;LS_HEAD-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV-ZHDJE&nbsp;=&nbsp;LS_HEAD-ZZJSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV-ZHDCB&nbsp;=&nbsp;LS_HEAD-ZZJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV&nbsp;FROM&nbsp;LS_ALV&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;ZHDJE&nbsp;ZHDCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;MODIFY&nbsp;ZFIRP0140_HEADER&nbsp;FROM&nbsp;TABLE&nbsp;LT_HEAD.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'保存成功'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;001&nbsp;结算单号<br />
+*&nbsp;002&nbsp;抬头结算金额<br />
+*&nbsp;003&nbsp;抬头结算成本<br />
+*&nbsp;004&nbsp;行项目结算金额<br />
+*&nbsp;005&nbsp;行项目结算成本<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_JZDNO&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

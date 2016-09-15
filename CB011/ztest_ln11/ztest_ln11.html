@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTEST_LN11</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTEST_LN11</h2>
+<h3> Description: 计算内表差异</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZTEST_LN11.<br />
+<br />
+TABLES:MSEG,MARA.<br />
+<br />
+DATA: GL_CHECK   TYPE CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_TAB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0020_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_OLD&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0020_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_NEW&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZSDRP0020_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BLK01 WITH FRAME TITLE TEXT-001.<br />
+<br />
+SELECT-OPTIONS:S_DATA   FOR SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_LIFNR&nbsp;&nbsp;FOR&nbsp;MSEG-LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_EXTWG&nbsp;&nbsp;FOR&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_BUKRS&nbsp;&nbsp;FOR&nbsp;MSEG-BUKRS.<br />
+<br />
+SELECTION-SCREEN END OF BLOCK BLK01.<br />
+<br />
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_ALV.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_NEW.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_COMPARISON.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*获取ALV显示内表<br />
+   </div>
+   <div class="code">
+FORM FM_GET_ALV.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_02/zsdrp0020_fm_02.html">'ZSDRP0020_FM_02'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATLOW&nbsp;&nbsp;&nbsp;=&nbsp;S_DATA-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATHIGH&nbsp;&nbsp;=&nbsp;S_DATA-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_LIFNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_LIFNR-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_EXTWG-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_BUKRS-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_TAB&nbsp;=&nbsp;IT_ALV_OLD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;S_RAUBE&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_ALV_TAB&nbsp;WHERE&nbsp;RAUBE&nbsp;NOT&nbsp;IN&nbsp;S_RAUBE.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+FORM FM_GET_NEW.<br />
+<br />
+&nbsp;&nbsp;SUBMIT&nbsp;ZTEST_LN10<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;S_FKDAT&nbsp;BETWEEN&nbsp;S_DATA-LOW&nbsp;AND&nbsp;S_DATA-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;S_BUKRS&nbsp;IN&nbsp;S_BUKRS[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;S_LIFNR&nbsp;IN&nbsp;S_LIFNR[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;S_EXTWG&nbsp;IN&nbsp;S_EXTWG[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING&nbsp;LIST&nbsp;TO&nbsp;MEMORY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"跳过ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RETURN.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"返回<br />
+<br />
+&nbsp;&nbsp;IMPORT&nbsp;IT_ALV_TAB&nbsp;FROM&nbsp;MEMORY&nbsp;ID&nbsp;'ZTEST_LN10'.<br />
+&nbsp;&nbsp;FREE&nbsp;MEMORY&nbsp;ID&nbsp;'ZTEST_LN10'.<br />
+<br />
+&nbsp;&nbsp;IT_ALV_NEW[]&nbsp;=&nbsp;IT_ALV_TAB[].<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM FM_COMPARISON.<br />
+DATA IT_TAB_MOD TYPE STANDARD TABLE OF ZSDRP0020_ALV.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CTVB_COMPARE_TABLES'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE_OLD&nbsp;&nbsp;=&nbsp;IT_ALV_OLD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE_NEW&nbsp;&nbsp;=&nbsp;IT_ALV_NEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KEY_LENGTH&nbsp;=&nbsp;68<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_SORTED&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE_DEL&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE_ADD&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE_MOD&nbsp;&nbsp;=&nbsp;IT_TAB_MOD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_CHANGES&nbsp;=&nbsp;GL_CHECK.<br />
+<br />
+&nbsp;&nbsp;WRITE&nbsp;GL_CHECK.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

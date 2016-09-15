@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTEST_LN04</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTEST_LN04</h2>
+<h3> Description: T</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZTEST_LN04.<br />
+<br />
+TABLES:BKPF,SSCRFIELDS.<br />
+CLASS CL_GUI_CFW DEFINITION LOAD.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Types&nbsp;for&nbsp;controlling&nbsp;the&nbsp;button&nbsp;displaying&nbsp;on&nbsp;the&nbsp;tool&nbsp;bar<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF GS_TOOLBAR_ICON_TYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FCODE&nbsp;LIKE&nbsp;RSMPE-FUNC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;GS_TOOLBAR_ICON_TYP.<br />
+DATA: G_CONTAINER  TYPE REF TO CL_GUI_CUSTOM_CONTAINER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_CONTAINER1&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_CONTAINER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_CONTAINER2&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_CONTAINER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_SPLITTER&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_SPLITTER_CONTAINER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_GRID1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;For&nbsp;displaying&nbsp;SAP&nbsp;Voucher&nbsp;List<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_GRID2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+DATA: GS_LAYOUT       TYPE LVC_S_LAYO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_SORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_T_SORT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_FIELDCATALOG&nbsp;TYPE&nbsp;LVC_T_FCAT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_EXCLUDE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;UI_FUNCTIONS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_EXCLUDE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;UI_FUNC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_TOOLBAR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STB_BUTTON.<br />
+DATA: INIT    TYPE C,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REPID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-REPID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DYNNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DYNNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OK_CODE&nbsp;TYPE&nbsp;SY-UCOMM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SAVE_OK&nbsp;TYPE&nbsp;SY-UCOMM.<br />
+DATA: GT_TOOLBAR_ICON TYPE STANDARD TABLE OF GS_TOOLBAR_ICON_TYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;NON-UNIQUE&nbsp;DEFAULT&nbsp;KEY&nbsp;INITIAL&nbsp;SIZE&nbsp;10.<br />
+DATA:GS_TOOLBAR_ICON TYPE GS_TOOLBAR_ICON_TYP.<br />
+DATA : BEGIN OF ITAB OCCURS 0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUKRS&nbsp;LIKE&nbsp;EKKO-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;LIKE&nbsp;EKKO-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ITAB.<br />
+<br />
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;CALL&nbsp;SCREEN&nbsp;9000.&nbsp;&nbsp;"需要建立一个screen，里面包含一个custom&nbsp;control&nbsp;，名称“custom”<br />
+&nbsp;&nbsp;"建立一个GUI_STATUS&nbsp;"SCREEN_100"<br />
+MODULE STATUS_9000 OUTPUT.<br />
+&nbsp;&nbsp;IF&nbsp;INIT&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INIT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STATUS_9000'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;LOAD_SAP_VOUCHER.<br />
+<br />
+ENDMODULE.                 " status_0100  OUTPUT<br />
+MODULE FUNCTION_EXIT INPUT.<br />
+&nbsp;&nbsp;LEAVE&nbsp;PROGRAM.<br />
+ENDMODULE.                 " function_exit  INPUT<br />
+MODULE USER_COMMAND_9000 INPUT.<br />
+&nbsp;&nbsp;CLEAR&nbsp;SAVE_OK.<br />
+&nbsp;&nbsp;SAVE_OK&nbsp;=&nbsp;OK_CODE.<br />
+&nbsp;&nbsp;CLEAR&nbsp;OK_CODE.<br />
+&nbsp;&nbsp;CASE&nbsp;SAVE_OK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&F03'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;PROGRAM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SUB2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SELECT_OTHER_CUSTOMER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SUB1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;LOAD_SAP_VOUCHER.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+ENDMODULE.                 " user_command_0100  INPUT<br />
+FORM LOAD_SAP_VOUCHER .<br />
+&nbsp;&nbsp;SELECT&nbsp;BUKRS&nbsp;EBELN&nbsp;UP&nbsp;TO&nbsp;5&nbsp;ROWS&nbsp;FROM&nbsp;EKKO&nbsp;INTO&nbsp;TABLE&nbsp;ITAB.<br />
+&nbsp;&nbsp;IF&nbsp;G_CONTAINER&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;G_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER_NAME&nbsp;=&nbsp;'G_CONTAINER'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;G_SPLITTER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LINK_DYNNR&nbsp;=&nbsp;SY-DYNNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LINK_REPID&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;G_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROWS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMNS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'G_SPLITTER'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_SPLITTER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;G_CONTAINER1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_SPLITTER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;G_CONTAINER2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_SPLITTER-&gt;SET_VISIBLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VISIBLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_CONTAINER-&gt;SET_VISIBLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VISIBLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SET_ALV1.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;G_GRID1&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;G_GRID1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;G_CONTAINER1.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;SET_TOOLBAR_INTERACTIVE&nbsp;=&nbsp;GS_EXCLUDE.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID1-&gt;SET_VISIBLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VISIBLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_SPLITTER-&gt;SET_COLUMN_WIDTH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WIDTH&nbsp;=&nbsp;50.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;GS_LAYOUT.<br />
+&nbsp;&nbsp;GS_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;GS_LAYOUT-ZEBRA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ABAP_TRUE.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID1-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GS_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TOOLBAR_EXCLUDING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_EXCLUDE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ITAB[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCATALOG[]<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_SORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_SORT[]<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INVALID_PARAMETER_COMBINATION&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TOO_MANY_LINES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message&nbsp;s004(zfm01)&nbsp;with&nbsp;sy-subrc.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID&nbsp;TYPE&nbsp;SY-MSGTY&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_GUI_CFW=&gt;FLUSH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CNTL_SYSTEM_ERROR&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CNTL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+ENDFORM.                    " load_sap_voucher<br />
+FORM SET_ALV1 .<br />
+&nbsp;&nbsp;CLEAR&nbsp;GS_EXCLUDE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_GRAPH.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_HELP.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_INFO.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_SELECT_ALL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_CHECK.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_COPY.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_CUT.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_PASTE.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_UNDO.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_INSERT_ROW.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_DELETE_ROW.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_MOVE_ROW.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_PASTE_NEW_ROW.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_VIEWS.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_APPEND_ROW.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_LOC_COPY_ROW.<br />
+*&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+*&nbsp;&nbsp;GS_EXCLUDE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_FC_REFRESH.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;GS_EXCLUDE&nbsp;TO&nbsp;GT_EXCLUDE.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_FIELDCATALOG.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-FIELDNAME&nbsp;=&nbsp;'BUKRS'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-EDIT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-NO_OUT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GT_FIELDCATALOG.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_FIELDCATALOG.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-FIELDNAME&nbsp;=&nbsp;'EBELN'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-DO_SUM&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GT_FIELDCATALOG.<br />
+ENDFORM.                                                    " set_alv1<br />
+FORM SELECT_OTHER_CUSTOMER .<br />
+&nbsp;&nbsp;SELECT&nbsp;BUKRS&nbsp;EBELN&nbsp;UP&nbsp;TO&nbsp;5&nbsp;ROWS&nbsp;FROM&nbsp;EKKO&nbsp;INTO&nbsp;TABLE&nbsp;ITAB.<br />
+&nbsp;&nbsp;IF&nbsp;G_CONTAINER&nbsp;IS&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Create&nbsp;Splitter<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;G_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER_NAME&nbsp;=&nbsp;'G_SPLITTER'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;G_SPLITTER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARENT&nbsp;&nbsp;=&nbsp;G_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROWS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMNS&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_SPLITTER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;G_CONTAINER1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_SPLITTER-&gt;GET_CONTAINER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLUMN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECEIVING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTAINER&nbsp;=&nbsp;G_CONTAINER2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_SPLITTER-&gt;SET_VISIBLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VISIBLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_CONTAINER-&gt;SET_VISIBLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VISIBLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;G_GRID2&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;G_GRID2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PARENT&nbsp;=&nbsp;G_CONTAINER2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID2-&gt;SET_VISIBLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VISIBLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;PERFORM&nbsp;SET_ALV2.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID2-&gt;SET_TABLE_FOR_FIRST_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GS_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TOOLBAR_EXCLUDING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_EXCLUDE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ITAB[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCATALOG[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INVALID_PARAMETER_COMBINATION&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TOO_MANY_LINES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message&nbsp;s004(zfm01)&nbsp;with&nbsp;sy-subrc.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID&nbsp;TYPE&nbsp;SY-MSGTY&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID2-&gt;SET_TOOLBAR_INTERACTIVE.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_GUI_CFW=&gt;FLUSH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CNTL_SYSTEM_ERROR&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CNTL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.                    " select_other_customer<br />
+FORM SET_ALV2 .<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_FIELDCATALOG.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-FIELDNAME&nbsp;=&nbsp;'BUKRS'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-EDIT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-NO_OUT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GT_FIELDCATALOG.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_FIELDCATALOG.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-FIELDNAME&nbsp;=&nbsp;'EBELN'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;GT_FIELDCATALOG-DO_SUM&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;GT_FIELDCATALOG.<br />
+ENDFORM.                                                    "set_alv2<br />
+<br />
+   </div>
+   <div class="codeComment">
+*GUI&nbsp;Texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;TITLE_9000&nbsp;--&gt;&nbsp;测试ALV<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

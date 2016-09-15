@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSD_GET_BASIC_PRICE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZSD_GET_BASIC_PRICE</h2>
+<h3> Description: 取得商品相关基础价格</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZSD_GET_BASIC_PRICE.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IM_DATAB) TYPE  KODATAB<br />
+*"  TABLES<br />
+*"      RT_CONDITION STRUCTURE  ZSDIF0020_CONDITION<br />
+*"      IT_KSCHL STRUCTURE  ZSDIF0020_KSCHL<br />
+*"      IT_SITE TYPE  ZCB01_TY_RT_SITE OPTIONAL<br />
+*"      IT_EXTWG TYPE  ZCB01_TY_RT_EXTWG OPTIONAL<br />
+*"      IT_RAUBE TYPE  ZCB01_TY_RT_RAUBE OPTIONAL<br />
+*"      IT_GJS TYPE  ZCB01_TY_RT_GJS OPTIONAL<br />
+*"      IT_ZXSKGFD TYPE  ZCB01_TY_RT_ZXSKGFD OPTIONAL<br />
+*"----------------------------------------------------------------------<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zsd_get_basic_price.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;WA_CONDITION&nbsp;TYPE&nbsp;ZSDIF0020_CONDITION,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CONDITION_REF_SITE&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZSDIF0020_CONDITION,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONDITION_REF_SITE&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_CONDITION_REF_SITE&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;WA_CONDITION&gt;&nbsp;LIKE&nbsp;WA_CONDITION&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_SITE_INFO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001W-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_SITE&nbsp;TYPE&nbsp;T001W-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_SITE_INFO&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_SITE_INFO&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_SITE_INFO&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;H~KSCHL&nbsp;H~DATAB&nbsp;H~DATBI&nbsp;H~EXTWG&nbsp;H~RAUBE&nbsp;H~EX_GJS&nbsp;H~EX_SITE&nbsp;AS&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~KBETR&nbsp;P~KONWA&nbsp;P~KPEIN&nbsp;P~KMEIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_CONDITION_REF_SITE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A909&nbsp;AS&nbsp;H<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;H~KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;it_kschl<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;H~KSCHL&nbsp;=&nbsp;it_kschl-kschl<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~EX_SITE&nbsp;IN&nbsp;IT_SITE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~EXTWG&nbsp;IN&nbsp;IT_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~RAUBE&nbsp;IN&nbsp;IT_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~EX_GJS&nbsp;IN&nbsp;IT_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATAB&nbsp;&lt;=&nbsp;IM_DATAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATBI&nbsp;&gt;=&nbsp;IM_DATAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~LOEVM_KO&nbsp;&lt;&gt;&nbsp;'X'."删除标记<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;A909中的地点是价格参考地点，还需要找到参考该地点的所有地点，然后<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;将价格复制到各个地点传输给POS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;EX_SITE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SITE_INFO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZT001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_CONDITION_REF_SITE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EX_SITE&nbsp;=&nbsp;IT_CONDITION_REF_SITE-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SITE_INFO&nbsp;INTO&nbsp;LS_SITE_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_CONDITION_REF_SITE&nbsp;INTO&nbsp;WA_CONDITION_REF_SITE&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;LS_SITE_INFO-EX_SITE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_CONDITION_REF_SITE&nbsp;TO&nbsp;WA_CONDITION&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONDITION-WERKS&nbsp;=&nbsp;LS_SITE_INFO-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_CONDITION&nbsp;TO&nbsp;RT_CONDITION&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;H~KSCHL&nbsp;H~DATAB&nbsp;H~DATBI&nbsp;H~ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~KBETR&nbsp;P~KONWA&nbsp;P~KPEIN&nbsp;P~KMEIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPENDING&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;RT_CONDITION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A911&nbsp;AS&nbsp;H<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;H~KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;it_kschl<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;H~KSCHL&nbsp;=&nbsp;it_kschl-kschl<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~ZXSKGFD&nbsp;IN&nbsp;IT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATAB&nbsp;&lt;=&nbsp;IM_DATAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATBI&nbsp;&gt;=&nbsp;IM_DATAB&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* Add by huxiaowei @2015.10.14<br />
+* 如果有取得投资银克工费加价百分比，需要将其转换为投资银加价金额<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;RT_CONDITION&nbsp;ASSIGNING&nbsp;&lt;WA_CONDITION&gt;&nbsp;WHERE&nbsp;KSCHL&nbsp;=&nbsp;'ZKG1'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;LS_ZTJJ&nbsp;LIKE&nbsp;WA_CONDITION,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZTJJ&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ZTJJ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;H~KSCHL&nbsp;H~DATAB&nbsp;H~DATBI<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~KBETR&nbsp;P~KONWA&nbsp;P~KPEIN&nbsp;P~KMEIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;LS_ZTJJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A908&nbsp;AS&nbsp;H<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;H~KNUMH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;H~KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~KSCHL&nbsp;=&nbsp;'ZTJJ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~EXTWG&nbsp;=&nbsp;'D04'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~RAUBE&nbsp;=&nbsp;'19'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~EX_GJS&nbsp;=&nbsp;'403'<br />
+   </div>
+   <div class="codeComment">
+*        AND H~DATAB &lt;= &lt;WA_CONDITION&gt;-DATAB<br />
+*        AND H~DATBI &gt;= &lt;WA_CONDITION&gt;-DATAB .<br />
+*  取ZTJJ的价格时，需要取当前有效的投资金价价格，刘科，2015-10-22<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATAB&nbsp;&lt;=&nbsp;IM_DATAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATBI&nbsp;&gt;=&nbsp;IM_DATAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_CONDITION&gt;-KBETR&nbsp;=&nbsp;&lt;WA_CONDITION&gt;-KBETR&nbsp;*&nbsp;LS_ZTJJ-KBETR&nbsp;/&nbsp;1000&nbsp;.&nbsp;&nbsp;"将百分比乘以基础银价计算出克工费加价金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_CONDITION&gt;-KONWA&nbsp;=&nbsp;'CNY'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_CONDITION&gt;-KPEIN&nbsp;=&nbsp;'1'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_CONDITION&gt;-KMEIN&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

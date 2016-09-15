@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0250_IDOC_PROCESS</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMMRP0250_IDOC_PROCESS</h2>
+<h3> Description: 处理商品列表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMMRP0250_IDOC_PROCESS.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(MATNR) TYPE  MARA-MATNR OPTIONAL<br />
+*"     VALUE(WERKS) TYPE  T001W-WERKS OPTIONAL<br />
+*"  EXPORTING<br />
+*"     VALUE(RT_DOCNUM) TYPE  EDIDC-DOCNUM<br />
+*"     VALUE(RT_ERR) TYPE  CHAR1<br />
+*"----------------------------------------------------------------------<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zmmrp0250_idoc_process.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LS_POHEAD&nbsp;TYPE&nbsp;E1MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_POITEM&nbsp;TYPE&nbsp;E1WLK1M.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_EDIDC&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIDS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDC&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDD&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIDD&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_DOCNUM&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIDC-DOCNUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_WERKS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E1WLK1M-FILIA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_LOCNR&nbsp;TYPE&nbsp;WRF1-LOCNR.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_EDIDC.CLEAR&nbsp;LS_EDIDS.CLEAR&nbsp;LT_EDIDC[].CLEAR&nbsp;LT_EDIDD.CLEAR&nbsp;LT_EDIDD[].CLEAR&nbsp;LT_DOCNUM.<br />
+<br />
+&nbsp;&nbsp;LT_WERKS&nbsp;=&nbsp;WERKS.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LV_LOCNR.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_LOCNR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*系统根据下面4行即可与WE20设置关联起来<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-MESTYP&nbsp;=&nbsp;'LIKOND'.&nbsp;"Message&nbsp;Type<br />
+&nbsp;&nbsp;LS_EDIDC-IDOCTP&nbsp;=&nbsp;'LIKOND01'.&nbsp;"IDOC&nbsp;Type<br />
+&nbsp;&nbsp;LS_EDIDC-DIRECT&nbsp;=&nbsp;'2'.&nbsp;"<br />
+<br />
+   </div>
+   <div class="codeComment">
+*  SELECT SINGLE RCVPOR RCVPRN RCVPRT SNDPOR SNDPRT SNDPRN INTO<br />
+*               (LS_EDIDC-RCVPOR,LS_EDIDC-RCVPRN,LS_EDIDC-RCVPRT,LS_EDIDC-SNDPOR,LS_EDIDC-SNDPRT,LS_EDIDC-SNDPRN)<br />
+*         FROM ZALIST_SYS<br />
+*         WHERE PROGM = 'Z_MM_AUTOLIST'.<br />
+**接收方<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-RCVPRN&nbsp;=&nbsp;'LSMW'.<br />
+&nbsp;&nbsp;LS_EDIDC-RCVPOR&nbsp;=&nbsp;'SAPRED'.<br />
+&nbsp;&nbsp;LS_EDIDC-RCVPRT&nbsp;=&nbsp;'US'.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+**发出方<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_EDIDC-SNDPRN&nbsp;=&nbsp;'LSMW'.<br />
+&nbsp;&nbsp;LS_EDIDC-SNDPOR&nbsp;=&nbsp;'LSMW_IN'.<br />
+&nbsp;&nbsp;LS_EDIDC-SNDPRT&nbsp;=&nbsp;'US'.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 添加行头IDOC结点<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LT_EDIDD.<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1MATNR'."根结点名称<br />
+&nbsp;&nbsp;LT_EDIDD-DTINT2&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_POHEAD.<br />
+<br />
+&nbsp;&nbsp;LS_POHEAD-MSGFN&nbsp;=&nbsp;'005'.<br />
+&nbsp;&nbsp;LS_POHEAD-MATNR&nbsp;=&nbsp;MATNR.<br />
+   </div>
+   <div class="codeComment">
+*  LS_POHEAD-MATNR_EXTERNAL = .<br />
+*  LS_POHEAD-MATNR_VERSION = .<br />
+*  LS_POHEAD-MATNR_GUID = .<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;=&nbsp;LS_POHEAD.&nbsp;"根结点内容<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*  添加行项目IDCO结点<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LT_EDIDD.<br />
+&nbsp;&nbsp;LT_EDIDD-SEGNAM&nbsp;=&nbsp;'E1WLK1M'.<br />
+&nbsp;&nbsp;LT_EDIDD-DTINT2&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LS_POITEM.<br />
+&nbsp;&nbsp;LS_POITEM-MSGFN&nbsp;=&nbsp;'005'.<br />
+&nbsp;&nbsp;LS_POITEM-FILIA&nbsp;=&nbsp;LV_LOCNR.<br />
+   </div>
+   <div class="codeComment">
+*  LS_POITEM-FILIA = LT_WERKS.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_POITEM-DATBI&nbsp;=&nbsp;'99991231'.<br />
+&nbsp;&nbsp;LS_POITEM-DATAB&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;LT_EDIDD-SDATA&nbsp;=&nbsp;LS_POITEM.<br />
+&nbsp;&nbsp;APPEND&nbsp;LT_EDIDD.<br />
+   </div>
+   <div class="codeComment">
+*  添加行项目IDCO结点<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'IDOC_WRITE_AND_START_INBOUND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_EDIDC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DO_COMMIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;RT_DOCNUM<br />
+   </div>
+   <div class="codeComment">
+*     ERROR_BEFORE_CALL_APPLICATION =<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_EDIDD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_NOT_SAVED&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RT_ERR&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

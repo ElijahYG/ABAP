@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZG_AUTH_WERKS</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZG_AUTH_WERKS</h2>
+<h3> Description: 地点权限检查公用函数</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZG_AUTH_WERKS.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IRT_WERKS) TYPE  ZRT_WERKS<br />
+*"  EXPORTING<br />
+*"     VALUE(ERT_WERKS) TYPE  ZRT_WERKS<br />
+*"  EXCEPTIONS<br />
+*"      NO_WERKS_EXIST<br />
+*"      NO_WERKS_AUTHORIZED<br />
+*"----------------------------------------------------------------------<br />
+<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zg_auth_werks.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+DATA: BEGIN OF ls_werks,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;werks&nbsp;type&nbsp;t001w-werks,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ls_werks,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_werks&nbsp;like&nbsp;TABLE&nbsp;OF&nbsp;ls_werks,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZRT_WERKS&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;IRT_WERKS&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;NO_WERKS_EXIST&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AUTHORITY-CHECK&nbsp;OBJECT&nbsp;'M_MATE_WRK'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'ACTVT'&nbsp;FIELD&nbsp;'03'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'WERKS'&nbsp;FIELD&nbsp;LS_WERKS-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-LOW&nbsp;=&nbsp;LS_WERKS-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_WERKS&nbsp;TO&nbsp;ERT_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;ERT_WERKS[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RAISE&nbsp;NO_WERKS_AUTHORIZED&nbsp;.<br />
+&nbsp;&nbsp;ENDIF&nbsp;.<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

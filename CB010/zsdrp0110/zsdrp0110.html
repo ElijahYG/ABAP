@@ -1,0 +1,657 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP0110</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP0110</h2>
+<h3> Description: 商品进销存报表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZSDRP0110.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP0110<br />
+*&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;SD-RP-0110<br />
+*&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;商品进销存报表<br />
+*&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;sujingxiang<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/09/18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sujingxiang&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&nbsp;&nbsp;2015/12/29&nbsp;&nbsp;&nbsp;&nbsp;郭悦更改<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&引入表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:MSEG,MBEWH,T001K,T001W,S901.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SPMON&nbsp;TYPE&nbsp;SPMON,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;TYPE&nbsp;CHAR30,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;QCKC&nbsp;&nbsp;TYPE&nbsp;SALK3,&nbsp;"期初库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BQJH&nbsp;&nbsp;TYPE&nbsp;SALK3,&nbsp;"本期进货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BQXS&nbsp;&nbsp;TYPE&nbsp;SALK3,&nbsp;"本期销售<br />
+&nbsp;&nbsp;&nbsp;&nbsp;QMKC&nbsp;&nbsp;TYPE&nbsp;SALK3,&nbsp;"期末库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SEL&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;TYT_OUT_TAB&nbsp;TYPE&nbsp;TY_OUT_TAB&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_COLLECT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;MSEG-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DMBTR&nbsp;TYPE&nbsp;MSEG-DMBTR,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_COLLECT,<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;TYPE&nbsp;MSEG-ZEILE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;MSEG-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;TYPE&nbsp;MKPF-BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;TYPE&nbsp;MSEG-BWART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;TYPE&nbsp;MSEG-SHKZG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DMBTR&nbsp;TYPE&nbsp;MSEG-DMBTR,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MSEGPF.<br />
+<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0010,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;TYPE&nbsp;MBEW-BWKEY,&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SALK3&nbsp;TYPE&nbsp;MBEW-SALK3,&nbsp;"总价值<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0010.<br />
+<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0020,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BWART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动类<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;BUDAT_MKPF&nbsp;TYPE&nbsp;MSEG-BUDAT_MKPF,&nbsp;"凭证中的过帐日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;MSEG-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;TYPE&nbsp;MSEG-SHKZG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"借方/贷方标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DMBTR&nbsp;TYPE&nbsp;MSEG-DMBTR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"按本位币计的金额<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0020.<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0030,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORTL(10)&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店描述<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0030.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义常量<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;GT_MBEWH&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;MBEWH,<br />
+&nbsp;&nbsp;GT_T001W&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;T001W,<br />
+&nbsp;&nbsp;GS_T001W&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001W,<br />
+&nbsp;&nbsp;GS_MBEWH&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEWH,<br />
+&nbsp;&nbsp;GS_MSEGPF&nbsp;&nbsp;TYPE&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;GT_MSEGPF&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;GT_COLLECT&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;GT_OUT_TAB&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;GS_OUT_TAB&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_OUT_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-001.<br />
+SELECT-OPTIONS:S_BUKRS  FOR T001K-BUKRS OBLIGATORY NO-EXTENSION NO INTERVALS DEFAULT 8000."公司代码<br />
+SELECT-OPTIONS:S_WERKS  FOR T001W-WERKS.                  "门店<br />
+SELECT-OPTIONS:P_DATE  FOR S901-SPMON OBLIGATORY NO-EXTENSION DEFAULT SY-DATUM+0(6)."日期<br />
+   </div>
+   <div class="codeComment">
+*PARAMETERS:&nbsp;&nbsp;&nbsp;&nbsp;P_DATE&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;SPMON&nbsp;OBLIGATORY&nbsp;DEFAULT&nbsp;SY-DATUM+0(6).<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR P_DATE-LOW.<br />
+&nbsp;&nbsp;PERFORM&nbsp;MONAT_F4_LOW.<br />
+<br />
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR P_DATE-HIGH.<br />
+&nbsp;&nbsp;PERFORM&nbsp;MONAT_F4_HIGH.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据查询<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕结束<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+END-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_SHOW_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_OUT_TAB.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA.<br />
+&nbsp;&nbsp;DATA&nbsp;LT_TABLE1&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0010."<br />
+&nbsp;&nbsp;DATA&nbsp;LW_TABLE1&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0010.<br />
+&nbsp;&nbsp;DATA&nbsp;LT_TABLE2&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0010."<br />
+&nbsp;&nbsp;DATA&nbsp;LW_TABLE2&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0010.<br />
+&nbsp;&nbsp;DATA&nbsp;LT_TABLE3&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0010."<br />
+&nbsp;&nbsp;DATA&nbsp;LW_TABLE3&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0010.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;L_DATE1&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;"LOW&nbsp;月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE2&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;"LOW&nbsp;月的前一个月第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE3&nbsp;TYPE&nbsp;SY-DATUM.&nbsp;"LOW&nbsp;月的最后一天<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;L_DATE4&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;"HIGH&nbsp;月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE5&nbsp;TYPE&nbsp;SY-DATUM.&nbsp;"HIGH&nbsp;月的最后一天<br />
+<br />
+&nbsp;&nbsp;L_DATE1&nbsp;=&nbsp;P_DATE-LOW&nbsp;&nbsp;&&&nbsp;'01'."LOW&nbsp;月初第一天<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'RP_CALC_DATE_IN_INTERVAL'&nbsp;"自动计算上个月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE1&nbsp;&nbsp;"LOW&nbsp;月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DAYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MONTHS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SIGNUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'-'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YEARS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALC_DATE&nbsp;=&nbsp;L_DATE2.&nbsp;"LOW&nbsp;月的前一个月第一天<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期初------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_TABLE1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&lt;&nbsp;L_DATE2+0(4)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&lt;&nbsp;L_DATE2+4(2)&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_TABLE2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEWH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&lt;&nbsp;L_DATE2+0(4)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&lt;&nbsp;L_DATE2+4(2).<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;&nbsp;LT_TABLE1&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;DELETE&nbsp;&nbsp;LT_TABLE2&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_TABLE1&nbsp;TO&nbsp;LT_TABLE2."把内表插入到另一个内表<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_TABLE2&nbsp;BY&nbsp;BWKEY.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_TABLE2.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TABLE2&nbsp;INTO&nbsp;LW_TABLE2.<br />
+   </div>
+   <div class="codeComment">
+*按门店汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LW_TABLE2&nbsp;INTO&nbsp;LT_TABLE3."期初<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期初------------------*<br />
+<br />
+<br />
+<br />
+*---------------------本期进货------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;LT_BQJH&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0020."<br />
+&nbsp;&nbsp;DATA&nbsp;LW_BQJH&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0020.<br />
+&nbsp;&nbsp;DATA&nbsp;IT_BQJH&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0020."<br />
+&nbsp;&nbsp;DATA&nbsp;WA_BQJH&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0020.<br />
+<br />
+&nbsp;&nbsp;RANGES&nbsp;S_BUDAT&nbsp;FOR&nbsp;MKPF-BUDAT&nbsp;OCCURS&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;RANGES&nbsp;S_BWART&nbsp;FOR&nbsp;MSEG-BWART&nbsp;OCCURS&nbsp;0&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*****&nbsp;本期进货移动类型包含101、102、161、162<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;'101'.<br />
+&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+<br />
+&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;'102'.<br />
+&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+<br />
+&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;'161'.<br />
+&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+<br />
+&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;'162'.<br />
+&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BKK_GET_MONTH_LASTDAY'&nbsp;&nbsp;"&nbsp;获取最后一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;=&nbsp;L_DATE1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;=&nbsp;L_DATE3.&nbsp;&nbsp;&nbsp;"LOW&nbsp;月的最后一天<br />
+<br />
+&nbsp;&nbsp;L_DATE4&nbsp;=&nbsp;P_DATE-HIGH&nbsp;&nbsp;&&&nbsp;'01'."HIGH&nbsp;月初第一天<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BKK_GET_MONTH_LASTDAY'&nbsp;&nbsp;"&nbsp;获取最后一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;=&nbsp;L_DATE4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;=&nbsp;L_DATE5.&nbsp;&nbsp;&nbsp;"HIGH&nbsp;月的最后一天<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;P_DATE-HIGH&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-LOW&nbsp;=&nbsp;&nbsp;L_DATE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-HIGH&nbsp;=&nbsp;L_DATE3&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;S_BUDAT.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-LOW&nbsp;=&nbsp;&nbsp;L_DATE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT-HIGH&nbsp;=&nbsp;L_DATE5&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;S_BUDAT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;"BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BUDAT_MKPF&nbsp;&nbsp;"凭证中的过帐日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"借方/贷方标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DMBTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"按本位币计的金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_BQJH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;BUDAT_MKPF&nbsp;IN&nbsp;S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS.<br />
+<br />
+&nbsp;&nbsp;"S(借方)的金额减去H(贷方)的金额<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_BQJH.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_BQJH&nbsp;INTO&nbsp;LW_BQJH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_BQJH-SHKZG&nbsp;=&nbsp;'H'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_BQJH-DMBTR&nbsp;=&nbsp;LW_BQJH-DMBTR&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_BQJH&nbsp;FROM&nbsp;LW_BQJH&nbsp;TRANSPORTING&nbsp;DMBTR.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_BQJH&nbsp;BY&nbsp;WERKS.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_BQJH.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_BQJH&nbsp;INTO&nbsp;LW_BQJH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_BQJH-WERKS&nbsp;=&nbsp;LW_BQJH-WERKS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_BQJH-SHKZG&nbsp;=&nbsp;LW_BQJH-SHKZG.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WA_BQJH-DMBTR&nbsp;=&nbsp;WA_BQJH-DMBTR&nbsp;+&nbsp;LW_BQJH-DMBTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_BQJH&nbsp;TO&nbsp;IT_BQJH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BQJH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------本期进货------------------*<br />
+<br />
+<br />
+<br />
+*---------------------本期销售------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;LT_BQXS&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0020."<br />
+&nbsp;&nbsp;DATA&nbsp;LW_BQXS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0020.<br />
+&nbsp;&nbsp;DATA&nbsp;IT_BQXS&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0020."<br />
+&nbsp;&nbsp;DATA&nbsp;WA_BQXS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0020.<br />
+&nbsp;&nbsp;CLEAR&nbsp;S_BWART.<br />
+   </div>
+   <div class="codeComment">
+*****&nbsp;本期销售移动类型包含251,252<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;'251'.<br />
+&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+<br />
+&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;'252'.<br />
+&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;"BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BUDAT_MKPF&nbsp;&nbsp;"凭证中的过帐日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"借方/贷方标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DMBTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"按本位币计的金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_BQXS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;BUDAT_MKPF&nbsp;IN&nbsp;S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS.<br />
+<br />
+&nbsp;&nbsp;"S(借方)的金额减去H(贷方)的金额<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_BQXS.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_BQXS&nbsp;INTO&nbsp;LW_BQXS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_BQXS-SHKZG&nbsp;=&nbsp;'H'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_BQXS-DMBTR&nbsp;=&nbsp;LW_BQXS-DMBTR&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_BQXS&nbsp;FROM&nbsp;LW_BQXS&nbsp;TRANSPORTING&nbsp;DMBTR.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_BQXS&nbsp;BY&nbsp;WERKS.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_BQXS.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_BQXS&nbsp;INTO&nbsp;LW_BQXS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_BQXS-WERKS&nbsp;=&nbsp;LW_BQXS-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_BQXS-DMBTR&nbsp;=&nbsp;WA_BQJH-DMBTR&nbsp;+&nbsp;LW_BQXS-DMBTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_BQXS&nbsp;TO&nbsp;IT_BQXS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BQXS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------本期销售------------------*<br />
+<br />
+*---------------------地点描述------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;IT_WERKS&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0030.<br />
+&nbsp;&nbsp;DATA&nbsp;WA_WERKS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0030.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORTL&nbsp;&nbsp;"地点描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;KNA1<br />
+&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS.<br />
+   </div>
+   <div class="codeComment">
+*---------------------地点描述------------------*<br />
+<br />
+*******************整理填充*******************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LW_TABLE3.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TABLE3&nbsp;INTO&nbsp;LW_TABLE3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-SPMON&nbsp;=&nbsp;P_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-WERKS&nbsp;=&nbsp;LW_TABLE3-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-QCKC&nbsp;&nbsp;=&nbsp;LW_TABLE3-SALK3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BQJH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BQJH&nbsp;INTO&nbsp;WA_BQJH&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_TABLE3-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BQJH&nbsp;=&nbsp;WA_BQJH-DMBTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BQXS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BQXS&nbsp;INTO&nbsp;WA_BQXS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_TABLE3-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BQXS&nbsp;=&nbsp;WA_BQXS-DMBTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_WERKS&nbsp;INTO&nbsp;WA_WERKS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_TABLE3-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-NAME1&nbsp;=&nbsp;WA_WERKS-SORTL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------期末库存-----------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;GS_OUT_TAB.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;GS_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-QMKC&nbsp;=&nbsp;GS_OUT_TAB-QCKC&nbsp;+&nbsp;GS_OUT_TAB-BQJH&nbsp;-&nbsp;GS_OUT_TAB-BQXS."期初库存+本期进库-本期销售=期末库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;GS_OUT_TAB&nbsp;TRANSPORTING&nbsp;QMKC.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------期末库存-----------*<br />
+*******************整理填充*******************<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&显示<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_SHOW_ALV.<br />
+&nbsp;&nbsp;DATA&nbsp;TITLE&nbsp;TYPE&nbsp;LVC_TITLE."抬头标题<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_FIELDCAT&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&9&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_FIELDCAT&nbsp;TO&nbsp;LT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据转换（GT_IN_TAB=&gt;GT_OUT_TAB）<br />
+*&nbsp;STEP1:创建FIELDCAT<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DF_ADD_FIELDCAT:<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;'SPMON'&nbsp;&nbsp;'年月'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;'WERKS'&nbsp;&nbsp;'门店'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;'NAME1'&nbsp;&nbsp;'门店名称'&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;'QCKC'&nbsp;&nbsp;'期初库存'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;'BQJH'&nbsp;&nbsp;'本期进货'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;'BQXS'&nbsp;&nbsp;'本期销售'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;'QMKC'&nbsp;&nbsp;'期末库存'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;''.<br />
+<br />
+&nbsp;&nbsp;LW_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;LW_LAYOUT-BOX_FNAME&nbsp;=&nbsp;'SEL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择&nbsp;框<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;ZDAT_BEGIN(50)&nbsp;TYPE&nbsp;C.<br />
+&nbsp;&nbsp;DATA&nbsp;ZDAT_END(50)&nbsp;&nbsp;&nbsp;TYPE&nbsp;C.<br />
+<br />
+&nbsp;&nbsp;ZDAT_BEGIN&nbsp;=&nbsp;P_DATE-LOW.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;P_DATE-HIGH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZDAT_END&nbsp;=&nbsp;'-'&nbsp;&&&nbsp;P_DATE-HIGH.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZDAT_END&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;TITLE&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;统计日期:'&nbsp;&&&nbsp;ZDAT_BEGIN&nbsp;&&&nbsp;ZDAT_END&nbsp;&nbsp;."'<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_GRID_TITLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;TITLE&nbsp;"抬头标题<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_OUT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+FORM  MONAT_F4_LOW.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_SELECT_MONTH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ACTUAL_MONTH&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM+0(6)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECTED_MONTH&nbsp;=&nbsp;P_DATE-LOW.&nbsp;&nbsp;"传入参数值<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                               "MONAT_F4<br />
+<br />
+FORM  MONAT_F4_HIGH.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_SELECT_MONTH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ACTUAL_MONTH&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM+0(6)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECTED_MONTH&nbsp;=&nbsp;P_DATE-HIGH.&nbsp;&nbsp;"传入参数值<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                               "MONAT_F4<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年月期间<br />
+*&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公司代码<br />
+*&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;地点/门店<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

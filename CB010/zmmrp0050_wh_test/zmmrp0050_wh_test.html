@@ -1,0 +1,540 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0050_WH_TEST</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0050_WH_TEST</h2>
+<h3> Description: 配货信息维护程序</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZMMRP0050_WH<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;MM-RP-0050<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;配货信息维护程序<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;GUOYUE<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2016/08/27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GUOYUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZMMRP0050_WH_TEST.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;包含程序<br />
+*&---------------------------------------------------------------------*<br />
+*INCLUDE&nbsp;ZFI_COMMON_FORM.<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示相关<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPE-POOLS:SLIS.  "ALV 显示使用到的共享<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;引用表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES: ZMMRP0050_HEAD. "批量更改的屏幕结构<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;定义ALV显示字段的内表<br />
+   </div>
+   <div class="code">
+DATA: IT_FIELDCAT TYPE LVC_T_FCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE LVC_S_FCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT   TYPE LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&定义结构体<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF STRU_OUT,<br />
+   </div>
+   <div class="codeComment">
+*标记字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEL_COL&nbsp;&nbsp;TYPE&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"前端打勾选项所用语句<br />
+   </div>
+   <div class="codeComment">
+******************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFHNO&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-ZFHNO,&nbsp;&nbsp;&nbsp;&nbsp;"发货单编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-BUDAT,&nbsp;&nbsp;&nbsp;&nbsp;"时间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;"发货地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKST&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-WERKST,&nbsp;&nbsp;&nbsp;"发货库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORTT&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-LGORTT,&nbsp;&nbsp;&nbsp;"收货地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBELN_DN&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-VBELN_DN,&nbsp;"发货单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADNAM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-ADNAM,&nbsp;&nbsp;&nbsp;&nbsp;"用户名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YHDH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-YHDH,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要货单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZTSBS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-ZTSBS,&nbsp;&nbsp;&nbsp;&nbsp;"特殊标识<br />
+   </div>
+   <div class="codeComment">
+*可编辑状态用字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STYTLE&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_T_STYL,&nbsp;&nbsp;&nbsp;"编辑单元格类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_OUT.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA IT_TABLE  TYPE STANDARD TABLE OF STRU_OUT."根据结构生成内表 "IT_表示内表，<br />
+DATA WA_TABLE  TYPE                   STRU_OUT."为内表建立工作区 " WA :工作区，工作区一次只能显示一条记录，为内表建立工作区<br />
+DATA:IT_COPY   TYPE STANDARD TABLE OF STRU_OUT.<br />
+DATA:IT_ZMMRP0050_HEAD TYPE STANDARD TABLE OF ZMMRP0050_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0050_HEAD&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMRP0050_HEAD.<br />
+<br />
+DATA ZEDIT TYPE CHAR1.<br />
+DATA GL_CHECK TYPE CHAR1.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义全局指针<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FIELD-SYMBOLS: &lt;WA_TABLE&gt; TYPE STRU_OUT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BLK01 WITH FRAME TITLE TEXT-001.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;&nbsp;S_BUDAT&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0050_HEAD-BUDAT&nbsp;OBLIGATORY,&nbsp;"时间<br />
+&nbsp;&nbsp;&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0050_HEAD-WERKS&nbsp;,&nbsp;&nbsp;&nbsp;"发货地点<br />
+&nbsp;&nbsp;&nbsp;S_WERKST&nbsp;&nbsp;FOR&nbsp;ZMMRP0050_HEAD-WERKST,&nbsp;&nbsp;&nbsp;"发货库存地点<br />
+&nbsp;&nbsp;&nbsp;S_LGORTT&nbsp;&nbsp;FOR&nbsp;ZMMRP0050_HEAD-LGORTT,&nbsp;&nbsp;"收货地点<br />
+&nbsp;&nbsp;&nbsp;S_VBELN&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0050_HEAD-VBELN_DN&nbsp;OBLIGATORY,&nbsp;&nbsp;&nbsp;"发货单号<br />
+&nbsp;&nbsp;&nbsp;S_ADNAM&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0050_HEAD-ADNAM.&nbsp;&nbsp;"用户名<br />
+SELECTION-SCREEN END OF BLOCK BLK01.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&&nbsp;PBO处理<br />
+**&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN.<br />
+<br />
+AT SELECTION-SCREEN OUTPUT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.   "开始事件操作<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA."取数<br />
+&nbsp;&nbsp;IF&nbsp;IT_TABLE&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;EDIT_TEXT&nbsp;USING&nbsp;'0'.&nbsp;"设置字段编辑状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW.&nbsp;&nbsp;&nbsp;&nbsp;"调用函数显示<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有查询结果！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;IT_TABLE[].<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*取数<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0050_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ZMMRP0050_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BUDAT&nbsp;IN&nbsp;S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;WERKST&nbsp;IN&nbsp;S_WERKST<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;LGORTT&nbsp;IN&nbsp;S_LGORTT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;VBELN_DN&nbsp;&nbsp;IN&nbsp;S_VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;ADNAM&nbsp;&nbsp;IN&nbsp;S_ADNAM.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_ZMMRP0050_HEAD&nbsp;TO&nbsp;IT_TABLE.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_ZMMRP0050_HEAD&nbsp;TO&nbsp;IT_COPY.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM ALV_SHOW.  "定义这个显示函数<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+   </div>
+   <div class="codeComment">
+**--------------打勾用------------------------<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清空工作区<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表表名<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'SEL_COL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表字段名，必须大写<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'&nbsp;'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"项目表题目名称<br />
+*&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"界面增加一列CHECKBOX，属性已被选中<br />
+*&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在设置ALV列属性的时候对这个字段赋值<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"把工作区添加到内表<br />
+**--------------打勾用------------------------<br />
+<br />
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;"表名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;"中文描述字段名<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;"编辑<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'YHDH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;ELSEIF&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;=&nbsp;'ZTSBS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;.&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'BUDAT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'时间'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;"'&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'VBELN_DN'&nbsp;&nbsp;'发货单号'&nbsp;&nbsp;,&nbsp;&nbsp;"'&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'LGORTT'&nbsp;&nbsp;&nbsp;&nbsp;'门店'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;"'&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'YHDH'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'要货单号'&nbsp;&nbsp;,&nbsp;&nbsp;"ZEDIT&nbsp;,<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ZTSBS'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'特殊标识'&nbsp;&nbsp;.&nbsp;&nbsp;"ZEDIT&nbsp;.<br />
+<br />
+&nbsp;&nbsp;WA_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"颜色变换<br />
+&nbsp;&nbsp;WA_LAYOUT-BOX_FNAME&nbsp;&nbsp;=&nbsp;'SEL_COL'."选择&nbsp;框<br />
+&nbsp;&nbsp;WA_LAYOUT-STYLEFNAME&nbsp;=&nbsp;'STYTLE'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置样式<br />
+&nbsp;&nbsp;WA_LAYOUT-NO_TOOLBAR&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置样式<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"回调状态&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;回调用户命令&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+   </div>
+   <div class="codeComment">
+**-----------------------------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'&nbsp;&nbsp;&nbsp;"To-Do：确定是否需要Top&nbsp;Page<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_HTML_HEIGHT_TOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do：确定Top&nbsp;Page的高度<br />
+**-----------------------------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_VARIANT<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"输出的数据信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM USER_COMMAND USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;WA_HEAD&gt;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SELTAB&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_SELTAB.<br />
+<br />
+&nbsp;&nbsp;FREE&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;REF_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;"以下是打印关联&nbsp;表格&nbsp;用<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZEDIT'."编辑<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE&nbsp;ASSIGNING&nbsp;&lt;WA_TABLE&gt;&nbsp;WITH&nbsp;KEY&nbsp;SEL_COL&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;EDIT_TEXT&nbsp;USING&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'请选择需要更改的行'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZCANCEL'."取消<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_COPY&nbsp;&nbsp;TO&nbsp;IT_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;EDIT_TEXT&nbsp;USING&nbsp;'0'.&nbsp;"设置字段编辑状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSAVE'."取消<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZMMRP0050_HEAD&nbsp;ASSIGNING&nbsp;&lt;WA_HEAD&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE&nbsp;INTO&nbsp;WA_TABLE&nbsp;WITH&nbsp;KEY&nbsp;ZFHNO&nbsp;=&nbsp;&lt;WA_HEAD&gt;-ZFHNO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_HEAD&gt;-ZTSBS&nbsp;=&nbsp;WA_TABLE-ZTSBS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_HEAD&gt;-YHDH&nbsp;&nbsp;=&nbsp;WA_TABLE-YHDH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0050_HEAD&nbsp;FROM&nbsp;TABLE&nbsp;IT_ZMMRP0050_HEAD&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'保存成功！'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'保存失败！'&nbsp;&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_ZMMRP0050_HEAD&nbsp;TO&nbsp;IT_COPY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;EDIT_TEXT&nbsp;USING&nbsp;'0'.&nbsp;"设置字段编辑状态<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+   </div>
+   <div class="codeComment">
+*设置刷新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*保证行、列位置在自动刷新时不变<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;RS_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&设置ALV的GUI状态"以下是建立小图标用的语句<br />
+**&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM PF_STATUS_SET USING P_EXTAB TYPE SLIS_T_EXTAB.<br />
+&nbsp;&nbsp;IF&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_FALSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&RNT_PREV'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"填写不显示的功能码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&AQW'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'%SL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&INFO'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&VEXCEL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&ABC'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&GRAPH'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'ZSAVE'&nbsp;)&nbsp;&nbsp;"保存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'ZCANCEL'&nbsp;)"取消<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZMMRP0050_WH_TEST_PF'&nbsp;EXCLUDING&nbsp;P_EXTAB.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置自己的按钮<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&RNT_PREV'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"填写不显示的功能码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&AQW'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'%SL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&INFO'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&VEXCEL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&ABC'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&GRAPH'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'ZEDIT'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZMMRP0050_WH_TEST_PF'&nbsp;EXCLUDING&nbsp;P_EXTAB.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置自己的按钮<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;设定指定单元可编辑状态<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM EDIT_TEXT USING L_NUM. "0 表示不可编辑,1 标识可编辑<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE&nbsp;&nbsp;TYPE&nbsp;LVC_S_STYL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ESTYTLE&nbsp;TYPE&nbsp;LVC_T_STYL.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE&nbsp;ASSIGNING&nbsp;&lt;WA_TABLE&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_NUM&nbsp;=&nbsp;'1'&nbsp;AND&nbsp;&lt;WA_TABLE&gt;-SEL_COL&nbsp;EQ&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-FIELDNAME&nbsp;=&nbsp;'YHDH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-STYLE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_STYLE_ENABLED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LW_STYTLE&nbsp;INTO&nbsp;TABLE&nbsp;LT_ESTYTLE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-FIELDNAME&nbsp;=&nbsp;'ZTSBS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-STYLE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_STYLE_ENABLED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LW_STYTLE&nbsp;INTO&nbsp;TABLE&nbsp;LT_ESTYTLE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LINES&nbsp;OF&nbsp;LT_ESTYTLE&nbsp;INTO&nbsp;TABLE&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_TABLE&gt;-SEL_COL&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"将系统标记转移到自定义标记中,确保在计算中范围不会变.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_NUM&nbsp;=&nbsp;'0'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-FIELDNAME&nbsp;=&nbsp;'YHDH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-STYLE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_STYLE_DISABLED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LW_STYTLE&nbsp;INTO&nbsp;TABLE&nbsp;LT_ESTYTLE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-FIELDNAME&nbsp;=&nbsp;'ZTSBS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-STYLE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_STYLE_DISABLED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LW_STYTLE&nbsp;INTO&nbsp;TABLE&nbsp;LT_ESTYTLE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LINES&nbsp;OF&nbsp;LT_ESTYTLE&nbsp;INTO&nbsp;TABLE&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_TABLE&gt;-SEL_COL&nbsp;=&nbsp;ABAP_FALSE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清除选择标记,如果不清楚会导致第二次编辑时没选中也更新.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;L_NUM&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_FALSE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;001&nbsp;查询条件<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

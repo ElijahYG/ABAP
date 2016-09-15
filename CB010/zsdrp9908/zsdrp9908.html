@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP9908</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP9908</h2>
+<h3> Description: IDOC(WPUBON)销售小票支付方式金额汇总查询及报错信息</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZSDRP9908.<br />
+<br />
+include <a href ="zsdrp9908_top.html">ZSDRP9908_TOP</a>.<br />
+<br />
+include <a href ="zsdrp9908_scr.html">ZSDRP9908_SCR</a>.<br />
+<br />
+include <a href ="zsdrp9908_f01.html">ZSDRP9908_F01</a>.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+"GUI按钮相关.用户选择界面的按钮，步骤四<br />
+&nbsp;&nbsp;CLEAR&nbsp;FUNCTXT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义GUI按钮<br />
+&nbsp;&nbsp;FUNCTXT-ICON_ID&nbsp;&nbsp;&nbsp;=&nbsp;ICON_WAREHOUSE.<br />
+&nbsp;&nbsp;FUNCTXT-ICON_TEXT&nbsp;=&nbsp;'WE02'.<br />
+<br />
+&nbsp;&nbsp;SSCRFIELDS-FUNCTXT_01&nbsp;=&nbsp;FUNCTXT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;PBO处理<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN OUTPUT.  "屏幕显示检查<br />
+<br />
+"GUI按钮相关.用户选择界面的按钮，步骤五<br />
+AT SELECTION-SCREEN.<br />
+&nbsp;&nbsp;IF&nbsp;SSCRFIELDS-UCOMM&nbsp;=&nbsp;'FC01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;TRANSACTION&nbsp;'WE02'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+START-OF-SELECTION .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;Z0100&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_IDOC&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_READ_IDOC&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SET_ALV_COLOR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SET_COL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_DIS_ALV&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+*&nbsp;&nbsp;IF&nbsp;Z0101&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_IDOC_101.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GT_EDIDC[]&nbsp;IS&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有查找到符合条件的IDoc！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_READ_IDOC_101.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SET_ALV_COLOR_101.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_DIS_ALV_101.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+<br />
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;输入查询条件<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_CREDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDoc&nbsp;创建日期<br />
+*&nbsp;S_CRETIM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDoc&nbsp;创建时间<br />
+*&nbsp;S_DOCNUM&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_PDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;小票日期<br />
+*&nbsp;S_PNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;小票号<br />
+*&nbsp;S_STATUS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_WERKS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

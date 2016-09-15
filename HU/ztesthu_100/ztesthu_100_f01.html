@@ -1,0 +1,634 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTESTHU_100_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTESTHU_100_F01</h2>
+<h3> Description: ZTESTHU_100_F01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZTESTHU_100_F01<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CHECK_AUTH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_CHECK_AUTH .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;报表的权限检查，如果权限对象是单一字段，处理方法：<br />
+*&nbsp;1&nbsp;首先根据用户输入的查询条件，取得所有符合用户输入查询条件的对象；<br />
+*&nbsp;2&nbsp;对每个对象检查该用户是否有权限；<br />
+*&nbsp;3&nbsp;将有权限的对象添加到一个Range表，作为后续取业务数据的查询条件<br />
+*&nbsp;4&nbsp;如果所有对象都没有权限，则提示错误信息，程序结束<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"&nbsp;取得所有符合查询条件的地点<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;T001W-WERKS&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_WERKS&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_WERKS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GRT_WERKS&nbsp;.<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有找到符合条件的地点，请检查您输入的查询条件！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对每个地点检查用户是否有权限<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AUTHORITY-CHECK&nbsp;OBJECT&nbsp;'M_MSEG_WMB'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'ACTVT'&nbsp;FIELD&nbsp;'03'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'WERKS'&nbsp;FIELD&nbsp;LS_WERKS-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对于有权限的地点添加到Range表，作为后续取数的查询条件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LRS_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-LOW&nbsp;=&nbsp;LS_WERKS-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_WERKS&nbsp;TO&nbsp;GRT_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;"&nbsp;没有所有地点都没有权限，则提示错误信息，程序结束<br />
+&nbsp;&nbsp;IF&nbsp;GRT_WERKS[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'您没有查询输入的地点的权限，请检查您输入的查询条件！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;报表的权限检查，如果权限对象是组合字段，处理方法：<br />
+*&nbsp;1&nbsp;首先根据用户输入的查询条件，取得所有符合用户输入查询条件的字段组合；<br />
+*&nbsp;2&nbsp;对每个对象检查该用户是否有权限；<br />
+*&nbsp;3&nbsp;将有权限的对象添加到一个内表，作为后续取业务数据的查询条件<br />
+*&nbsp;4&nbsp;如果所有对象都没有权限，则提示错误信息，程序结束<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_VBAK_VKO&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_VBAK_VKO&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;对于组合字段的权限对象，一般在后台都有一个配置表维护了这些字段组合<br />
+&nbsp;&nbsp;"&nbsp;例如SD很多功能都检查销售范围（销售组织+分销渠道+产品组）的权限对象，<br />
+&nbsp;&nbsp;"&nbsp;在后台TVTA表维护了允许的销售组织+分销渠道+产品组的组合<br />
+&nbsp;&nbsp;SELECT&nbsp;VKORG&nbsp;VTWEG&nbsp;SPART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_VBAK_VKO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;TVTA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VKORG&nbsp;IN&nbsp;S_VKORG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;VTWEG&nbsp;IN&nbsp;S_VTWEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPART&nbsp;IN&nbsp;S_SPART&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有找到符合条件的销售组织+分销渠道+产品组，请检查您输入的查询条件！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_VBAK_VKO&nbsp;ASSIGNING&nbsp;&lt;FS_VBAK_VKO&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对每个组合，检查用户是否有权限<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AUTHORITY-CHECK&nbsp;OBJECT&nbsp;'V_VBAK_VKO'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'VKORG'&nbsp;FIELD&nbsp;&lt;FS_VBAK_VKO&gt;-VKORG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'VTWEG'&nbsp;FIELD&nbsp;&lt;FS_VBAK_VKO&gt;-VTWEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'SPART'&nbsp;FIELD&nbsp;&lt;FS_VBAK_VKO&gt;-SPART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'ACTVT'&nbsp;FIELD&nbsp;'03'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_VBAK_VKO&gt;-VKORG&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;DELETE&nbsp;GT_VBAK_VKO&nbsp;WHERE&nbsp;VKORG&nbsp;=&nbsp;''&nbsp;.&nbsp;"&nbsp;从内表中删除用户没有权限的组合<br />
+&nbsp;&nbsp;IF&nbsp;GT_VBAK_VKO[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'您没有查询输入的销售组织+分销渠道+产品组的权限，请检查您输入的查询条件！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF&nbsp;.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PREPARE_CRITERIA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PREPARE_CRITERIA .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;有时，有些屏幕的查询条件，在后续查询业务数据时不能直接使用，或者要通过较复杂的表关联<br />
+*&nbsp;来查询。对于这种情况，可以将这种查询条件转换为另一个可直接使用的查询条件。<br />
+*&nbsp;这种处理称为查询条件预处理。实际上对权限的检查和处理，也是一种查询条件预处理。<br />
+<br />
+*&nbsp;例如本例当中的查询条件“是否联营”，在查询时要通过VBRP的批次，关联ZMMRP0210_BATCH，然后<br />
+*&nbsp;根据ZMMRP0210_BATCH的ZLYJSFS(结算方式)&nbsp;关联ZMMDG0010_JSFS才能取得是否联营。因此可以<br />
+*&nbsp;根据查询条件“是否联营”，先取得对应的结算方式，在后续的业务数据查询时使用结算方式。<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_JSFS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BM&nbsp;TYPE&nbsp;ZMMDG0010_JSFS-BM&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_JSFS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_JSFS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_JSFS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GRT_JSFS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_JSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMDG0010_JSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SFLY&nbsp;IN&nbsp;S_SFLY&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'根据您输入的是否联营没有找到对应的结算方式，请检查您的输入！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_JSFS&nbsp;INTO&nbsp;LS_JSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LRS_JSFS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-LOW&nbsp;=&nbsp;LS_JSFS-BM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_JSFS-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_JSFS&nbsp;TO&nbsp;GRT_JSFS&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM .<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_MAIN_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_MAIN_DATA .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;因为原始数据和报表结果是多对1，所以先取得明细的原始数据，即每个Billing&nbsp;Item<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;每个Billing&nbsp;Item的明细字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~VBELN&nbsp;P~POSNR&nbsp;P~SHKZG&nbsp;P~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;关键字<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;K~FKDAT&nbsp;P~WERKS&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;直接指标<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~FKIMG&nbsp;P~VRKME&nbsp;P~KZWI3&nbsp;P~KZWI2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;部分属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;因为该属性也是查询条件之一，所以在这里就关联表顺便取得<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_BILLING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRK&nbsp;AS&nbsp;K<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;VBRP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~VBELN&nbsp;=&nbsp;K~VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;P~MATNR&nbsp;=&nbsp;A~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMRP0210_BATCH&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;&nbsp;Z~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~CHARG&nbsp;=&nbsp;P~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_VBAK_VKO&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;使用权限检查后的销售组织+分销渠道+产品组，而不是用户输入的S_VKORG,&nbsp;S_VTWEG,&nbsp;S_SPART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对于这种组合字段的权限对象，使用&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;的查询方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;K~FKDAT&nbsp;IN&nbsp;S_FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;K~VKORG&nbsp;=&nbsp;GT_VBAK_VKO-VKORG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;K~VTWEG&nbsp;=&nbsp;GT_VBAK_VKO-VTWEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~SPART&nbsp;=&nbsp;GT_VBAK_VKO-SPART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~WERKS&nbsp;IN&nbsp;GRT_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;使用权限检查后的地点，而不是用户输入的地点S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;对于这种单一字段的权限对象，使用Range表作为查询条件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~MATNR&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~CHARG&nbsp;IN&nbsp;S_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~EXTWG&nbsp;IN&nbsp;S_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;Z~ZLYJSFS&nbsp;IN&nbsp;GRT_JSFS&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;预处理的查询条件<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有查到任何系统发票！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_ATTRIBUTE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_ATTRIBUTE .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取得关键字属性的方法：<br />
+*&nbsp;1.&nbsp;如果该关键字是权限检查对象，可以根据权限检查过滤后的表作为查询条件取得关键字属性<br />
+*&nbsp;2.&nbsp;如果该关键字是查询条件，那可以根据查询条件取得其属性<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;该方法不适用数据量很大的关键字，例如商品，因为用户可能在查询屏幕中没有输入该查询条件，<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;导致取出很大数据量<br />
+*&nbsp;3.&nbsp;如果该关键字的数据量本身就很小，干脆直接取得全部<br />
+*&nbsp;4.&nbsp;根据第1步取得的数据中的关键字，取得其属性<br />
+*&nbsp;按以上顺序优先选择方法。<br />
+<br />
+<br />
+*&nbsp;在本程序中，要取得地点的属性：是否扣点店，如果报表要显示关键字的描述，在这里可以顺便一起取得<br />
+<br />
+*&nbsp;方法1示例：&nbsp;在本程序中地点本身也是权限检查对象，那这里可以使用权限检查过滤后的表来取数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;W~WERKS&nbsp;C~SORT1&nbsp;Z~EX_POS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W&nbsp;AS&nbsp;W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ADRC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~ADDRNUMBER&nbsp;=&nbsp;W~ADRNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZT001W&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;Z~WERKS&nbsp;=&nbsp;W~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;W~WERKS&nbsp;IN&nbsp;GRT_WERKS&nbsp;.&nbsp;"GRT_WERKS&nbsp;是权限检查过滤后的表<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;方法2示例：&nbsp;因为地点本身就是查询条件，可以根据查询条件取得其属性。<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;W~WERKS&nbsp;C~SORT1&nbsp;Z~EX_POS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W&nbsp;AS&nbsp;W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ADRC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~ADDRNUMBER&nbsp;=&nbsp;W~ADRNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZT001W&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;Z~WERKS&nbsp;=&nbsp;W~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;W~WERKS&nbsp;IN&nbsp;S_WERKS&nbsp;.&nbsp;&nbsp;"S_WERKS&nbsp;是屏幕输入查询条件<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;方法3示例：&nbsp;因为地点本身数据量小，干脆取得全部数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;W~WERKS&nbsp;C~SORT1&nbsp;Z~EX_POS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W&nbsp;AS&nbsp;W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ADRC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~ADDRNUMBER&nbsp;=&nbsp;W~ADRNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZT001W&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;Z~WERKS&nbsp;=&nbsp;W~WERKS&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;方法4示例：根据第1步取得的数据中的地点，取得其属性<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BILLING&nbsp;TO&nbsp;GT_WERKS&nbsp;.&nbsp;"&nbsp;这是MOVE-CORRESPONDING语法的新应用，<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;可以将A内表中相同字段复制到B内表中，<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;过去只能从结构复制到结构<br />
+&nbsp;&nbsp;SORT&nbsp;GT_WERKS&nbsp;BY&nbsp;WERKS&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;GT_WERKS&nbsp;COMPARING&nbsp;WERKS&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;GT_WERKS[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;用于FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN的内表，一<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;定要确认其不能为空，否则会取出所有数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;W~WERKS&nbsp;C~SORT1&nbsp;Z~EX_POS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W&nbsp;AS&nbsp;W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ADRC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~ADDRNUMBER&nbsp;=&nbsp;W~ADRNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZT001W&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;Z~WERKS&nbsp;=&nbsp;W~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;为什么这里不直接使用GT_BILLING，而是<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;使用排序去重后的GT_WERKS。因为这样可以<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;减少向DB传输的查询语句的大小，提高查询效率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;W~WERKS&nbsp;=&nbsp;GT_WERKS-WERKS&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_DESCRIPTION<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_DESCRIPTION .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取得关键字和属性的描述的方法：<br />
+*&nbsp;1.&nbsp;如果关键字的描述和属性在同一个表，可以在前面取得关键字属性的同时取得<br />
+*&nbsp;2.&nbsp;如果该关键字的数据量本身就很小，干脆直接取得全部<br />
+*&nbsp;3.&nbsp;如果是域描述，一次取得全部<br />
+*&nbsp;4.&nbsp;根据前面取得的关键字或属性，取得其描述<br />
+*&nbsp;按以上顺序优先选择方法。<br />
+*&nbsp;注意：很多SAP标准的Code描述表是多语言的，在取数时要确定取哪个语言的条件，<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一般取SY-LANGU<br />
+<br />
+*&nbsp;方法2示例：商品大类名称，商品大类数据量很少，一次全部取得<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;EXTWG&nbsp;EWBEZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_TWEWT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;TWEWT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SPRAS&nbsp;=&nbsp;SY-LANGU&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;方法3示例：取得域描述，这里以域ZDE_RATE_TYPE举例<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LT_TABLE&nbsp;LIKE&nbsp;GT_ZDE_RATE_TYPE&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DD_DOMA_GET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOMAIN_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZDE_RATE_TYPE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LANGU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-LANGU<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD07V_TAB_A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_ZDE_RATE_TYPE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DD07V_TAB_N&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ILLEGAL_VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OP_FAILURE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Nothing&nbsp;to&nbsp;do<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;方法4示例：商品名称，根据前面取得业务数据中的商品，取得其描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BILLING&nbsp;TO&nbsp;GT_MAKT&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MAKT&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;GT_MAKT&nbsp;COMPARING&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;MAKTX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_MAKT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MAKT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_MAKT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;GT_MAKT-MATNR&nbsp;.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_ADDITION_FIGURE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_ADDITION_FIGURE .<br />
+&nbsp;&nbsp;DATA:&nbsp;LRT_WERKS&nbsp;TYPE&nbsp;ZCB01_TY_RT_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LRT_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRT_MATNR&nbsp;TYPE&nbsp;ZCB01_TY_RT_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LRT_MATNR.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_WERKS_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;T001W-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_WERKS_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_WERKS_MATNR&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_WERKS_MATNR.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_STOCK_NORMAL&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_STOCK_SIT_CC&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_STOCK_SIT_SC&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_STOCK_SIV&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_STOCK_LINE&nbsp;TYPE&nbsp;LINE&nbsp;OF&nbsp;ZCB01_TY_T_ZG_GET_STOCK.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_STOCK&nbsp;.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BILLING&nbsp;TO&nbsp;LT_WERKS_MATNR&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_WERKS_MATNR&nbsp;BY&nbsp;WERKS&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_WERKS_MATNR&nbsp;COMPARING&nbsp;WERKS&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_WERKS_MATNR&nbsp;INTO&nbsp;LS_WERKS_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LRS_WERKS,&nbsp;LRS_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-LOW&nbsp;=&nbsp;LS_WERKS_MATNR-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_WERKS&nbsp;TO&nbsp;LRT_WERKS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-LOW&nbsp;=&nbsp;LS_WERKS_MATNR-MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_MATNR&nbsp;TO&nbsp;LRT_MATNR&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;SORT&nbsp;LRT_WERKS&nbsp;BY&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LRT_WERKS&nbsp;COMPARING&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LRT_MATNR&nbsp;BY&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LRT_MATNR&nbsp;COMPARING&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zg_get_stock_criteria/zg_get_stock_criteria.html">'ZG_GET_STOCK_CRITERIA'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_STOCK_NORMAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_SIT_SC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_SIT_CC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_SIV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LRT_WERKS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LRT_MATNR<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_MTART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_MATKL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_GJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_ZXSKGFD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_ZSPTM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_ZLYJSFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_ZXSJGJLDW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_ZGYSDM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_SFLY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_PZ01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_PZ02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_PZ03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_PZ04&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_TA01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_TA02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_ZT01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_ZT02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_EX_ZT03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_NORMAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_NORMAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_SIT_SC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_SIT_SC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_SIT_CC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_SIT_CC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_SIV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_SIV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EMPTY_IRT_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Nothing&nbsp;to&nbsp;do<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_NORMAL&nbsp;INTO&nbsp;LS_STOCK_LINE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_LINE&nbsp;TO&nbsp;LS_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LS_STOCK&nbsp;INTO&nbsp;GT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_SIT_SC&nbsp;INTO&nbsp;LS_STOCK_LINE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_LINE&nbsp;TO&nbsp;LS_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LS_STOCK&nbsp;INTO&nbsp;GT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_SIT_CC&nbsp;INTO&nbsp;LS_STOCK_LINE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_LINE&nbsp;TO&nbsp;LS_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LS_STOCK&nbsp;INTO&nbsp;GT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_STOCK_SIV&nbsp;INTO&nbsp;LS_STOCK_LINE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_STOCK_LINE&nbsp;TO&nbsp;LS_STOCK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LS_STOCK&nbsp;INTO&nbsp;GT_STOCK&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PROCESS_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PROCESS_DATA .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;业务数据和最终报表是多vs1模式：<br />
+*&nbsp;1.&nbsp;先将明细业务数据汇总为半成品最终报表<br />
+*&nbsp;2.&nbsp;再对半成品最终报表每一条记录进行处理，取得关键字属性、描述、附加指标，并处理计算指标<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LS_BILLING&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_BILLING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ALV&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_ALV&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_ALV&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_ALV&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_STOCK&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_STOCK&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_WERKS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_WERKS&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_TWEWT&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_TWEWT&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MAKT&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_MAKT&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;1.&nbsp;先将明细数据汇总为半成品最终报表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_BILLING&nbsp;INTO&nbsp;LS_BILLING&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BILLING-SHKZG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BILLING-FKIMG&nbsp;=&nbsp;LS_BILLING-FKIMG&nbsp;*&nbsp;-1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_BILLING&nbsp;TO&nbsp;LS_ALV&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LS_ALV&nbsp;INTO&nbsp;GT_ALV&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;2.&nbsp;再对半成品最终报表每一条记录进行处理，取得关键字属性、描述、附加指标，并处理计算指标<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"&nbsp;先对属性、描述、附加指标表进行排序，在后面读取时使用BINARY&nbsp;SEARCH，提高效率<br />
+&nbsp;&nbsp;SORT&nbsp;GT_STOCK&nbsp;BY&nbsp;WERKS&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_WERKS&nbsp;BY&nbsp;WERKS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_TWEWT&nbsp;BY&nbsp;EXTWG&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MAKT&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV&nbsp;ASSIGNING&nbsp;&lt;FS_ALV&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取得关键字和属性的描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;&lt;FS_ALV&gt;-WERKS&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-SORT1&nbsp;=&nbsp;LS_WERKS-SORT1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-EX_POS&nbsp;=&nbsp;LS_WERKS-EX_POS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_TWEWT&nbsp;INTO&nbsp;LS_TWEWT&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;&lt;FS_ALV&gt;-EXTWG&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-EWBEZ&nbsp;=&nbsp;LS_TWEWT-EWBEZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MAKT&nbsp;INTO&nbsp;LS_MAKT&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_ALV&gt;-MATNR&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-MAKTX&nbsp;=&nbsp;LS_MAKT-MAKTX&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取得附加指标<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_STOCK&nbsp;INTO&nbsp;LS_STOCK&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;&lt;FS_ALV&gt;-WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_ALV&gt;-MATNR&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-LBKUM&nbsp;=&nbsp;LS_STOCK-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;处理计算指标<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-ZXSML&nbsp;=&nbsp;&lt;FS_ALV&gt;-KZWI3&nbsp;-&nbsp;&lt;FS_ALV&gt;-KZWI2&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ALV&nbsp;BY&nbsp;FKDAT&nbsp;WERKS&nbsp;MATNR&nbsp;.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

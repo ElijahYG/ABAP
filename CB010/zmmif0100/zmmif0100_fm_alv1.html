@@ -1,0 +1,388 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMIF0100_FM_ALV1</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMIF0100_FM_ALV1</h2>
+<h3> Description: Include ZMMIF0100_FM_ALV1</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMIF0100_FM_ALV1<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+<br />
+*&-----------------------------------------------*<br />
+*&取数（盘点单号，保存状态，审核状态，）<br />
+*&-----------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA1.<br />
+&nbsp;&nbsp;SELECT&nbsp;ZPDBH&nbsp;ZFLAG&nbsp;WERKS&nbsp;LGORT&nbsp;ZBS&nbsp;ZBC&nbsp;ZSH&nbsp;ZDJRQ&nbsp;ZCJR&nbsp;ZGGR&nbsp;ZGGRQ&nbsp;ZSHR&nbsp;ZPDRQ&nbsp;ZZT<br />
+&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE1<br />
+&nbsp;&nbsp;&nbsp;FROM&nbsp;&nbsp;ZMMIF0150_PDHEAD<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZDJRQ&nbsp;IN&nbsp;S_ZDJRQ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT.<br />
+&nbsp;&nbsp;"AND&nbsp;ZPDBH&nbsp;IN&nbsp;S_ZPDBH.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;商品条码&nbsp;汇总数据&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE&nbsp;BY&nbsp;ZDJRQ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;序号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE1&nbsp;INTO&nbsp;WA_TABLE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE1-ZNO&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE1&nbsp;FROM&nbsp;WA_TABLE1&nbsp;INDEX&nbsp;SY-TABIX&nbsp;TRANSPORTING&nbsp;ZNO.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE1.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&-----------------------------------------------*<br />
+*&显示ALV1。第一个界面<br />
+*&-----------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM ALV_SHOW1.  "定义这个显示函数<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+<br />
+   </div>
+   <div class="codeComment">
+**--------------打勾用------------------------<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清空工作区<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表表名<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'SEL_COL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表字段名，必须大写<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'&nbsp;'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"项目表题目名称<br />
+*&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"界面增加一列CHECKBOX，属性已被选中<br />
+*&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在设置ALV列属性的时候对这个字段赋值<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"把工作区添加到内表<br />
+**--------------打勾用------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZNO'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'序号'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZPDBH'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'盘点表编码'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZFLAG'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'下传POS盘点标记'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZZT'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'在途标识'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'WERKS'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'门店'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'LGORT'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'库存地点'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZBS'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'POS盘点标识'.<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZBC'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'保存状态'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZSH'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'审核状态'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZDJRQ'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'建表日期'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZCJR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'建表人'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZGGR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'更改人'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZGGRQ'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'更改日期'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZSHR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'审核人'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE1'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZPDRQ'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'POS盘点日期'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_LAYOUT.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"列宽度优化（宽度自动调整）<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"前面补零，补前导零<br />
+&nbsp;&nbsp;WA_LAYOUT-NO_INPUT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;WA_LAYOUT-BOX_FIELDNAME&nbsp;=&nbsp;'SEL_COL'."选择&nbsp;框<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID&nbsp;&nbsp;&nbsp;&nbsp;"传入程序ID，系统程序变量ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;"传入三个参数布局<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]&nbsp;"内容输出<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET1'&nbsp;&nbsp;"回调状态&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND1'&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;回调用户命令&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_TABLE1&nbsp;&nbsp;"输出的数据信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM USER_COMMAND1 USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;FREE&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**-------刷新内表（自动将屏幕修改的值与内表同步）-----<br />
+<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+*&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA.<br />
+**-------刷新内表（自动将屏幕修改的值与内表同步）-----<br />
+<br />
+<br />
+*&nbsp;判断用户具体做了什么动作<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_RESH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA1.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW1.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_BACK1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;SCREEN&nbsp;8000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&IC1'.<br />
+   </div>
+   <div class="codeComment">
+*---------------------双击事件--------------------------------*<br />
+*&nbsp;读取用户双击的当前行<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE1&nbsp;INTO&nbsp;WA_TABLE1&nbsp;INDEX&nbsp;RS_SELFIELD-TABINDEX.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"ALV中双击事件代码<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;RS_SELFIELD-SEL_TAB_FIELD&nbsp;=&nbsp;'IT_TABLE1-ZPDBH'.&nbsp;"表示单击某一单元格<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击每一个字段都行<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA&nbsp;&nbsp;USING&nbsp;WA_TABLE1-ZPDBH.&nbsp;&nbsp;&nbsp;&nbsp;"取数（具体）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_PDSHZT&nbsp;USING&nbsp;WA_TABLE-ZPDBH.&nbsp;&nbsp;&nbsp;"判断审核状态，给变量（ZBL）赋值。<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW&nbsp;&nbsp;USING&nbsp;ZBL.&nbsp;&nbsp;&nbsp;&nbsp;"调用函数显示<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_DEL'."删除<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;DEL_DATA.<br />
+<br />
+&nbsp;&nbsp;ENDCASE.<br />
+   </div>
+   <div class="codeComment">
+*---------------------双击事件--------------------------------*<br />
+<br />
+*&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;REFRESH_TABLE_DISPLAY.<br />
+*设置刷新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*保证行、列位置在自动刷新时不变<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;RS_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+"以下是建立小图标用的语句<br />
+FORM PF_STATUS_SET1 USING P_EXTAB TYPE SLIS_T_EXTAB..<br />
+&nbsp;&nbsp;"Set&nbsp;the&nbsp;Button&nbsp;using&nbsp;the&nbsp;staus<br />
+&nbsp;&nbsp;"Copy&nbsp;the&nbsp;Standard&nbsp;status&nbsp;from&nbsp;the&nbsp;program&nbsp;SAPLKKBL&nbsp;status<br />
+&nbsp;&nbsp;"&nbsp;STANDARD&nbsp;using&nbsp;SE41,&nbsp;and&nbsp;use&nbsp;that&nbsp;here.<br />
+&nbsp;&nbsp;"Pf&nbsp;status<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZMMIF0100_PF1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击设置自己的按钮<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+*-------------------------------------------*<br />
+*&nbsp;&nbsp;删除整单<br />
+*-------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM DEL_DATA.<br />
+&nbsp;&nbsp;CLEAR:LT_TABLE[].&nbsp;&nbsp;"清空内表<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TABLE1&nbsp;TO&nbsp;LT_TABLE.<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_TABLE&nbsp;WHERE&nbsp;SEL_COL&nbsp;&lt;&gt;&nbsp;'X'&nbsp;."删除没有勾选的<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_TABLE&nbsp;INTO&nbsp;LW_TABLE&nbsp;WITH&nbsp;KEY&nbsp;ZBC&nbsp;=&nbsp;'X'."如果已经保存则不能删除。<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'单号已保存,不能删除.'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_TABLE&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'请选择需要删除的数据'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_TABLE[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZMMIF0150_PDHEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_PDHEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZPDBH&nbsp;EQ&nbsp;LT_TABLE-ZPDBH.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZMMIF0150_PDITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_PDITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZPDBH&nbsp;EQ&nbsp;LT_TABLE-ZPDBH.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ZMMIF0150_PDHEAD&nbsp;FROM&nbsp;TABLE&nbsp;LT_PDHEAD."删除表头<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ZMMIF0150_PDITEM&nbsp;FROM&nbsp;TABLE&nbsp;LT_PDITEM."删除行项目<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE1&nbsp;INTO&nbsp;WA_TABLE1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"删除ALV显示<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TABLE1&nbsp;WHERE&nbsp;SEL_COL&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'删除成功！.'.<br />
+<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

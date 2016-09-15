@@ -1,0 +1,796 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZCS0070_GY</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZCS0070_GY</h2>
+<h3> Description: ALV_LVC_单元格编辑</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP9910<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;SD-RP-9910<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;编辑单元格报表<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;GUOYUE<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2016/01/05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GUOYUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZFIRP0090_GY.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示相关<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPE-POOLS:SLIS.  "ALV 显示使用到的共享池<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:VBRK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBRP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BKPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBAP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMDG0010_JSFS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMRP0470_9000.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批量更改的屏幕结构<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;定义ALV显示字段的内表<br />
+   </div>
+   <div class="code">
+DATA: IT_FIELDCAT TYPE LVC_T_FCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE LVC_S_FCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT   TYPE LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF STRU_0010,               "声明结构 名为 STRU_0010<br />
+   </div>
+   <div class="codeComment">
+*标记字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEL_COL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR1,&nbsp;"前端打勾选项所用语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;关键字<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-FKDAT,&nbsp;"&nbsp;销售日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-WERKS,&nbsp;"&nbsp;地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MATNR,&nbsp;"&nbsp;商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;"&nbsp;商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_POS&nbsp;&nbsp;TYPE&nbsp;ZT001W-EX_POS,&nbsp;"&nbsp;是否扣点店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;关键字和属性描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT1&nbsp;&nbsp;&nbsp;TYPE&nbsp;ADRC-SORT1,&nbsp;"&nbsp;地点检查<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EWBEZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;TWEWT-EWBEZ,&nbsp;"&nbsp;商品大类名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKTX&nbsp;&nbsp;&nbsp;TYPE&nbsp;MAKT-MAKTX,&nbsp;"&nbsp;商品名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;直接指标<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKIMG&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-FKIMG,&nbsp;"&nbsp;销售数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VRKME&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-VRKME,&nbsp;"&nbsp;销售单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI3&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3,&nbsp;"&nbsp;销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI2,&nbsp;"&nbsp;销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;计算指标<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSML&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI2,&nbsp;"&nbsp;销售毛利<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;附加指标<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LBKUM&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEW-LBKUM,&nbsp;"&nbsp;库存数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR300,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"备注<br />
+<br />
+   </div>
+   <div class="codeComment">
+*可编辑状态用字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STYTLE&nbsp;&nbsp;TYPE&nbsp;LVC_T_STYL,&nbsp;&nbsp;&nbsp;"编辑单元格类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0010.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA IT_TABLE  TYPE STANDARD TABLE OF STRU_0010."根据结构生成内表 "IT_表示内表，声明生成一个内表，这个内表定义同stru_0020<br />
+DATA WA_TABLE  TYPE                   STRU_0010."为内表建立工作区 " WA :工作区，工作区一次只能显示一条记录，为内表建立工作区<br />
+<br />
+DATA GL_CHECK TYPE CHAR1.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;定义全局指针<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FIELD-SYMBOLS: &lt;WA_TABLE&gt; TYPE STRU_0010.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BLK01 WITH FRAME TITLE TEXT-001.<br />
+SELECT-OPTIONS: S_FKDAT FOR VBRK-FKDAT OBLIGATORY ,   " 必须输入<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_VKORG&nbsp;FOR&nbsp;VBRK-VKORG&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_VTWEG&nbsp;FOR&nbsp;VBRK-VTWEG&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_SPART&nbsp;FOR&nbsp;VBRP-SPART&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_WERKS&nbsp;FOR&nbsp;VBRP-WERKS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;下划线<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN ULINE .<br />
+SELECT-OPTIONS: S_EXTWG FOR MARA-EXTWG ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MATNR&nbsp;FOR&nbsp;VBRP-MATNR&nbsp;NO&nbsp;INTERVALS,&nbsp;&nbsp;"&nbsp;不能From&nbsp;To，但可以输入多个单一值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_CHARG&nbsp;FOR&nbsp;VBRP-CHARG&nbsp;NO-EXTENSION,&nbsp;&nbsp;"&nbsp;只能From&nbsp;To，不能输入多个From&nbsp;To<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_SFLY&nbsp;FOR&nbsp;ZMMDG0010_JSFS-SFLY&nbsp;NO&nbsp;INTERVALS&nbsp;NO-EXTENSION.&nbsp;"&nbsp;只能输入单一值<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;备注文字<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN COMMENT /1(50) TEXT-T02 .<br />
+<br />
+SELECTION-SCREEN END OF BLOCK BLK01.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**-------------ALV格式输出选择第1部分-------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN: BEGIN OF BLOCK B9 WITH FRAME TITLE TEXT-T99.<br />
+PARAMETERS P_VARI TYPE SLIS_VARI.<br />
+SELECTION-SCREEN: END OF BLOCK B9.<br />
+   </div>
+   <div class="codeComment">
+**-------------ALV格式输出选择第1部分-------------*<br />
+*&nbsp;备注文字<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN COMMENT /1(50) TEXT-098 .<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK BLK_BL2 WITH FRAME TITLE TEXT-003.<br />
+<br />
+PARAMETERS SHOW_ALL AS CHECKBOX USER-COMMAND FLAG.<br />
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME.<br />
+PARAMETERS: P1 TYPE C LENGTH 10,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P2&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;10,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P7&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;10&nbsp;MODIF&nbsp;ID&nbsp;BL3.<br />
+SELECTION-SCREEN END OF BLOCK B1.<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK B2 WITH FRAME.<br />
+PARAMETERS: P3 TYPE C LENGTH 10 MODIF ID BL3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P4&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;10&nbsp;MODIF&nbsp;ID&nbsp;BL3.<br />
+SELECTION-SCREEN END OF BLOCK B2.<br />
+<br />
+SELECTION-SCREEN END OF BLOCK BLK_BL2.<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK B3 WITH FRAME TITLE TEXT-T01.<br />
+PARAMETERS:    P_BUDAT TYPE SY-DATUM MODIF ID BL1."默认输出日期为当月的28号<br />
+PARAMETERS     S_NAME   AS LISTBOX VISIBLE LENGTH 20 MODIF ID BL2.<br />
+<br />
+PARAMETERS:    Z01 RADIOBUTTON GROUP GP1, "二选一<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z02&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;GP1.&nbsp;"<br />
+   </div>
+   <div class="codeComment">
+*-------------设置二选一按钮在一行上----------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF LINE."设置以下按钮在一行上<br />
+PARAMETERS:  P_1 TYPE C RADIOBUTTON GROUP G1 DEFAULT 'X' USER-COMMAND RADIO ."FLAG、RADIO做个标记，效果一样。<br />
+SELECTION-SCREEN COMMENT (5)  FOR FIELD P_1."  格式说明P_2距离P_1 5.<br />
+PARAMETERS:  P_2 TYPE C RADIOBUTTON GROUP G1 .<br />
+SELECTION-SCREEN COMMENT (5)  FOR FIELD P_2.<br />
+SELECTION-SCREEN END OF LINE.<br />
+   </div>
+   <div class="codeComment">
+*-------------设置二选一按钮在一行上----------------*<br />
+<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN END OF BLOCK B3.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;P_BUDAT&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'28'."默认过账日期为每个月的28号。<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&&nbsp;PBO处理<br />
+**&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------ALV格式输出选择做F4搜索帮助------第2部分------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR P_VARI."<br />
+&nbsp;&nbsp;PERFORM&nbsp;F_ALV_VARIANT_F4&nbsp;CHANGING&nbsp;P_VARI.<br />
+   </div>
+   <div class="codeComment">
+*-----------ALV格式输出选择做F4搜索帮助------第2部分------*<br />
+<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN OUTPUT.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;SCREEN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;P_1&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;SCREEN-GROUP1&nbsp;=&nbsp;'BL1'."当选择P_1，且MODIF&nbsp;ID&nbsp;为&nbsp;BL1时&nbsp;隐藏BL1。<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCREEN-ACTIVE&nbsp;=&nbsp;'0'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;P_YEAR,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MONTH[].<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;P_2&nbsp;=&nbsp;'X'&nbsp;AND&nbsp;SCREEN-GROUP1&nbsp;=&nbsp;'BL2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCREEN-ACTIVE&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SHOW_ALL&nbsp;&lt;&gt;&nbsp;'X'&nbsp;AND&nbsp;SCREEN-GROUP1&nbsp;=&nbsp;'BL3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCREEN-ACTIVE&nbsp;=&nbsp;'0'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置组内设置屏幕的显示和隐藏<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;SCREEN.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"把弃置应用到当前屏幕<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.   "开始事件操作<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA.&nbsp;&nbsp;&nbsp;&nbsp;"调用函数取数<br />
+&nbsp;&nbsp;IF&nbsp;IT_TABLE[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;EDIT_TEXT&nbsp;USING&nbsp;'0'.&nbsp;"设置字段编辑状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW.&nbsp;&nbsp;&nbsp;&nbsp;"调用函数显示<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有查询结果！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;IT_TABLE[].<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取数函数<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;SELECT&nbsp;A~MANDT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调用函数取数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BELNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BLART<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~USNAM<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~TCODE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MONAT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~GJAHR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BUKRS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BLDAT<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;BKPF&nbsp;AS&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BKPF表叫做A表<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;&nbsp;&nbsp;&nbsp;”如果有两个表，定义完第一个表后与第二表之间必须加的语句<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BSEG&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~BELNR&nbsp;EQ&nbsp;B~BELNR&nbsp;&nbsp;&nbsp;&nbsp;"eq等于=。<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGKXX&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~CPXH&nbsp;EQ&nbsp;A~CPXH<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZVIPXX&nbsp;AS&nbsp;D&nbsp;ON&nbsp;C~SFZ&nbsp;EQ&nbsp;D~SFZ<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~BELNR&nbsp;&nbsp;&nbsp;IN&nbsp;S_BELNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~BLART&nbsp;&nbsp;&nbsp;IN&nbsp;S_BLART<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~USNAM&nbsp;&nbsp;&nbsp;IN&nbsp;S_USNAM.<br />
+<br />
+<br />
+*&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;GMJE&nbsp;INTO&nbsp;WA_TABLE-GMJE&nbsp;FROM&nbsp;ZVIPXX<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;XM&nbsp;EQ&nbsp;WA_TABLE-XM.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPRAS&nbsp;EQ&nbsp;'4'.<br />
+**<br />
+<br />
+<br />
+**--------------------从一个内表中SELECT-------------------*<br />
+*&nbsp;&nbsp;SELECT&nbsp;EBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKPO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_EBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_ITEM<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EBELN&nbsp;=&nbsp;IT_ITEM-EBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EBELP&nbsp;=&nbsp;IT_ITEM-EBELP.<br />
+*<br />
+**--------------------从一个内表中SELECT-------------------*<br />
+<br />
+<br />
+*&nbsp;&nbsp;SORT&nbsp;GT_WERKS&nbsp;BY&nbsp;WERKS&nbsp;.<br />
+*&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_ALV&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_TABLE&nbsp;.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;ASSIGNING&nbsp;&lt;FS_ALV&gt;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;&lt;FS_ALV&gt;-WERKS&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-SORT1&nbsp;=&nbsp;LS_WERKS-SORT1&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-EX_POS&nbsp;=&nbsp;LS_WERKS-EX_POS&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;处理计算指标<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-ZXSML&nbsp;=&nbsp;&lt;FS_ALV&gt;-KZWI3&nbsp;-&nbsp;&lt;FS_ALV&gt;-KZWI2&nbsp;.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;SORT&nbsp;IT_TABLE&nbsp;BY&nbsp;FKDAT&nbsp;WERKS&nbsp;MATNR&nbsp;.<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+FORM ALV_SHOW.  "定义这个显示函数<br />
+   </div>
+   <div class="codeComment">
+*-----------ALV格式输出选择------------第3部分------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV&nbsp;FUNCTION<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LS_VARIANT-REPORT&nbsp;=&nbsp;SY-REPID.<br />
+&nbsp;&nbsp;LS_VARIANT-VARIANT&nbsp;=&nbsp;P_VARI&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*-----------ALV格式输出选择------------第3部分------*<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+<br />
+   </div>
+   <div class="codeComment">
+**--------------打勾用------------------------<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清空工作区<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表表名<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'SEL_COL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表字段名，必须大写<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'&nbsp;'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"项目表题目名称<br />
+*&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"界面增加一列CHECKBOX，属性已被选中<br />
+*&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在设置ALV列属性的时候对这个字段赋值<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"把工作区添加到内表<br />
+*<br />
+**--------------打勾用------------------------<br />
+<br />
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;"表名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;"中文描述字段名<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4&nbsp;.&nbsp;&nbsp;"可编辑<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-OUTPUTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5&nbsp;.&nbsp;&nbsp;"固定长度<br />
+<br />
+   </div>
+   <div class="code">
+IF WA_FIELDCAT-FIELDNAME       = 'TEXT'.<br />
+WA_FIELDCAT-EDIT            = 'X' .  "可编辑<br />
+ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;"参考字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;"参考表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-DRDN_FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;"设置下拉菜单<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;"此字段为'X'，整列变为可编辑状态，当与STYLE冲突时STYLE优先。<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;"隐藏字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-NO_ZERO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&9.&nbsp;&nbsp;&nbsp;"隐藏前导零<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;"引用表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;"引用字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;&nbsp;"内部长度(筛选时),默认长度10<br />
+*&nbsp;&nbsp;&nbsp;I_OUTPUTLEN&nbsp;TYPE&nbsp;DD03P-OUTPUTLEN.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度(筛选时),默认长度10<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LS_FIELDCAT-FIX_COLUMN&nbsp;&nbsp;=&nbsp;ABAP_TRUE.&nbsp;"固定列<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'WERKS'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;地点'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"&nbsp;''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'FKDAT'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;销售日期'&nbsp;&nbsp;&nbsp;,"&nbsp;''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SORT1'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;地点简称'&nbsp;&nbsp;&nbsp;&nbsp;,"''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EX_POS'&nbsp;&nbsp;&nbsp;'&nbsp;是否扣点店'&nbsp;,"&nbsp;''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MATNR'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;商品'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"&nbsp;''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'MAKTX'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;商品名称'&nbsp;&nbsp;&nbsp;,"&nbsp;''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EXTWG'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;商品大类'&nbsp;&nbsp;&nbsp;,"&nbsp;''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'EWBEZ'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;商品大类名称'&nbsp;,"''&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'FKIMG'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;销售数量'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'VRKME'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;销售单位'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'KZWI3'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;销售金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'KZWI2'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;销售成本'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ZXSML'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;销售毛利'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'LBKUM'&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;库存数量'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,"''&nbsp;&nbsp;'',<br />
+&nbsp;&nbsp;'IT_TABLE'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TEXT'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;备注'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;."'X'&nbsp;&nbsp;'100'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;WA_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"颜色变换<br />
+&nbsp;&nbsp;WA_LAYOUT-BOX_FNAME&nbsp;&nbsp;=&nbsp;'SEL_COL'."选择&nbsp;框<br />
+&nbsp;&nbsp;WA_LAYOUT-STYLEFNAME&nbsp;=&nbsp;'STYTLE'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置样式<br />
+&nbsp;&nbsp;WA_LAYOUT-NO_TOOLBAR&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置样式<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"回调状态&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;回调用户命令&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'&nbsp;&nbsp;&nbsp;"To-Do：确定是否需要Top&nbsp;Page<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_HTML_HEIGHT_TOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do：确定Top&nbsp;Page的高度<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_VARIANT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_SAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'A'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"保存布局<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"输出的数据信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM USER_COMMAND USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;FREE&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;REF_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"以下是打印关联&nbsp;表格&nbsp;用<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'BTN_EDIT'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用,BTN_DY&nbsp;&nbsp;是自己建打印图标时起的名字<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE&nbsp;ASSIGNING&nbsp;&lt;WA_TABLE&gt;&nbsp;WITH&nbsp;KEY&nbsp;SEL_COL&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;EDIT_TEXT&nbsp;USING&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'请选择需要更改的行'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+&nbsp;&nbsp;ENDCASE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+<br />
+   </div>
+   <div class="codeComment">
+*设置刷新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*保证行、列位置在自动刷新时不变<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;RS_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&设置ALV的GUI状态"以下是建立小图标用的语句<br />
+**&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM PF_STATUS_SET USING P_EXTAB TYPE SLIS_T_EXTAB.<br />
+&nbsp;&nbsp;IF&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_FALSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&RNT_PREV'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"填写不显示的功能码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&AQW'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'%SL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&INFO'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&VEXCEL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'BTN_SAVE'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'BTN_CANLE'&nbsp;)&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZCS0070_GY_PF2'&nbsp;EXCLUDING&nbsp;P_EXTAB.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置自己的按钮<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&RNT_PREV'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"填写不显示的功能码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&AQW'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'%SL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&INFO'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&VEXCEL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'BTN_SAVE'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"(&nbsp;FCODE&nbsp;=&nbsp;'BTN_CANLE'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZCS0070_GY_PF2'&nbsp;EXCLUDING&nbsp;P_EXTAB.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置自己的按钮<br />
+&nbsp;&nbsp;ENDIF&nbsp;.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;F_ALV_VARIANT_F4<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_P_VARI&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+**-------------ALV格式输出选择-----第4部分-------------*<br />
+   </div>
+   <div class="code">
+FORM F_ALV_VARIANT_F4 CHANGING P_P_VARI TYPE SLIS_VARI.<br />
+&nbsp;&nbsp;DATA:&nbsp;RS_VARIANT&nbsp;TYPE&nbsp;DISVARIANT.<br />
+<br />
+&nbsp;&nbsp;RS_VARIANT-REPORT&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID.<br />
+&nbsp;&nbsp;RS_VARIANT-USERNAME&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_VARIANT_F4'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SAVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'A'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ES_VARIANT&nbsp;=&nbsp;RS_VARIANT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_P_VARI&nbsp;=&nbsp;RS_VARIANT-VARIANT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM. " F_ALV_VARIANT_F4<br />
+   </div>
+   <div class="codeComment">
+**-------------ALV格式输出选择-----第4部分-------------*<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;HTML_TOP_OF_PAGE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM HTML_TOP_OF_PAGE USING CL_DD TYPE REF TO CL_DD_DOCUMENT.<br />
+&nbsp;&nbsp;DATA&nbsp;LV_TEXT&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;255&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;To-Do：定义Top&nbsp;Page输出的内容<br />
+**********************************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA(LV_LINE)&nbsp;=&nbsp;LINES(&nbsp;IT_TABLE&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;LV_TEXT&nbsp;=&nbsp;'找到'&nbsp;&&&nbsp;LV_LINE&nbsp;&&&nbsp;'条数据！'&nbsp;.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+ENDFORM .<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;设定指定单元可编辑状态<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM EDIT_TEXT USING L_NUM. "0 表示不可编辑,1 标识可编辑<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE&nbsp;&nbsp;TYPE&nbsp;LVC_S_STYL.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE&nbsp;ASSIGNING&nbsp;&lt;WA_TABLE&gt;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_NUM&nbsp;=&nbsp;'1'&nbsp;AND&nbsp;&lt;WA_TABLE&gt;-SEL_COL&nbsp;EQ&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-FIELDNAME&nbsp;=&nbsp;'TEXT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-STYLE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_STYLE_ENABLED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LW_STYTLE&nbsp;INTO&nbsp;TABLE&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_TABLE&gt;-SEL_COL&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"将系统标记转移到自定义标记中,确保在计算中范围不会变.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_NUM&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-FIELDNAME&nbsp;=&nbsp;'TEXT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_STYTLE-STYLE&nbsp;=&nbsp;CL_GUI_ALV_GRID=&gt;MC_STYLE_DISABLED.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INSERT&nbsp;LW_STYTLE&nbsp;INTO&nbsp;TABLE&nbsp;&lt;WA_TABLE&gt;-STYTLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_TABLE&gt;-SEL_COL&nbsp;=&nbsp;ABAP_FALSE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清除选择标记,如果不清楚会导致第二次编辑时没选中也更新.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;L_NUM&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_FALSE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM FM_01.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;ZMMRP0470_9000-JE&nbsp;=&nbsp;123456.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'密码输入正确，可以添加备注'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;EDIT_TEXT&nbsp;USING&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ZMMRP0470_9000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'密码输入错误'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*GUI&nbsp;Texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;TITLEBAR_8000&nbsp;--&gt;&nbsp;批量变更价格_HELLO<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

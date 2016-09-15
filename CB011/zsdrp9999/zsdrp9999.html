@@ -1,0 +1,1471 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP9999</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP9999</h2>
+<h3> Description: IDOC监控程序</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;Report&nbsp;&nbsp;ZSDRP9999<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;IDOC监控程序<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT ZSDRP9999.<br />
+TYPE-POOLS:SLIS,VRM.<br />
+include <a href ="zsdrp9999_top.html">ZSDRP9999_TOP</a>.<br />
+<br />
+<br />
+TABLES:mseg.<br />
+<br />
+<br />
+<br />
+TABLES:EDIDC,T001W.<br />
+SELECTION-SCREEN BEGIN OF BLOCK GP01 WITH FRAME TITLE TEXT-001.<br />
+SELECT-OPTIONS:S_CREDAT FOR EDIDC-CREDAT OBLIGATORY.    "IDOC创建日期<br />
+SELECT-OPTIONS:S_MESTYP FOR EDIDC-MESTYP   NO INTERVALS.    "消息类型<br />
+SELECT-OPTIONS:S_PNUM FOR EDIDC-DOCNUM.               "小票号<br />
+SELECT-OPTIONS:S_PDATE  FOR EDIDC-CREDAT.               "小票日期<br />
+SELECT-OPTIONS:S_werks  FOR mseg-werks.               "小票日期<br />
+SELECT-OPTIONS:S_DOCNUM FOR EDIDC-DOCNUM.               "IDOC 号<br />
+SELECT-OPTIONS:P_STATUS FOR EDIDC-STATUS.                  "IDOC 状态<br />
+SELECTION-SCREEN END OF BLOCK GP01.<br />
+<br />
+<br />
+INITIALIZATION.<br />
+<br />
+<br />
+<br />
+<br />
+AT SELECTION-SCREEN  on value-request for S_MESTYP-LOW.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SELECTION.<br />
+<br />
+&nbsp;&nbsp;L_INDEX&nbsp;=&nbsp;0.<br />
+<br />
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;"获取有效的门店，并转换成IDCO接收方类型<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_WERKS.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"取有效的IDOC记录&nbsp;&nbsp;&nbsp;IDOC创建日期&nbsp;+&nbsp;IDOC&nbsp;接收方&nbsp;(门店)&nbsp;+&nbsp;IDOC&nbsp;号&nbsp;+&nbsp;IDOC&nbsp;状态<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_IDOC.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_DISPLAY_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_WERKS<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_WERKS .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;T_WERKS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;T_WERKS[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;T_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R_WERKS-LOW&nbsp;=&nbsp;T_WERKS-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R_WERKS-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R_WERKS-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;R_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'无有效的门店数据'&nbsp;TYPE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                    " FRM_GET_WERKS<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_STATUS<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_IDOC .<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_ALV[].<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_EDIMSGT&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIMSGT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_EDIMSGT&nbsp;TYPE&nbsp;EDIMSGT.<br />
+&nbsp;&nbsp;DATA&nbsp;WA_WERKS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;R_WERKS.<br />
+&nbsp;&nbsp;RANGES&nbsp;LT_MESTYP&nbsp;FOR&nbsp;EDIDC-MESTYP&nbsp;OCCURS&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;S_MESTYP&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'消息类型为必输'&nbsp;type&nbsp;'E'.<br />
+&nbsp;&nbsp;else.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_MESTYP-LOW&nbsp;EQ&nbsp;'*'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZMMIF0020_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0030_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0040_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0050_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0060_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0060_DN_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0060_IN_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0080_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0080_GI_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0101_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MESTYP-LOW&nbsp;&nbsp;=&nbsp;'ZSDIF0160_MSG'.&nbsp;LT_MESTYP-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;LT_MESTYP-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;APPEND&nbsp;LT_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;else.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;S_MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZMMIF0020_MSG'&nbsp;OR&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0030_MSG'&nbsp;or<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0040_MSG'&nbsp;OR&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0050_MSG'&nbsp;or<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0060_MSG'&nbsp;OR&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0060_DN_MSG'&nbsp;or<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0060_IN_MSG'&nbsp;OR&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0080_MSG'&nbsp;or<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0080_GI_MSG'&nbsp;OR&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0101_MSG'&nbsp;or<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_MESTYP-LOW&nbsp;eq&nbsp;'ZSDIF0160_MSG'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'输入的消息类型不在查询范围内'&nbsp;type&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;R_WERKS&nbsp;INTO&nbsp;WA_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_WERKS-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_WERKS-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;R_WERKS&nbsp;FROM&nbsp;WA_WERKS&nbsp;TRANSPORTING&nbsp;LOW.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;DOCNUM&nbsp;STATUS&nbsp;MESTYP&nbsp;RCVPRN&nbsp;CREDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;DOCNUM&nbsp;IN&nbsp;S_DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;STATUS&nbsp;IN&nbsp;P_STATUS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RCVPRN&nbsp;IN&nbsp;S_RCVPRN<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;MESTYP&nbsp;IN&nbsp;S_MESTYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CREDAT&nbsp;IN&nbsp;S_CREDAT.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_EDIDC[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_EDIMSGT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EDIMSGT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LANGUA&nbsp;=&nbsp;'1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MESTYP&nbsp;=&nbsp;GT_EDIDC-MESTYP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;GT_EDIDC[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'不存在有效的IDOC记录'&nbsp;TYPE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;T_EDID4&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;EDID4&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+&nbsp;&nbsp;DATA&nbsp;LT_EDID4&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;EDID4&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+&nbsp;&nbsp;DATA&nbsp;T_EDIDS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;EDIDS&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_MSG&nbsp;TYPE&nbsp;STRING.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;SELECT&nbsp;DOCNUM&nbsp;SEGNAM<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SDATA<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;T_EDID4<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;T_EDID4<br />
+&nbsp;&nbsp;FROM&nbsp;EDID4<br />
+&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_EDIDC<br />
+&nbsp;&nbsp;WHERE&nbsp;DOCNUM&nbsp;=&nbsp;GT_EDIDC-DOCNUM.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SEGNAM&nbsp;=&nbsp;'E1WPB01'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SEGNUM&nbsp;=&nbsp;'000001'.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;T_EDIDS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EDIDS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;DOCNUM&nbsp;=&nbsp;GT_EDIDC-DOCNUM.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;STAMID&nbsp;=&nbsp;'WP'.<br />
+<br />
+<br />
+<br />
+*&nbsp;将IDOC&nbsp;DATA&nbsp;解析到个子的内表<br />
+*&nbsp;ALV&nbsp;行项目&nbsp;基于&nbsp;EDID4&nbsp;&nbsp;ITEM类型段<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;T_EDIDS[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS1&gt;&nbsp;LIKE&nbsp;EDIDC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS2&gt;&nbsp;LIKE&nbsp;EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS3&gt;&nbsp;LIKE&nbsp;EDIDS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_EDIDC&nbsp;ASSIGNING&nbsp;&lt;FS1&gt;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;T_EDID4&nbsp;&nbsp;ASSIGNING&nbsp;&lt;FS2&gt;&nbsp;WHERE&nbsp;&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS1&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;IDOC数据解析<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;&nbsp;&lt;FS2&gt;-SEGNAM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'E1WPB01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_E1WPB01&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_E1WPB01-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_E1WPB01-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_E1WPB01-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_E1WPB01&nbsp;TO&nbsp;GT_SEG_E1WPB01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZMMIF0020_SGM_INFO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZMMIF0020&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZMMIF0020-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZMMIF0020-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZMMIF0020-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZMMIF0020&nbsp;TO&nbsp;GT_SEG_ZMMIF0020.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'ZSDIF0030_SGM_HEAD'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_H&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0030_H&nbsp;TO&nbsp;GT_SEG_ZSDIF0030_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'ZSDIF0030_SGM_ITEM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_I&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_I-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_I-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0030_I-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0030_I&nbsp;TO&nbsp;GT_SEG_ZSDIF0030_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'ZSDIF0040_SGM_INFO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0040&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0040-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0040-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0040-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0040&nbsp;TO&nbsp;GT_SEG_ZSDIF0040.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'ZSDIF0050_SGM_HEAD'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_H&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_H-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_H-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_H-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0050_H&nbsp;TO&nbsp;GT_SEG_ZSDIF0050_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'ZSDIF0050_SGM_ITEM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_I&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_I-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_I-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_I-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0050_I&nbsp;TO&nbsp;GT_SEG_ZSDIF0050_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0060_SGM_HEAD'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_H&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0060_H&nbsp;TO&nbsp;GT_SEG_ZSDIF0060_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0060_SGM_ITEM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_I&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_I-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_I-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_I-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0060_I&nbsp;TO&nbsp;GT_SEG_ZSDIF0060_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0060_DELIV_SGM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DE&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DE-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DE-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DE-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0060_DE&nbsp;TO&nbsp;GT_SEG_ZSDIF0060_DE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0060_DN_SGM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DN&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DN-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DN-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_DN-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0060_DN&nbsp;TO&nbsp;GT_SEG_ZSDIF0060_DN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0080_SGM_HEAD'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_H&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_H-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_H-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_H-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0080_H&nbsp;TO&nbsp;GT_SEG_ZSDIF0080_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0080_SGM_ITEM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_I&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_I-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_I-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_I-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0080_I&nbsp;TO&nbsp;GT_SEG_ZSDIF0080_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0080_GI_SGM_ITEM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_GI&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_GI-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_GI-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0080_GI-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0080_GI&nbsp;TO&nbsp;GT_SEG_ZSDIF0080_GI.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0101_SGM_HEAD'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_H&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_H-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_H-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_H-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0101_H&nbsp;TO&nbsp;GT_SEG_ZSDIF0101_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0101_SGM_ITEM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0101_I&nbsp;TO&nbsp;GT_SEG_ZSDIF0101_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0101_SGM_SP'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_SP&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_SP-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_SP-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_SP-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0101_SP&nbsp;TO&nbsp;GT_SEG_ZSDIF0101_SP.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0160_SGM_HEAD'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_H&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_H-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_H-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_H-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0160_H&nbsp;TO&nbsp;GT_SEG_ZSDIF0160_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0160_SGM_ITEM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_I&nbsp;=&nbsp;&lt;FS2&gt;-SDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_I-DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_I-SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_I-HLEVEL&nbsp;=&nbsp;&lt;FS2&gt;-HLEVEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_SEG_ZSDIF0160_I&nbsp;TO&nbsp;GT_SEG_ZSDIF0160_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDID4&nbsp;=&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LT_EDID4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_EDIDS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;EDIDS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_edids&nbsp;type&nbsp;edids.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_EDID4&nbsp;ASSIGNING&nbsp;&lt;FS2&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;&lt;FS2&gt;&nbsp;TO&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;read&nbsp;TABLE&nbsp;gt_edidc&nbsp;ASSIGNING&nbsp;&lt;fs1&gt;&nbsp;with&nbsp;key&nbsp;docnum&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIDS&nbsp;&nbsp;=&nbsp;T_EDIDS[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_EDIDS&nbsp;WHERE&nbsp;DOCNUM&nbsp;&lt;&gt;&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_EDIDS&nbsp;BY&nbsp;COUNTR&nbsp;DESCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;read&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;ASSIGNING&nbsp;&lt;fs3&gt;&nbsp;with&nbsp;key&nbsp;docnum&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-STATUS&nbsp;=&nbsp;&lt;fs3&gt;-STATUS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MESTYP&nbsp;=&nbsp;&lt;fs1&gt;-MESTYP.&nbsp;"消息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CREDAT&nbsp;=&nbsp;&lt;fs1&gt;-CREDAT.&nbsp;"描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_EDIMSGT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIMSGT&nbsp;INTO&nbsp;LS_EDIMSGT&nbsp;WITH&nbsp;KEY&nbsp;MESTYP&nbsp;=&nbsp;&lt;fs1&gt;-MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-DESCRP&nbsp;=&nbsp;LS_EDIMSGT-DESCRP.&nbsp;"描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;GT_ALV-MESTYP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZMMIF0020_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_SEG_ZMMIF0020.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZMMIF0020&nbsp;INTO&nbsp;GS_SEG_ZMMIF0020&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZMMIF0020-WERKS."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZMMIF0020-XBLNR."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZMMIF0020-PSTNG_DATE."&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZMMIF0020-MATNR&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZMMIF0020-charg&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZMMIF0020-SUM&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;'N/A'&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;WITH&nbsp;KEY&nbsp;STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0030_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GS_SEG_ZSDIF0030_H,GS_SEG_ZSDIF0030_i.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;GT_SEG_ZSDIF0030_H&nbsp;INTO&nbsp;GS_SEG_ZSDIF0030_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&nbsp;&lt;FS2&gt;-DOCNUM.&nbsp;"SEGNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0030_i&nbsp;INTO&nbsp;GS_SEG_ZSDIF0030_i&nbsp;with&nbsp;key&nbsp;DOCNUM&nbsp;=&nbsp;&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-WERKS."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-VBELN."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-WADAT_IST."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZSDIF0030_i-MATNR&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZSDIF0030_i-charg&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZSDIF0030_i-LFIMG&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_i-ZJCJJ&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;'N/A'&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0040_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_SEG_ZSDIF0040.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0040&nbsp;INTO&nbsp;GS_SEG_ZSDIF0040&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;'N/A'."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0040-DOC_NUMBER."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0040-DOC_DATE."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;&nbsp;'N/A'&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;'N/A'&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;'N/A'&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;'N/A'&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;WITH&nbsp;KEY&nbsp;STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0050_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_SEG_ZSDIF0050_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0050_H&nbsp;INTO&nbsp;GS_SEG_ZSDIF0050_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0050_i&nbsp;INTO&nbsp;GS_SEG_ZSDIF0050_i&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0050_H-WERKS."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0050_H-DOC_NUMBER."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0050_H-ERDAT."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZSDIF0050_i-MATNR&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZSDIF0050_i-EX_XNKH&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZSDIF0050_i-MENGE."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;'N/A'."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;'N/A'&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0060_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GS_SEG_ZSDIF0060_H,GS_SEG_ZSDIF0060_i.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0060_H&nbsp;&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0060_i&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_i&nbsp;with&nbsp;key&nbsp;DOCNUM&nbsp;=&nbsp;&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=	&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-SHZDDM."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-DJBH."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-rq."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-SPDM&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-PCDM&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-SL&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;'N/A'."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;with&nbsp;key&nbsp;STATUS&nbsp;=&nbsp;'46'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0060_DN_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GS_SEG_ZSDIF0060_H,GS_SEG_ZSDIF0060_i.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0060_H&nbsp;&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0060_i&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_i&nbsp;with&nbsp;key&nbsp;DOCNUM&nbsp;=&nbsp;&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=	&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-SHZDDM."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-DJBH."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-rq."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-SPDM&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-PCDM&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-SL&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;'N/A'."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_SEG_ZSDIF0060_DN&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_DN&nbsp;&nbsp;WHERE&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LS_MSG&nbsp;'/'&nbsp;GS_SEG_ZSDIF0060_DN-PO_NUMBER&nbsp;INTO&nbsp;&nbsp;LS_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;LS_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0060_IN_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GS_SEG_ZSDIF0060_H,GS_SEG_ZSDIF0060_i.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0060_H&nbsp;&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0060_i&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_i&nbsp;with&nbsp;key&nbsp;DOCNUM&nbsp;=&nbsp;&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=	&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-SHZDDM."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-DJBH."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0060_H-rq."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-SPDM&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-PCDM&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZSDIF0060_i-SL&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;'N/A'."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_SEG_ZSDIF0060_DE&nbsp;INTO&nbsp;GS_SEG_ZSDIF0060_DE&nbsp;&nbsp;WHERE&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LS_MSG&nbsp;'/'&nbsp;GS_SEG_ZSDIF0060_DE-DELIV_NUMB&nbsp;INTO&nbsp;&nbsp;LS_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;LS_MSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_EDIDS&nbsp;by&nbsp;COUNTR&nbsp;DESCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0080_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:GS_SEG_ZSDIF0080_H,GS_SEG_ZSDIF0080_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0080_H&nbsp;INTO&nbsp;GS_SEG_ZSDIF0080_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0080_I&nbsp;INTO&nbsp;GS_SEG_ZSDIF0080_I&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0080_H-WERKS."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0080_H-DOC_NUMBER."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0080_H-DOC_DATE."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"ZSDIF0080_SGM_ITEM-MATNR&nbsp;ZSDIF0080_SGM_ITEM-CHARG&nbsp;&nbsp;ZSDIF0080_SGM_ITEM-LFIMG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZSDIF0080_I-MATNR&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZSDIF0080_I-charg&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZSDIF0080_I-LFIMG&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;'N/A'&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;WITH&nbsp;KEY&nbsp;STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0080_GI_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_SEG_ZSDIF0080_GI.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0080_GI&nbsp;INTO&nbsp;GS_SEG_ZSDIF0080_GI&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;'N/A'."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0080_GI-EBELN."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0080_GI-BUDAT."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;'N/A'&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;'N/A'&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;'N/A'&nbsp;&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;'N/A'&nbsp;&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;GS_SEG_ZSDIF0080_GI-SRC_IDOC_NUMBER&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0101_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:GS_SEG_ZSDIF0101_H,GS_SEG_ZSDIF0101_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0101_H&nbsp;INTO&nbsp;GS_SEG_ZSDIF0101_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0101_I&nbsp;INTO&nbsp;GS_SEG_ZSDIF0101_I&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_H-WERKS."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0101_H-ZPOSN."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0101_H-ZDATE."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-ZSPKH."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-ZHJE."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-ZSPKH&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-ZSPPC&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-ZSPJH&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0101_I-ZHJE&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ls_edids-STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;WITH&nbsp;KEY&nbsp;&nbsp;STAMNO&nbsp;=&nbsp;'20'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;ls_edids-STAPA1&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;WITH&nbsp;KEY&nbsp;&nbsp;STAMNO&nbsp;=&nbsp;'018'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;ls_edids-STAPA1&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;ls_edids-STAPA1&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ZSDIF0160_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:GS_SEG_ZSDIF0160_H,GS_SEG_ZSDIF0160_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0160_H&nbsp;INTO&nbsp;GS_SEG_ZSDIF0160_H&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_SEG_ZSDIF0160_I&nbsp;INTO&nbsp;GS_SEG_ZSDIF0160_I&nbsp;WITH&nbsp;KEY&nbsp;DOCNUM&nbsp;=&nbsp;&lt;FS2&gt;-DOCNUM&nbsp;SEGNUM&nbsp;=&nbsp;&lt;FS2&gt;-SEGNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_H-WERKS."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0160_H-MTSNR."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0160_H-BLDAT."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_I-MATNR."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;&nbsp;&nbsp;'N/A'&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;&nbsp;&nbsp;GS_SEG_ZSDIF0160_I-WEMPF&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;'N/A'&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_edids.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_EDIDS&nbsp;INTO&nbsp;ls_edids&nbsp;WITH&nbsp;KEY&nbsp;&nbsp;STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;ls_edids-STAPA2&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'WPUBON'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-WERKS&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-WERKS."门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-POSNUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-VBELN."&nbsp;POS&nbsp;单据号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CDATUM&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_H-WADAT_IST."&nbsp;&nbsp;凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFFS&nbsp;=&nbsp;&nbsp;'N/A'."支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-ZFJE&nbsp;=&nbsp;&nbsp;'N/A'."支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MATNR&nbsp;=&nbsp;GS_SEG_ZSDIF0030_i-MATNR&nbsp;."料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-CHARG&nbsp;=&nbsp;GS_SEG_ZSDIF0030_i-charg&nbsp;."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-menge&nbsp;=&nbsp;GS_SEG_ZSDIF0030_i-LFIMG&nbsp;."数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-xsje&nbsp;=&nbsp;&nbsp;GS_SEG_ZSDIF0030_i-ZJCJJ&nbsp;."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-MBLNR&nbsp;=&nbsp;'N/A'&nbsp;."后续凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-VBELN&nbsp;=&nbsp;'N/A'&nbsp;."SD开票凭证号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;s_pnum&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_ALV&nbsp;WHERE&nbsp;POSNUM&nbsp;NOT&nbsp;IN&nbsp;s_pnum.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;S_PDATE&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_ALV&nbsp;WHERE&nbsp;CDATUM&nbsp;NOT&nbsp;IN&nbsp;S_PDATE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;P_STATUS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_ALV&nbsp;WHERE&nbsp;STATUS&nbsp;NOT&nbsp;IN&nbsp;P_STATUS.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;s_werks&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_ALV&nbsp;WHERE&nbsp;werks&nbsp;NOT&nbsp;IN&nbsp;s_werks.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;T_EDID4.CLEAR&nbsp;T_EDID4[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;T_EDIDS.CLEAR&nbsp;T_EDIDS[].<br />
+<br />
+ENDFORM.                    " FRM_GET_STATUS<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;set_pf_status<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;RT_EXTAB&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SET_PF_STATUS USING RT_EXTAB TYPE SLIS_T_EXTAB.<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZSDRP9999_PF'&nbsp;.<br />
+ENDFORM.                    "SET_PF_STATUS<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;USER_COMMAND<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;UCOMM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;SELFIELD&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM USER_COMMAND USING UCOMM LIKE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;DATA:&nbsp;LO_GUID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+<br />
+&nbsp;&nbsp;DATA:LR_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;LR_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;LR_GRID-&gt;CHECK_CHANGED_DATA.<br />
+<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;UCOMM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'REFRESH'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_IDOC.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SET_ALV_COLOR.&nbsp;&nbsp;&nbsp;"设置ALV颜色<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'CANCLE'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'EXIT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;PROGRAM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'DOWN2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"51状态处理<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_IDOC_51.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'DOWN'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"69状态处理<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_IDOC_69.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'DOWN1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"54状态处理<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_IDOC_54.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&IC1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击事件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ALV&nbsp;INDEX&nbsp;SELFIELD-TABINDEX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GT_ALV-DOCNUM&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;SELFIELD-FIELDNAME&nbsp;EQ&nbsp;'DOCNUM'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'DCN'&nbsp;FIELD&nbsp;gt_alv-docnum.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;TRANSACTION&nbsp;'WE02'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;SELTAB[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;SELTAB_WA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-SELNAME&nbsp;=&nbsp;'DOCNUM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-LOW&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;SELTAB_WA&nbsp;TO&nbsp;SELTAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-SELNAME&nbsp;=&nbsp;'CREDAT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-OPTION&nbsp;&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-LOW&nbsp;=&nbsp;GT_ALV-CREDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-HIGH&nbsp;=&nbsp;GT_ALV-CREDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;SELTAB_WA&nbsp;TO&nbsp;SELTAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SELTAB[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBMIT&nbsp;RSEIDOC2&nbsp;WITH&nbsp;SELECTION-TABLE&nbsp;SELTAB&nbsp;AND&nbsp;RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+ENDFORM.                    "USER_COMMAND<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_idoc_54<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_IDOC_54.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV&nbsp;WHERE&nbsp;FLAG&nbsp;EQ&nbsp;'X'&nbsp;AND&nbsp;STATUS&nbsp;EQ&nbsp;'54'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IDOC_STATUS.CLEAR&nbsp;IDOC_STATUS[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"处理过帐失败<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GT_ALV-CURSNO&nbsp;EQ&nbsp;'9'&nbsp;AND&nbsp;GT_ALV-SNO6&nbsp;EQ&nbsp;'6'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;DELIVERY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:VBKOK_WA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELIVERY&nbsp;=&nbsp;GT_ALV-SPA6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;GT_ALV-CDATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_DATE&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;DELIVERY_UPDATE&nbsp;USING&nbsp;DELIVERY&nbsp;L_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"更新IDOC状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IDOC_STATUS[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;UPDATE_IDOC_STATUS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GT_ALV-CURSNO&nbsp;EQ&nbsp;'7'&nbsp;AND&nbsp;GT_ALV-SNO4&nbsp;EQ&nbsp;'4'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"创建交货单并过帐<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;DELIVERY_CREATE&nbsp;USING&nbsp;GT_ALV-SPA4&nbsp;CHANGING&nbsp;DELIVERY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"更新IDOC状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IDOC_STATUS[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;UPDATE_IDOC_STATUS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.                    "frm_idoc_54<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;DELIVERY_UPDATE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;DELIVERY&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;L_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;COMMIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM DELIVERY_UPDATE USING DELIVERY L_DATE.<br />
+&nbsp;&nbsp;VBKOK_WA-VBELN_VL&nbsp;=&nbsp;DELIVERY.<br />
+&nbsp;&nbsp;VBKOK_WA-WADAT_IST&nbsp;=&nbsp;L_DATE.<br />
+&nbsp;&nbsp;VBKOK_WA-WABUC&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'WS_DELIVERY_UPDATE_2'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBKOK_WA&nbsp;=&nbsp;VBKOK_WA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELIVERY&nbsp;=&nbsp;DELIVERY.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"更新执行状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;UPDATE_STATUS&nbsp;USING&nbsp;DELIVERY&nbsp;CHANGING&nbsp;MBLNR.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.                    "DELIVERY_UPDATE<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;send_idoc_sale<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM DELIVERY_CREATE USING SALESDOCUMENT CHANGING DELIVERY.<br />
+&nbsp;&nbsp;CLEAR&nbsp;SALES_ORDER_ITEMS.<br />
+&nbsp;&nbsp;CLEAR&nbsp;SALES_ORDER_ITEMS[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;RETURN.<br />
+&nbsp;&nbsp;CLEAR&nbsp;RETURN[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;DELIVERY.<br />
+&nbsp;&nbsp;CLEAR&nbsp;NUM_DELIVERIES.<br />
+<br />
+&nbsp;&nbsp;SALES_ORDER_ITEMS-REF_DOC&nbsp;=&nbsp;SALESDOCUMENT.<br />
+&nbsp;&nbsp;APPEND&nbsp;SALES_ORDER_ITEMS.CLEAR:SALES_ORDER_ITEMS.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_OUTB_DELIVERY_CREATE_SLS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHIP_POINT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'8000'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUE_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'99991230'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELIVERY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;DELIVERY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUM_DELIVERIES&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;NUM_DELIVERIES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALES_ORDER_ITEMS&nbsp;=&nbsp;SALES_ORDER_ITEMS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;RETURN.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;RETURN&nbsp;WITH&nbsp;KEY&nbsp;TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-DOCNUM&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGTY&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGID&nbsp;=&nbsp;'ZMM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGNO&nbsp;=&nbsp;'006'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGV1&nbsp;=&nbsp;DELIVERY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;IDOC_STATUS.CLEAR:IDOC_STATUS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"交货单过帐<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;DELIVERY_UPDATE&nbsp;USING&nbsp;DELIVERY&nbsp;L_DATE.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-DOCNUM&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-STATUS&nbsp;=&nbsp;'54'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGTY&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGID&nbsp;=&nbsp;'ZMM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGNO&nbsp;=&nbsp;'007'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:L_INDEX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;RETURN&nbsp;WHERE&nbsp;TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_INDEX&nbsp;=&nbsp;L_INDEX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;L_INDEX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGV1&nbsp;=&nbsp;&nbsp;RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGV2&nbsp;=&nbsp;&nbsp;RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGV3&nbsp;=&nbsp;&nbsp;RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGV4&nbsp;=&nbsp;&nbsp;RETURN-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;IDOC_STATUS.CLEAR:IDOC_STATUS.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+ENDFORM.                    "send_idoc_sale<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;update_status<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM UPDATE_STATUS USING VBELN CHANGING MBLNR.<br />
+&nbsp;&nbsp;CLEAR&nbsp;MBLNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MAX(&nbsp;MBLNR&nbsp;)&nbsp;INTO&nbsp;MBLNR&nbsp;"&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;lt_mkpf<br />
+&nbsp;&nbsp;FROM&nbsp;MKPF<br />
+&nbsp;&nbsp;WHERE&nbsp;LE_VBELN&nbsp;=&nbsp;VBELN&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;=&nbsp;SY-DATUM+0(4)&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;MBLNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-DOCNUM&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGTY&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGID&nbsp;=&nbsp;'ZMM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGNO&nbsp;=&nbsp;'008'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGV1&nbsp;=&nbsp;MBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;IDOC_STATUS.CLEAR:IDOC_STATUS.<br />
+<br />
+&nbsp;&nbsp;ELSE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-DOCNUM&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-STATUS&nbsp;=&nbsp;'54'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGTY&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGID&nbsp;=&nbsp;'ZMM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGNO&nbsp;=&nbsp;'009'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS-MSGV1&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;IDOC_STATUS.CLEAR:IDOC_STATUS.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                    "update_status<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_IDOC_5169<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_IDOC_51 .<br />
+&nbsp;&nbsp;RANGES&nbsp;SO_DOCNU&nbsp;FOR&nbsp;EDIDC-DOCNUM.<br />
+&nbsp;&nbsp;CLEAR&nbsp;SO_DOCNU[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;SELTAB[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;SELTAB_WA.<br />
+<br />
+&nbsp;&nbsp;SELTAB_WA-SELNAME&nbsp;=&nbsp;'SO_DOCNU'.<br />
+&nbsp;&nbsp;SELTAB_WA-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;SELTAB_WA-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV&nbsp;WHERE&nbsp;FLAG&nbsp;EQ&nbsp;'X'&nbsp;AND&nbsp;STATUS&nbsp;EQ&nbsp;'51'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GT_ALV-DOCNUM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SO_DOCNU-LOW&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SO_DOCNU-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SO_DOCNU-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;SO_DOCNU.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-LOW&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;SELTAB_WA&nbsp;TO&nbsp;SELTAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SO_DOCNU[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SUBMIT&nbsp;RBDMANI2&nbsp;WITH&nbsp;SELECTION-TABLE&nbsp;SELTAB&nbsp;AND&nbsp;RETURN.&nbsp;&nbsp;"&nbsp;VIA&nbsp;SELECTION-SCREEN<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                    " FRM_IDOC_5169<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_idoc_69<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_IDOC_69 .<br />
+&nbsp;&nbsp;RANGES&nbsp;SO_DOCNU&nbsp;FOR&nbsp;EDIDC-DOCNUM.<br />
+&nbsp;&nbsp;CLEAR&nbsp;SO_DOCNU[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;SELTAB[].<br />
+&nbsp;&nbsp;CLEAR&nbsp;SELTAB_WA.<br />
+<br />
+&nbsp;&nbsp;SELTAB_WA-SELNAME&nbsp;=&nbsp;'P_IDOC'.<br />
+&nbsp;&nbsp;SELTAB_WA-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;SELTAB_WA-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV&nbsp;WHERE&nbsp;FLAG&nbsp;EQ&nbsp;'X'&nbsp;AND&nbsp;STATUS&nbsp;EQ&nbsp;'69'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GT_ALV-DOCNUM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SO_DOCNU-LOW&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SO_DOCNU-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SO_DOCNU-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;SO_DOCNU.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA-LOW&nbsp;=&nbsp;GT_ALV-DOCNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;SELTAB_WA&nbsp;TO&nbsp;SELTAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SO_DOCNU[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SUBMIT&nbsp;RBDAGAIE&nbsp;WITH&nbsp;SELECTION-TABLE&nbsp;SELTAB&nbsp;AND&nbsp;RETURN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                    " FRM_IDOC_5169<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;DISPLAY_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_DISPLAY_DATA.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;TITLE&nbsp;TYPE&nbsp;LVC_TITLE.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;LAYOUT_FIELDS.&nbsp;&nbsp;&nbsp;"装载字段<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SET_ALV_COLOR.&nbsp;&nbsp;&nbsp;"设置ALV颜色<br />
+<br />
+&nbsp;&nbsp;TITLE&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POS销售IDOC监控器'.<br />
+<br />
+&nbsp;&nbsp;I_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'."自适应宽度<br />
+&nbsp;&nbsp;I_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;I_LAYOUT-BOX_FIELDNAME&nbsp;=&nbsp;'FLAG'.&nbsp;&nbsp;"选择行头<br />
+&nbsp;&nbsp;I_LAYOUT-COLTAB_FIELDNAME&nbsp;=&nbsp;'COLTAB'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;i_grid_settings-edt_cll_cb&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'SET_PF_STATUS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_FIELDS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it_events&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;i_events[]<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_GRID_TITLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;TITLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_GRID_SETTINGS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_GRID_SETTINGS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_save&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'A'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_ALV.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID&nbsp;TYPE&nbsp;SY-MSGTY&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.                    "DISPLAY_DATA<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;set_alv_color<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SET_ALV_COLOR.<br />
+&nbsp;&nbsp;DATA&nbsp;L_ALVCOLOR&nbsp;TYPE&nbsp;SLIS_SPECIALCOL_ALV.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GT_ALV-STATUS&nbsp;=&nbsp;'51'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-FIELDNAME&nbsp;=&nbsp;'STATUS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-COL&nbsp;=&nbsp;6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;colour&nbsp;number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-INT&nbsp;=&nbsp;0.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;intensified&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-NOKEYCOL&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;key&nbsp;column&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_ALVCOLOR&nbsp;TO&nbsp;GT_ALV-COLTAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GT_ALV-STATUS&nbsp;=&nbsp;'69'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-FIELDNAME&nbsp;=&nbsp;'STATUS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-COL&nbsp;=&nbsp;3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;colour&nbsp;number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-INT&nbsp;=&nbsp;0.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;intensified&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-NOKEYCOL&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;key&nbsp;column&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_ALVCOLOR&nbsp;TO&nbsp;GT_ALV-COLTAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GT_ALV-STATUS&nbsp;=&nbsp;'54'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-FIELDNAME&nbsp;=&nbsp;'STATUS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-COL&nbsp;=&nbsp;6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;colour&nbsp;number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-INT&nbsp;=&nbsp;0.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;intensified&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-NOKEYCOL&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;key&nbsp;column&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_ALVCOLOR&nbsp;TO&nbsp;GT_ALV-COLTAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;GT_ALV-STATUS&nbsp;=&nbsp;'53'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-FIELDNAME&nbsp;=&nbsp;'STATUS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-COL&nbsp;=&nbsp;5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;colour&nbsp;number<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-COLOR-INT&nbsp;=&nbsp;0.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;intensified&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ALVCOLOR-NOKEYCOL&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&lt;---&nbsp;key&nbsp;column&nbsp;flag<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_ALVCOLOR&nbsp;TO&nbsp;GT_ALV-COLTAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.                    "set_alv_color<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;LAYOUT_FIELDS<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM LAYOUT_FIELDS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_NUM&nbsp;TYPE&nbsp;I&nbsp;VALUE&nbsp;1.<br />
+&nbsp;&nbsp;CLEAR&nbsp;I_FIELDS.<br />
+&nbsp;&nbsp;CLEAR&nbsp;I_FIELDS[].<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ALV&nbsp;by&nbsp;&nbsp;DOCNUM&nbsp;SEGNUM.<br />
+<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'DOCNUM'.I_FIELD-HOTSPOT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'IDOC号'.&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SEGNUM'.I_FIELD-HOTSPOT&nbsp;=&nbsp;''.&nbsp;&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'计数器'.&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'TAKST'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'处理状态'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STATUS'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'IDOC状态'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'MESTYP'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息类型'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'DESCRP'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'描述'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SEGNAM'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'数据段'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'CREDAT'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'IDOC创建日期'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'WERKS'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'门店编号'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'POSNUM'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'POS单据号'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'CDATUM'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'单据日期'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'ZFFS'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'支付方式'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'ZFJE'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'支付金额'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'MATNR'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'物料'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'CHARG'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'批次'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'MENGE'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'数量'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'XSJE'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'销售金额'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'MBLNR'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'后续商品凭证'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'VBELN'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'SD开票凭证号'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'COUNTR'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'状态计数器'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STAMID'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息ID'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'CURSNO'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'最后消息号'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SNO4'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息号4'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SNO5'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息号5'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SNO6'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息号6'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SNO8'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息号8'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SNO9'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息号9'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SNO7'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息号7'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STP4'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息类型4'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STP5'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息类型5'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STP6'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息类型6'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STP8'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息类型8'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STP9'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息类型9'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'STP7'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'消息类型7'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SPA4'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'凭证数据4'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SPA5'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'凭证数据5'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SPA6'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'凭证数据6'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SPA8'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'凭证数据8'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SPA9'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'凭证数据9'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SPA7'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'凭证数据7'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+*<br />
+*&nbsp;&nbsp;I_FIELD-COL_POS&nbsp;=&nbsp;LV_NUM.&nbsp;&nbsp;I_FIELD-FIELDNAME&nbsp;=&nbsp;'SNO0'.&nbsp;&nbsp;I_FIELD-SELTEXT_M&nbsp;=&nbsp;'其它消息号'.&nbsp;&nbsp;APPEND&nbsp;I_FIELD&nbsp;TO&nbsp;I_FIELDS.&nbsp;&nbsp;CLEAR&nbsp;I_FIELD.LV_NUM&nbsp;=&nbsp;LV_NUM&nbsp;+&nbsp;1.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.                    "LAYOUT_FIELDS<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;UPDATE_IDOC_STATUS<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM UPDATE_IDOC_STATUS .<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IDOC_STATUS&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'IDOC_STATUS_WRITE_TO_DATABASE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_NUMBER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IDOC_STATUS-DOCNUM<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_OPENED_FLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_DEQUEUE_FLAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IDOC_STATUS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_FOREIGN_LOCK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS_RECORDS_EMPTY&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_STATUS_INVALID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DB_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;EQ&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-TAKST&nbsp;=&nbsp;'处理成功!'.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV-TAKST&nbsp;=&nbsp;'处理失败!'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;MODIFY&nbsp;GT_ALV.<br />
+ENDFORM.                    " UPDATE_IDOC_STATUS<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SELECTION<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SELECTION .<br />
+&nbsp;&nbsp;DATA:BEGIN&nbsp;OF&nbsp;ITAB&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COL1&nbsp;TYPE&nbsp;char20,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COL2&nbsp;TYPE&nbsp;cHAR100,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ITAB.<br />
+&nbsp;&nbsp;DATA:FIELD_TAB&nbsp;TYPE&nbsp;DFIES&nbsp;OCCURS&nbsp;0&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZMMIF0020_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店赠品领用费用化'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0030_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'总部发货信息下传接口'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0040_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店收货确认接口'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0050_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店要货接口'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0060_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店返库（门店发货）接口'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0060_DN_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店返库（门店发货）接口'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0060_IN_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店返库（门店发货）接口'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0080_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店间调拔-门店调出接口&nbsp;&nbsp;'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0080_GI_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'门店间调拨-门店调入接口	'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0101_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'以旧换新--POS小票	'.&nbsp;APPEND&nbsp;ITAB.<br />
+&nbsp;&nbsp;ITAB-COL1&nbsp;=&nbsp;'ZSDIF0160_MSG'.ITAB-COL2&nbsp;=&nbsp;&nbsp;'旧饰入库（自动触发60门店返库接口）'.&nbsp;APPEND&nbsp;ITAB.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'F4IF_INT_TABLE_VALUE_REQUEST'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DDIC_STRUCTURE&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETFIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'COL1'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PVALKEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DYNPPROG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DYNPNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DYNNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DYNPROFIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'COL1'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STEPL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;0<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WINDOW_TITLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'WINDOW--TITLE'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE_ORG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'S'&nbsp;"C表示cell，S表示structure<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MULTIPLE_CHOICE&nbsp;&nbsp;=&nbsp;'X'"多项选择，用于SELECT-OPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DISPLAY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'F'"C则只能显示，不能选择<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALLBACK_PROGRAM&nbsp;=&nbsp;sy-repid<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALLBACK_FORM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MARK_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_RESET&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ITAB<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;FIELD_TAB<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DYNPFLD_MAPPING&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARAMETER_ERROR&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_VALUES_FOUND&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID&nbsp;TYPE&nbsp;SY-MSGTY&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_STATUS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_CREDAT&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_DOCNUM&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_MESTYP&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_PDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;小票日期<br />
+*&nbsp;S_PNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;小票号<br />
+*&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;门店<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;Hard&nbsp;coded<br />
+*&nbsp;&nbsp;&nbsp;无有效的门店数据<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSD_GET_MENGE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZSD_GET_MENGE</h2>
+<h3> Description: 根据物料、批次、数量（以件为单位）获取数量（基本单位）</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZSD_GET_MENGE.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(I_MATNR) TYPE  MATNR<br />
+*"     VALUE(I_CHARG) TYPE  CHARG_D<br />
+*"     VALUE(I_MENGE) TYPE  MENGE_D<br />
+*"  EXPORTING<br />
+*"     VALUE(E_MENGE) TYPE  MENGE_D<br />
+*"     VALUE(E_JS) TYPE  ZDE_ZXSJS<br />
+*"     VALUE(E_KZ) TYPE  ZDE_ZXSKZ<br />
+*"     VALUE(E_ZGYSDM) TYPE  LIFNR<br />
+*"     VALUE(E_EXTWG) TYPE  EXTWG<br />
+*"----------------------------------------------------------------------<br />
+
+<div class="codeComment">*       <a href ="global-zsd_get_menge.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARACTERS&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LW_CHARACTERS&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*    LW_CHARG_CHARACTERS TYPE ZMM_CHARG_CHARACTERS,<br />
+*    LT_CHARG_CHARACTERS TYPE ZMM_CHARG_CHARACTERS OCCURS 0.<br />
+** 无批次的商品不需要转换<br />
+*  IF I_CHARG IS INITIAL.<br />
+*    E_MENGE = I_MENGE.<br />
+*    RETURN.<br />
+*  ENDIF.<br />
+* 转换<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_MATN1_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;I_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 取基本单位<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MATNR&nbsp;MEINS&nbsp;EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;L_MATNR.<br />
+<br />
+&nbsp;&nbsp;E_EXTWG&nbsp;=&nbsp;LW_MARA-EXTWG&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* Modify by Huxiaowei 2015.09.11<br />
+*  IF LW_MARA-MEINS = 'ST'.<br />
+*    E_MENGE = I_MENGE.<br />
+*  ELSEIF LW_MARA-MEINS = 'G'.<br />
+*    LW_CHARG-MATNR = L_MATNR.<br />
+*    LW_CHARG-CHARG = I_CHARG.<br />
+*    APPEND LW_CHARG TO LT_CHARG.<br />
+*<br />
+*    CALL FUNCTION 'ZMM_GET_CHARG_CHARACTERS'<br />
+*      TABLES<br />
+*        T_CHARG                  = LT_CHARG<br />
+*        T_CHARG_CHARACTERS       = LT_CHARG_CHARACTERS<br />
+*              .<br />
+*    READ TABLE LT_CHARG_CHARACTERS INTO LW_CHARG_CHARACTERS<br />
+*                               WITH KEY ATNAM = 'ZJZ'<br />
+*                               .<br />
+*    E_MENGE = I_MENGE * LW_CHARG_CHARACTERS-ATFLV.<br />
+*  ENDIF.<br />
+**<br />
+* 如果没有批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;I_CHARG&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE&nbsp;=&nbsp;I_MENGE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MARA-MEINS&nbsp;=&nbsp;'ST'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_JS&nbsp;=&nbsp;I_MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_KZ&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_MARA-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_JS&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_KZ&nbsp;=&nbsp;I_MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG-MATNR&nbsp;=&nbsp;L_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG-CHARG&nbsp;=&nbsp;I_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_CHARG&nbsp;TO&nbsp;LT_CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARACTERS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARACTERS&nbsp;INTO&nbsp;LW_CHARACTERS&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MARA-MEINS&nbsp;=&nbsp;'ST'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE&nbsp;=&nbsp;I_MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_JS&nbsp;=&nbsp;I_MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_KZ&nbsp;=&nbsp;I_MENGE&nbsp;*&nbsp;LW_CHARACTERS-ZJZ&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LW_MARA-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_MENGE&nbsp;=&nbsp;I_MENGE&nbsp;*&nbsp;LW_CHARACTERS-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_JS&nbsp;=&nbsp;I_MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_KZ&nbsp;=&nbsp;I_MENGE&nbsp;*&nbsp;LW_CHARACTERS-ZJZ&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;E_ZGYSDM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_CHARACTERS-ZGYSDM.<br />
+   </div>
+   <div class="codeComment">
+* Modify End<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

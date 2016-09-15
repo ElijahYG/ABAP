@@ -1,0 +1,781 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP0290</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP0290</h2>
+<h3> Description: ZSDRP0290_20151214_价签打印</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZSDRP0290.<br />
+<br />
+   </div>
+   <div class="codeComment">
+***********************************************************************<br />
+*&nbsp;Report&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;ZFIDG0030<br />
+*&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;FI<br />
+*&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;价签打印<br />
+*&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;liuwei<br />
+<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/12/14&nbsp;&nbsp;&nbsp;&nbsp;CHENCHENGLIANG&nbsp;&nbsp;&nbsp;&nbsp;Initial&nbsp;Implementation<br />
+***********************************************************************<br />
+<br />
+*&nbsp;TABLES:&nbsp;cepc_bukrs,knb1,lfb1,ztzz02,t880.<br />
+*&nbsp;TABLES:&nbsp;zst_extension2.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;DATA:&nbsp;g_ok_code&nbsp;LIKE&nbsp;sy-ucomm.<br />
+<br />
+&nbsp;DATA&nbsp;functxt&nbsp;TYPE&nbsp;smp_dyntxt.<br />
+<br />
+&nbsp;TYPE-POOLS:&nbsp;truxs.<br />
+&nbsp;TABLES:&nbsp;sscrfields.&nbsp;"选择屏幕上的字段<br />
+&nbsp;DATA:&nbsp;it_raw_data&nbsp;TYPE&nbsp;truxs_t_text_data.<br />
+<br />
+&nbsp;TABLES:&nbsp;bseg,bkpf.<br />
+&nbsp;TABLES:&nbsp;tcurc,t001,csks,cepc,kna1,lfa1.<br />
+   </div>
+   <div class="codeComment">
+*定义模板&nbsp;Excel<br />
+   </div>
+   <div class="code">
+&nbsp;DATA:&nbsp;gv_class_name&nbsp;TYPE&nbsp;seoclsname&nbsp;VALUE&nbsp;'ZFI',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gv_class_type&nbsp;TYPE&nbsp;bds_clstyp&nbsp;VALUE&nbsp;'OT',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gv_object_key&nbsp;TYPE&nbsp;bds_typeid&nbsp;VALUE&nbsp;'ZSDRP0290'.<br />
+<br />
+&nbsp;DATA:&nbsp;g_check_button(1)&nbsp;TYPE&nbsp;c.<br />
+<br />
+<br />
+<br />
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT     TYPE SLIS_LAYOUT_ALV.<br />
+<br />
+<br />
+DATA: WS_FIELDCAT        TYPE SLIS_T_FIELDCAT_ALV WITH HEADER LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_FIELDGROUPS_TAB&nbsp;TYPE&nbsp;SLIS_T_SP_GROUP_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_LAYOUT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_STATUS&nbsp;&nbsp;TYPE&nbsp;SLIS_FORMNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_COMM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_FORMNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_SORTFIELDS_TAB&nbsp;&nbsp;TYPE&nbsp;SLIS_T_SORTINFO_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_EVENTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_EVENT&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+<br />
+<br />
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&*****工具栏按钮设置<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+DATA: BEGIN OF excltab OCCURS 0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fcode&nbsp;LIKE&nbsp;sy-ucomm,<br />
+&nbsp;END&nbsp;OF&nbsp;excltab.<br />
+<br />
+DATA:gt_e_data TYPE TABLE OF ZMMRP0440_ST WITH HEADER LINE.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;gt_e_data&nbsp;OCCURS&nbsp;0,<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"品牌<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BH&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"规格<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CD&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"产地<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DJ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"登记<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DW&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"单位<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LSDJ&nbsp;&nbsp;TYPE&nbsp;ZDE_ZJE,&nbsp;&nbsp;"零售价<br />
+*<br />
+*&nbsp;&nbsp;END&nbsp;OF&nbsp;gt_e_data.<br />
+*&nbsp;DATA:&nbsp;gs_e_data&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;gt_e_data.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;SELECTION-SCREEN:&nbsp;BEGIN&nbsp;OF&nbsp;BLOCK&nbsp;scr1&nbsp;WITH&nbsp;FRAME&nbsp;TITLE&nbsp;text-001.<br />
+<br />
+&nbsp;PARAMETERS:&nbsp;p_filenm&nbsp;LIKE&nbsp;rlgrap-filename&nbsp;.<br />
+<br />
+&nbsp;SELECTION-SCREEN:&nbsp;END&nbsp;OF&nbsp;BLOCK&nbsp;scr1.<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&****创建&nbsp;下载模板&nbsp;按钮<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN FUNCTION KEY 1.<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&****取文件路径<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_filenm.<br />
+&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_filename_get.<br />
+<br />
+&nbsp;AT&nbsp;SELECTION-SCREEN.<br />
+&nbsp;&nbsp;&nbsp;IF&nbsp;sscrfields-ucomm&nbsp;=&nbsp;'FC01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_downdload_template&nbsp;USING&nbsp;gv_class_name&nbsp;&nbsp;gv_class_type&nbsp;gv_object_key.<br />
+&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+&nbsp;INITIALIZATION.<br />
+&nbsp;&nbsp;&nbsp;functxt-icon_id&nbsp;&nbsp;&nbsp;=&nbsp;icon_xls.<br />
+&nbsp;&nbsp;&nbsp;functxt-icon_text&nbsp;=&nbsp;'下载模板'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;sscrfields-functxt_01&nbsp;=&nbsp;functxt.<br />
+<br />
+<br />
+<br />
+&nbsp;START-OF-SELECTION&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;IF&nbsp;p_filenm&nbsp;&lt;&gt;&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;frm_get_data_from_excel.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_SHOW.<br />
+&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;e001(00)&nbsp;WITH&nbsp;'没有选择导入文件！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;END-OF-SELECTION.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_filename_get<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+FORM frm_filename_get .<br />
+&nbsp;&nbsp;&nbsp;DATA:&nbsp;lv_message&nbsp;&nbsp;TYPE&nbsp;string,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_index&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;sy-index,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_rc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;i,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i_filetable&nbsp;TYPE&nbsp;filetable.<br />
+<br />
+&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;cl_gui_frontend_services=&gt;file_open_dialog<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_title&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'选择数据文件'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_filter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'EXCEL文件|*.XLSX;*.XLS'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multiselection&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;space<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_table&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;i_filetable<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;i_rc<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_open_dialog_failed&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cntl_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error_no_gui&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_supported_by_gui&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;AND&nbsp;i_rc&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;i_filetable&nbsp;INTO&nbsp;p_filenm&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;s001(00)&nbsp;WITH&nbsp;'没有选择文件或是选择文件错误！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;ENDFORM.&nbsp;"&nbsp;FRM_FILENAME_GET<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_downdload_template<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_CLNM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_CLTYP&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+FORM frm_downdload_template USING p_clnm TYPE seoclsname<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_cltyp&nbsp;TYPE&nbsp;bds_clstyp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_key&nbsp;&nbsp;&nbsp;TYPE&nbsp;bds_typeid.<br />
+<br />
+&nbsp;&nbsp;&nbsp;DATA:&nbsp;l_file&nbsp;TYPE&nbsp;string,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_path&nbsp;TYPE&nbsp;string,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_name&nbsp;TYPE&nbsp;string.<br />
+<br />
+&nbsp;&nbsp;&nbsp;DATA:&nbsp;bds_instance&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;cl_bds_document_set,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_itab_doc_signature&nbsp;&nbsp;&nbsp;TYPE&nbsp;sbdst_signature,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_itab_doc_components&nbsp;&nbsp;LIKE&nbsp;bapicompon&nbsp;OCCURS&nbsp;5&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_bapifiles&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;bapifiles&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&&nbsp;获取保存路径<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;frm_get_filepath&nbsp;CHANGING&nbsp;&nbsp;l_name&nbsp;l_path&nbsp;l_file.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&&nbsp;如果选择保存路径,则可进行数据模板下载<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;l_name&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;s398(00)&nbsp;WITH&nbsp;'已取消下载!'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;CREATE&nbsp;OBJECT&nbsp;bds_instance.<br />
+&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;bds_instance-&gt;get_info<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classname&nbsp;&nbsp;=&nbsp;p_clnm<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classtype&nbsp;&nbsp;=&nbsp;p_cltyp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object_key&nbsp;=&nbsp;p_key<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;components&nbsp;=&nbsp;l_itab_doc_components[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;signature&nbsp;&nbsp;=&nbsp;l_itab_doc_signature.<br />
+<br />
+&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;l_itab_doc_components.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_bapifiles-doc_count&nbsp;&nbsp;=&nbsp;l_itab_doc_components-doc_count.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_bapifiles-comp_count&nbsp;=&nbsp;l_itab_doc_components-comp_count.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_bapifiles-comp_id&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_itab_doc_components-comp_id.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_bapifiles-directory&nbsp;&nbsp;=&nbsp;l_path&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_bapifiles-filename&nbsp;&nbsp;&nbsp;=&nbsp;l_name&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;l_bapifiles.<br />
+&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BDS_BUSINESSDOCUMENT_GET_FILES'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;p_clnm<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classtype&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;p_cltyp<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object_key&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;p_key<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;files&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_bapifiles<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;signature&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_itab_doc_signature<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nothing_found&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter_error&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_allowed&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error_kpro&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;internal_error&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_authorized&nbsp;&nbsp;=&nbsp;6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7.<br />
+&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4.<br />
+&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;s001(00)&nbsp;WITH&nbsp;'下载成功:'&nbsp;l_file.<br />
+&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;ENDFORM.&nbsp;"&nbsp;FRM_DOWNDLOAD_TEMPLATE<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_FILEPATH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_L_NAME&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_L_PATH&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;--P_L_FILE&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+FORM frm_get_filepath CHANGING l_name TYPE string<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_path&nbsp;TYPE&nbsp;string<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l_file&nbsp;TYPE&nbsp;string.<br />
+&nbsp;&nbsp;&nbsp;DATA:&nbsp;l_title&nbsp;TYPE&nbsp;string.<br />
+<br />
+&nbsp;&nbsp;&nbsp;l_title&nbsp;=&nbsp;'价签打印模板'.<br />
+&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;cl_gui_frontend_services=&gt;file_save_dialog<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window_title&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_title<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default_extension&nbsp;=&nbsp;'*.xlsx'&nbsp;&nbsp;"xls'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default_file_name&nbsp;=&nbsp;l_title<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file_filter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;cl_gui_frontend_services=&gt;filetype_excel<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_name<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_path<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fullpath&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_file.<br />
+<br />
+&nbsp;ENDFORM.&nbsp;"&nbsp;FRM_GET_FILEPATH<br />
+<br />
+<br />
+FORM frm_get_data_from_excel .<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&***定义这个内表主要是处理金额小于0时，会自动扩大的问题<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;data:&nbsp;begin&nbsp;of&nbsp;lt_e_data&nbsp;occurs&nbsp;0,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"品牌<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BH&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"规格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CD&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"产地<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DJ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"登记<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DW&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR50,&nbsp;&nbsp;&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LSDJ&nbsp;&nbsp;TYPE&nbsp;ZDE_ZJE,&nbsp;&nbsp;"零售价<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;end&nbsp;of&nbsp;lt_e_data.<br />
+<br />
+&nbsp;&nbsp;&nbsp;clear:lt_e_data[],gt_e_data[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FILE&nbsp;&nbsp;TYPE&nbsp;RLGRAP-FILENAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_LINE&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;DATA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TAB&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ALSMEX_TABLINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TAB&nbsp;&nbsp;TYPE&nbsp;ALSMEX_TABLINE.<br />
+&nbsp;&nbsp;&nbsp;FIELD-SYMBOLS:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;&nbsp;CREATE&nbsp;DATA&nbsp;LW_LINE&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;lt_e_data.<br />
+&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;LW_LINE-&gt;*&nbsp;TO&nbsp;&lt;LINE&gt;.<br />
+&nbsp;&nbsp;&nbsp;L_FILE&nbsp;=&nbsp;p_filenm.<br />
+&nbsp;&nbsp;&nbsp;TRANSLATE&nbsp;L_FILE&nbsp;TO&nbsp;UPPER&nbsp;CASE.<br />
+&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ALSM_EXCEL_TO_INTERNAL_TABLE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILENAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_FILE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BEGIN_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BEGIN_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_END_COL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;250<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_END_ROW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;65536<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCONSISTENT_PARAMETERS&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPLOAD_OLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'上传文件有误！'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_TAB&nbsp;WHERE&nbsp;ROW&nbsp;=&nbsp;1.&nbsp;&nbsp;"删除字段名行<br />
+<br />
+&nbsp;&nbsp;&nbsp;REFRESH:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_e_data.<br />
+&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TAB&nbsp;INTO&nbsp;LW_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;CHANGE&nbsp;OF&nbsp;LW_TAB-ROW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-TABIX&nbsp;NE&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&nbsp;&lt;LINE&gt;&nbsp;TO&nbsp;lt_e_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&lt;LINE&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDON.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;LW_TAB-COL&nbsp;OF&nbsp;STRUCTURE&nbsp;&lt;LINE&gt;&nbsp;TO&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS&gt;&nbsp;=&nbsp;LW_TAB-VALUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CATCH&nbsp;CX_ROOT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'上传文件的列多于接收内表的列'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDTRY.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;LAST.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&lt;LINE&gt;&nbsp;TO&nbsp;lt_e_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;IF&nbsp;lt_e_data&nbsp;IS&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'上传文件为空'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+*&nbsp;&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;at&nbsp;lt_e_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;move-corresponding&nbsp;lt_e_data&nbsp;to&nbsp;gt_e_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;append&nbsp;gt_e_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;endloop.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;ENDFORM.&nbsp;"&nbsp;FRM_GET_DATA_FROM_EXCEL<br />
+<br />
+<br />
+&nbsp;FORM&nbsp;GET_SHOW.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].<br />
+   </div>
+   <div class="codeComment">
+*将自己定义的数据结构放到&nbsp;用于显示ALV的内表中<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'gt_e_data'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'NAME'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'品牌'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'gt_e_data'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'BH'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'编号'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'gt_e_data'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'GG'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'规格'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'gt_e_data'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'CD'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'产地'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;WA_FIELDCAT-HOTSPOT&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'gt_e_data'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'DJ'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'等级'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'gt_e_data'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'DW&nbsp;'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'单位'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'gt_e_data'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'LSDJ'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'零售价'.<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;"回调状态&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;回调用户命令&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_e_data<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM USER_COMMAND USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;IF&nbsp;REF_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;REF_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"以下是打印关联&nbsp;表格&nbsp;用<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'BTN_PRINT'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用,BTN_DY&nbsp;&nbsp;是自己建打印图标时起的名字<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;PRINT_DOC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'BTN_PRINT1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用,BTN_DY&nbsp;&nbsp;是自己建打印图标时起的名字<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;PRINT_DOC1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'BTN_PRINT1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用,BTN_DY&nbsp;&nbsp;是自己建打印图标时起的名字<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;PRINT_DOC1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'BTN_PRINT2'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用,BTN_DY&nbsp;&nbsp;是自己建打印图标时起的名字<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;PRINT_DOC2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_ALL'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_CANCEL'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;CANCEL_ALL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDCASE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"打印关联表格用<br />
+<br />
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM PF_STATUS_SET USING P_EXTAB TYPE SLIS_T_EXTAB..<br />
+&nbsp;&nbsp;"Set&nbsp;the&nbsp;Button&nbsp;using&nbsp;the&nbsp;staus<br />
+&nbsp;&nbsp;"Copy&nbsp;the&nbsp;Standard&nbsp;status&nbsp;from&nbsp;the&nbsp;program&nbsp;SAPLKKBL&nbsp;status<br />
+&nbsp;&nbsp;"&nbsp;STANDARD&nbsp;using&nbsp;SE41,&nbsp;and&nbsp;use&nbsp;that&nbsp;here.<br />
+&nbsp;&nbsp;"Pf&nbsp;status<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZSDRP0290_PF2'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击设置自己的按钮<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM PRINT_DOC.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RSPOPNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FUNC_NAME&nbsp;TYPE&nbsp;RS38L_FNAM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LST_CONTROL&nbsp;&nbsp;TYPE&nbsp;SSFCTRLOP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LST_PRINT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SSFCOMPOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据筛选<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"&nbsp;&nbsp;&nbsp;BREAK-POINT."断点<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'SSF_FUNCTION_MODULE_NAME'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"两个函数连调的原因是，SMARTFORMS会将你定义的名转成系统内的名字<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZSDRP0290_SF1'&nbsp;&nbsp;&nbsp;"SMARTFORMS（表格设计）&nbsp;时自己的程序名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FM_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_FUNC_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"系统内的SMARTFORMS表名，系统自动生成30字符长<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FORM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FUNCTION_MODULE&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+<br />
+&nbsp;&nbsp;LST_CONTROL-NO_DIALOG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LST_CONTROL-PREVIEW&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LST_CONTROL-LANGU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-LANGU.<br />
+&nbsp;&nbsp;LST_PRINT-TDDEST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZP01'.<br />
+&nbsp;&nbsp;LST_PRINT-TDIMMED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;LW_FUNC_NAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTROL_PARAMETERS&nbsp;=&nbsp;LST_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_SETTINGS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SPACE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT_OPTIONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LST_PRINT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CONT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_e_data[]&nbsp;&nbsp;"在SMARTFORMS中定义的内表与<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;内表&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;smartforms的内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMATTING_ERROR&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERNAL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEND_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_CANCELED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM PRINT_DOC1.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RSPOPNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FUNC_NAME&nbsp;TYPE&nbsp;RS38L_FNAM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LST_CONTROL&nbsp;&nbsp;TYPE&nbsp;SSFCTRLOP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LST_PRINT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SSFCOMPOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据筛选<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"&nbsp;&nbsp;&nbsp;BREAK-POINT."断点<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'SSF_FUNCTION_MODULE_NAME'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"两个函数连调的原因是，SMARTFORMS会将你定义的名转成系统内的名字<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMMRP0440_SF'&nbsp;&nbsp;&nbsp;"SMARTFORMS（表格设计）&nbsp;时自己的程序名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FM_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_FUNC_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"系统内的SMARTFORMS表名，系统自动生成30字符长<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FORM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FUNCTION_MODULE&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+<br />
+&nbsp;&nbsp;LST_CONTROL-NO_DIALOG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LST_CONTROL-PREVIEW&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LST_CONTROL-LANGU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-LANGU.<br />
+&nbsp;&nbsp;LST_PRINT-TDDEST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZP01'.<br />
+&nbsp;&nbsp;LST_PRINT-TDIMMED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;LW_FUNC_NAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTROL_PARAMETERS&nbsp;=&nbsp;LST_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_SETTINGS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SPACE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT_OPTIONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LST_PRINT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CONT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;gt_e_data&nbsp;&nbsp;"在SMARTFORMS中定义的内表与<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;内表&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;smartforms的内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMATTING_ERROR&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERNAL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEND_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_CANCELED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_FILENM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选择上载的Excel文件<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*398&nbsp;&nbsp;&nbsp;&&nbsp;&&nbsp;&&nbsp;&<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

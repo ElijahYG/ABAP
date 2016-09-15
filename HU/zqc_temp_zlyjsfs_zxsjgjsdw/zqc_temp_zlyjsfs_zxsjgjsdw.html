@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZQC_TEMP_ZLYJSFS_ZXSJGJSDW</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZQC_TEMP_ZLYJSFS_ZXSJGJSDW</h2>
+<h3> Description: 批次附加信息表填充联营结算方式和销售单位</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZQC_TEMP_ZLYJSFS_ZXSJGJSDW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据结构定义&nbsp;*<br />
+   </div>
+   <div class="code">
+TABLES: ZMMRP0210_BATCH .<br />
+<br />
+DATA: GS_CHARG TYPE ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_CHARG&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;GS_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_CHARACTERS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;GS_CHARACTERS&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_ZMMRP0210_BATCH&nbsp;TYPE&nbsp;ZMMRP0210_BATCH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ZMMRP0210_BATCH&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;GS_ZMMRP0210_BATCH&nbsp;.<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01.<br />
+&nbsp;&nbsp;SELECT-OPTIONS:&nbsp;S_MATNR&nbsp;FOR&nbsp;ZMMRP0210_BATCH-MATNR&nbsp;.<br />
+&nbsp;&nbsp;PARAMETER:&nbsp;P_UPDATE&nbsp;TYPE&nbsp;CHAR1&nbsp;AS&nbsp;CHECKBOX&nbsp;.<br />
+SELECTION-SCREEN END OF BLOCK B1 .<br />
+<br />
+START-OF-SELECTION .<br />
+&nbsp;&nbsp;IF&nbsp;P_UPDATE&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'你选择的是不更新，程序结束！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;IN&nbsp;S_MATNR&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'表ZMMRP0210_BATCH中没有数据，不需要更新！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_UPDATE&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_UPDATE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_UPDATE .<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_LINE_TOTAL&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_FROM&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_TO&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_MAX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_CHARG&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_TMP&nbsp;LIKE&nbsp;LT_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_CHARACTERS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ZMMRP0210_BATCH&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_ZMMRP0210_BATCH&nbsp;TO&nbsp;LT_CHARG&nbsp;.<br />
+&nbsp;&nbsp;LV_LINE_TOTAL&nbsp;=&nbsp;LINES(&nbsp;LT_CHARG&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;LV_LINE_MAX&nbsp;=&nbsp;10000&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LV_LINE_TOTAL&nbsp;DIV&nbsp;LV_LINE_MAX&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINE_TOTAL&nbsp;DIV&nbsp;LV_LINE_MAX&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINE_TOTAL&nbsp;DIV&nbsp;LV_LINE_MAX&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;DO&nbsp;LV_TIMES&nbsp;TIMES&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;LT_CHARG_TMP,&nbsp;LT_CHARACTERS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_FROM&nbsp;=&nbsp;LV_LINE_MAX&nbsp;*&nbsp;(&nbsp;SY-INDEX&nbsp;-&nbsp;1&nbsp;)&nbsp;+&nbsp;1&nbsp;.&nbsp;"&nbsp;本次循环从内表的哪一行开始<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-INDEX&nbsp;=&nbsp;LV_TIMES&nbsp;.&nbsp;"&nbsp;最后一次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_TO&nbsp;=&nbsp;LV_LINE_TOTAL&nbsp;.&nbsp;"&nbsp;本次循环到内表的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINE_TO&nbsp;=&nbsp;LV_LINE_MAX&nbsp;*&nbsp;SY-INDEX&nbsp;.&nbsp;"&nbsp;本次循环到内表的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_CHARG&nbsp;FROM&nbsp;LV_LINE_FROM&nbsp;TO&nbsp;LV_LINE_TO&nbsp;TO&nbsp;LT_CHARG_TMP&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG_TMP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;LT_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_CHARACTERS&nbsp;INTO&nbsp;LS_CHARACTERS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ZMMRP0210_BATCH&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;LINE&gt;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_CHARACTERS-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LS_CHARACTERS-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZJZ&nbsp;=&nbsp;LS_CHARACTERS-ZJZ&nbsp;.&nbsp;"单品金重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZCT1&nbsp;=&nbsp;LS_CHARACTERS-ZCT1&nbsp;.&nbsp;"抽屉号1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZCT2&nbsp;=&nbsp;LS_CHARACTERS-ZCT2&nbsp;.&nbsp;"抽屉号2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZLYJSFS&nbsp;=&nbsp;LS_CHARACTERS-ZLYJSFS&nbsp;.&nbsp;"结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZXSJGJLDW&nbsp;=&nbsp;LS_CHARACTERS-ZXSJGJLDW&nbsp;.&nbsp;"销售价格计量单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZXSKGFD&nbsp;=&nbsp;LS_CHARACTERS-ZXSKGFD&nbsp;.&nbsp;"销售克工费档<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZXSKFJGF&nbsp;=&nbsp;LS_CHARACTERS-ZXSKFJGF&nbsp;.&nbsp;"销售克附加费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZGYSDM&nbsp;=&nbsp;LS_CHARACTERS-ZGYSDM&nbsp;.&nbsp;"供应商或债权人的帐号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZGJSCZ&nbsp;=&nbsp;LS_CHARACTERS-ZGJSCZ&nbsp;.&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZCKLSJ&nbsp;=&nbsp;LS_CHARACTERS-ZCKLSJ&nbsp;.&nbsp;"参考零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;LINE&gt;-ZSPTM&nbsp;=&nbsp;LS_CHARACTERS-ZSPTM&nbsp;.&nbsp;"商品条码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDDO.<br />
+<br />
+&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;TABLE&nbsp;GT_ZMMRP0210_BATCH&nbsp;.<br />
+&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'表ZMMRP0210_BATCH中联营结算方式和销售价格计算单位更新完成！'&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;请输入选择条件<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_UPDATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;填充批次附加信息表的结算方式和销售价格单位<br />
+*&nbsp;S_MATNR&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

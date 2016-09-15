@@ -1,0 +1,641 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0210</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0210</h2>
+<h3> Description: 商品虚拟款号更新逻辑</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZMMRP0210<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;MM-RP-0210<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;商品虚拟款号更新逻辑<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;YANGGANG<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/08/05&nbsp;&nbsp;&nbsp;&nbsp;YANGGANG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZMMRP0210.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:<br />
+&nbsp;&nbsp;ZMMRP0210_BATCH,<br />
+&nbsp;&nbsp;MARA.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&声明变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPE-POOLS:SLIS. "SAP标准类型池<br />
+<br />
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.      "定义ALV显示字段的内表<br />
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.        "定义ALV如何显示字段的工作区<br />
+DATA: WA_LAYOUT   TYPE SLIS_LAYOUT_ALV.          "定义ALV显示格式的工作区<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+   </div>
+   <div class="code">
+DATA:IT_ZMMRP0210_BATCH TYPE TABLE OF ZMMRP0210_BATCH.        "测试export、import用<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBLIGATORY<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+   </div>
+   <div class="codeComment">
+*SELECTION-SCREEN&nbsp;BEGIN&nbsp;OF&nbsp;SCREEN&nbsp;800&nbsp;AS&nbsp;SUBSCREEN&nbsp;.<br />
+   </div>
+   <div class="code">
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0210_BATCH-MATNR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品号<br />
+&nbsp;&nbsp;S_CHARG&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0210_BATCH-CHARG&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"批号<br />
+&nbsp;&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0210_BATCH-WERKS&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;S_XNKH&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0210_BATCH-EX_XNKH&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"虚拟款号<br />
+&nbsp;&nbsp;S_KCODE&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0210_BATCH-EX_KCODE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"克重段编码<br />
+&nbsp;&nbsp;S_KZAVG&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0210_BATCH-EX_KZAVG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"克重段均值<br />
+&nbsp;&nbsp;S_CHECK&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0210_BATCH-EX_CHECK.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"匹配检查码<br />
+   </div>
+   <div class="codeComment">
+*SELECTION-SCREEN&nbsp;END&nbsp;OF&nbsp;SCREEN&nbsp;800.<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------------------------------------------------------<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用户选择执行：<br />
+*------------------------------------------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION."开始事件操作<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SHOW_ALV.<br />
+<br />
+&nbsp;&nbsp;EXPORT&nbsp;IT_ZMMRP0210_BATCH&nbsp;TO&nbsp;MEMORY&nbsp;ID&nbsp;'ZMMIF0010_IDOC_OUTPUT'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"测试export、import用<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------------------------------------------------------<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;功能模块：<br />
+*------------------------------------------------------------------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZMMRP0210_BATCH&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_XNKH&nbsp;&nbsp;IN&nbsp;S_XNKH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_KCODE&nbsp;IN&nbsp;S_KCODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_KZAVG&nbsp;IN&nbsp;S_KZAVG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_CHECK&nbsp;IN&nbsp;S_CHECK.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM SHOW_ALV.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;&nbsp;IT_FIELDCAT[].<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'MATNR'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'商品号'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'CHARG'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'批号'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'WERKS'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'地点'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'EX_XNKH'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'虚拟款号'."项目标题名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-INTLEN&nbsp;=&nbsp;'12'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设定内部长度，虚拟款号的长度为12位<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'EX_KCODE'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'克重段编码'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'EX_KZAVG'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'克重段均值'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'EX_CHECK'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'匹配检查码'."项目标题名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-REF_TABNAME&nbsp;=&nbsp;'ZMMRP0210_BATCH'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-REF_FIELDNAME&nbsp;=&nbsp;'EX_CHECK'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'DATUM'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'更新日期'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'UZEIT'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'更新时间'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;='IT_ZMMRP0210_BATCH'."内表名称<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'UNAME'."内表内的项目符号名<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'更新人'."项目标题名称<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT."把工作区添加到内表<br />
+<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'."列宽自适应<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'."显示前导零<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------按钮---------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID&nbsp;"系统变量程序ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;"回掉状态集<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;"回掉用户命令<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------按钮-----------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS&nbsp;"错误提示<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------按钮-------------------------------------<br />
+   </div>
+   <div class="code">
+"以下是建立小图标用的语句<br />
+FORM PF_STATUS_SET USING P_EXTAB TYPE SLIS_T_EXTAB..<br />
+&nbsp;&nbsp;"Set&nbsp;the&nbsp;Button&nbsp;using&nbsp;the&nbsp;staus<br />
+&nbsp;&nbsp;"Copy&nbsp;the&nbsp;Standard&nbsp;status&nbsp;from&nbsp;the&nbsp;program&nbsp;SAPLKKBL&nbsp;status<br />
+&nbsp;&nbsp;"&nbsp;STANDARD&nbsp;using&nbsp;SE41,&nbsp;and&nbsp;use&nbsp;that&nbsp;here.<br />
+&nbsp;&nbsp;"Pf&nbsp;status<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZMMRP0210_PF'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"双击设置自己的按钮<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*----------------------------按钮-------------------------------------<br />
+<br />
+*----------------------------按钮-------------------------------------<br />
+   </div>
+   <div class="code">
+FORM USER_COMMAND USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;IF&nbsp;REF_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;REF_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*---------------------------按钮--------------------------------------<br />
+*------------------------执行按钮-------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'BTN_REF'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_SAVE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_DATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SHOW_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_BACK'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;SELECTION-SCREEN&nbsp;1000.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*------------------------执行按钮-------------------------------------<br />
+<br />
+*------------------------刷新內表-------------------------------------<br />
+   </div>
+   <div class="code">
+FORM FM_SAVE.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_GRID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;刷新內表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;L_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;L_GRID-&gt;CHECK_CHANGED_DATA.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------刷新內表--------------------------------------<br />
+<br />
+*-----------------------数据声明--------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LV_MATNR&nbsp;TYPE&nbsp;MARA-MATNR.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_WERKS&nbsp;TYPE&nbsp;MARD-WERKS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_CHARG&nbsp;TYPE&nbsp;MCHA-CHARG.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_MTART&nbsp;TYPE&nbsp;MARA-MTART.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_TEMPB&nbsp;TYPE&nbsp;MARA-TEMPB.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_BEHVO&nbsp;TYPE&nbsp;MARA-BEHVO.<br />
+<br />
+&nbsp;&nbsp;DATA:WA_ZMMRP0210_BATCH&nbsp;TYPE&nbsp;ZMMRP0210_BATCH.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ZMMEX0010_KZSEL&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_RANG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_KZSEL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_RANG.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ZMMEX0010_ZQSEL&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_RANG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_ZQSEL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_RANG.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;BEGIN&nbsp;OF&nbsp;TY_ZMMEX0010_RANG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zmmex0010_rang/dictionary-zmmex0010_rang.html">ZMMEX0010_RANG</a>.<br />
+&nbsp;&nbsp;DATA&nbsp;ZKZC&nbsp;TYPE&nbsp;ZDE_MMEX0010_KZAVG&nbsp;.&nbsp;&nbsp;"克重差<br />
+&nbsp;&nbsp;DATA&nbsp;END&nbsp;OF&nbsp;TY_ZMMEX0010_RANG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ZMMEX0010_RANG&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZMMEX0010_RANG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_RANG&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_ZMMEX0010_RANG.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZJZ&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZJZ&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZJZ'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ATINN_ZZQH&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ATNAM_ZZQH&nbsp;TYPE&nbsp;CABN-ATNAM&nbsp;VALUE&nbsp;'ZZQH'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ZJZ&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARACTERS-ZJZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZZQH&nbsp;TYPE&nbsp;ZMM_CHARACTERS-ZZQH.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_CHARG_IMPORT&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARG_IMPORT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARG.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_CHARG_EXPORT&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARG_EXPORT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_CHARACTERS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;WA_VAL_AUSP&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUSP,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZJZ_BUFFER&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUSP,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZZQH_BUFFER&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUSP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LV_SIM_KZ&nbsp;TYPE&nbsp;ZMMEX0010_RANG-EX_KZAVG.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;FLAG&nbsp;TYPE&nbsp;C.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------数据声明--------------------------------------<br />
+<br />
+*-----------------------处理逻辑--------------------------------------<br />
+*&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;IT_ZMMRP0210_BATCH&nbsp;FROM&nbsp;ZMMRP0210_BATCH.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZMMRP0210_BATCH&nbsp;INTO&nbsp;TABLE&nbsp;IT_ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_XNKH&nbsp;&nbsp;IN&nbsp;S_XNKH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_KCODE&nbsp;IN&nbsp;S_KCODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_KZAVG&nbsp;IN&nbsp;S_KZAVG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_CHECK&nbsp;IN&nbsp;S_CHECK.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZMMRP0210_BATCH&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;FLAG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_CHARG_IMPORT[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_CHARG_EXPORT[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MATNR&nbsp;=&nbsp;WA_ZMMRP0210_BATCH-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_WERKS&nbsp;=&nbsp;WA_ZMMRP0210_BATCH-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_CHARG&nbsp;=&nbsp;WA_ZMMRP0210_BATCH-CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARG_IMPORT-MATNR&nbsp;=&nbsp;WA_ZMMRP0210_BATCH-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_CHARG_IMPORT-CHARG&nbsp;=&nbsp;WA_ZMMRP0210_BATCH-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_CHARG_IMPORT&nbsp;TO&nbsp;IT_CHARG_IMPORT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CHARG_IMPORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;IT_CHARG_EXPORT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_CHARG_EXPORT&nbsp;INTO&nbsp;WA_CHARG_EXPORT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJZ&nbsp;=&nbsp;WA_CHARG_EXPORT-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZZQH&nbsp;=&nbsp;WA_CHARG_EXPORT-ZZQH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MTART&nbsp;TEMPB&nbsp;BEHVO&nbsp;INTO&nbsp;(LV_MTART,&nbsp;LV_TEMPB,&nbsp;LV_BEHVO)&nbsp;FROM&nbsp;MARA&nbsp;WHERE&nbsp;MATNR&nbsp;EQ&nbsp;LV_MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LV_BEHVO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'K'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LV_ZJZ&nbsp;EQ&nbsp;'0'&nbsp;OR&nbsp;LV_ZJZ&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;R~EX_KCODE&nbsp;R~EX_KTYPE&nbsp;R~EX_KZLOW&nbsp;R~EX_KHIGH&nbsp;R~EX_KNAME&nbsp;R~EX_KZAVG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_KZSEL&nbsp;AS&nbsp;K<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_RANG&nbsp;AS&nbsp;R&nbsp;ON&nbsp;K~EX_KCODE&nbsp;=&nbsp;R~EX_KCODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;K~MATNR&nbsp;=&nbsp;LV_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LV_ZJZ&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;LV_ZJZ&nbsp;&lt;=&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;(&nbsp;LV_ZJZ&nbsp;&gt;&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;LV_ZJZ&nbsp;&lt;&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_RANG-ZKZC&nbsp;=&nbsp;ABS(&nbsp;LV_ZJZ&nbsp;-&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ZMMEX0010_RANG&nbsp;FROM&nbsp;WA_ZMMEX0010_RANG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_ZMMEX0010_RANG&nbsp;BY&nbsp;ZKZC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'Z'&nbsp;OR&nbsp;'Q'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LV_ZZQH&nbsp;EQ&nbsp;'0'&nbsp;OR&nbsp;LV_ZZQH&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;R~EX_KCODE&nbsp;R~EX_KTYPE&nbsp;R~EX_KZLOW&nbsp;R~EX_KHIGH&nbsp;R~EX_KNAME&nbsp;R~EX_KZAVG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_ZQSEL&nbsp;AS&nbsp;Z<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_RANG&nbsp;AS&nbsp;R&nbsp;ON&nbsp;Z~EX_KCODE&nbsp;=&nbsp;R~EX_KCODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;Z~MATNR&nbsp;=&nbsp;LV_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR'0000'&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;'0000'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LV_ZZQH&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;LV_ZZQH&nbsp;&lt;=&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;(&nbsp;LV_ZZQH&nbsp;&gt;&nbsp;WA_ZMMEX0010_RANG-EX_KZLOW&nbsp;AND&nbsp;LV_ZZQH&nbsp;&lt;&nbsp;WA_ZMMEX0010_RANG-EX_KHIGH&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_RANG-ZKZC&nbsp;=&nbsp;ABS(&nbsp;LV_ZZQH&nbsp;-&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ZMMEX0010_RANG&nbsp;FROM&nbsp;WA_ZMMEX0010_RANG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;FLAG&nbsp;NE&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_ZMMEX0010_RANG&nbsp;BY&nbsp;ZKZC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ZMMEX0010_RANG&nbsp;INTO&nbsp;WA_ZMMEX0010_RANG&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-MATNR&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-CHARG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-WERKS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;LV_MATNR&nbsp;WA_ZMMEX0010_RANG-EX_KCODE&nbsp;INTO&nbsp;WA_ZMMRP0210_BATCH-EX_XNKH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KCODE&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KCODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_KZAVG&nbsp;=&nbsp;WA_ZMMEX0010_RANG-EX_KZAVG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-EX_CHECK&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-DATUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UZEIT&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMRP0210_BATCH-UNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-UNAME.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0210_BATCH&nbsp;FROM&nbsp;WA_ZMMRP0210_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;批号<br />
+*&nbsp;S_CHECK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;匹配检查码<br />
+*&nbsp;S_KCODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;重段编码<br />
+*&nbsp;S_KZAVG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;克重段均值<br />
+*&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品号<br />
+*&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;地点<br />
+*&nbsp;S_XNKH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;虚拟款号克<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

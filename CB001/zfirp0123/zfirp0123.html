@@ -1,0 +1,1063 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0123</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0123</h2>
+<h3> Description: ZFIRP0123-会计凭证归档-20150929-李妍</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZFIRP0123<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;ZFIRP0123<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;会计凭证归档<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;liyan<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/09/29&nbsp;&nbsp;&nbsp;&nbsp;liyan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+REPORT ZFIRP0123.<br />
+<br />
+TYPE-POOLS: SLIS.      "ALV显示使用到的共享池<br />
+<br />
+TABLES: BSEG,BKPF,FAGLFLEXA,ZFIRP0121_DTYPE,SETNODE.<br />
+<br />
+DATA: IT_FIELDCAT    TYPE    SLIS_T_FIELDCAT_ALV. "定义ALV内表显示字段<br />
+DATA: WA_FIELDCAT    TYPE    SLIS_FIELDCAT_ALV.   "定义ALV工作区显示字段<br />
+DATA: WA_LAYOUT      TYPE    SLIS_LAYOUT_ALV.     "定义ALV工作区显示格式<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+*&nbsp;ALV显示使用的数据结构及内表<br />
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF TY_OUT,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEL_BOX&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGROUP&nbsp;&nbsp;TYPE&nbsp;CHAR24,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"所属账套<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-GJAHR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计年度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMONAT&nbsp;&nbsp;TYPE&nbsp;BKPF-MONAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"实际会计期间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUKRS&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-RBUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-DOCNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCLN&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-DOCLN,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-PRCTR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MONAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;BKPF-MONAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计期间<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BLART&nbsp;&nbsp;&nbsp;TYPE&nbsp;BKPF-BLART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-BUDAT,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT.<br />
+<br />
+DATA: IT_ALV TYPE STANDARD TABLE OF    TY_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_OUT.<br />
+<br />
+DATA: GT_OUT_TAB TYPE STANDARD TABLE OF TY_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TMP_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_OUT.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+*&nbsp;存选中数据<br />
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF GT_OUT,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEL_BOX&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGROUP&nbsp;&nbsp;TYPE&nbsp;CHAR24,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"所属账套<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-GJAHR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计年度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMONAT&nbsp;&nbsp;TYPE&nbsp;BKPF-MONAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"实际会计期间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUKRS&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-RBUKRS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-DOCNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCLN&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-DOCLN,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-PRCTR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MONAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;BKPF-MONAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计期间<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BLART&nbsp;&nbsp;&nbsp;TYPE&nbsp;BKPF-BLART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXA-BUDAT,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;GT_OUT.<br />
+<br />
+DATA: GT_SELECTED     TYPE STANDARD TABLE OF GT_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SELECTED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_SELECTED&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_OUT.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+"ZFIRP0121_DTYPE结构<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF TYT_OUT,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BLART&nbsp;&nbsp;TYPE&nbsp;BKPF-BLART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOC_TP&nbsp;TYPE&nbsp;ZFIRP0121_DTYPE-DOC_TP,&nbsp;&nbsp;&nbsp;"归档标识<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TYT_OUT.<br />
+<br />
+DATA:IT_TYPE   TYPE STANDARD TABLE OF TYT_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TYPE&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYT_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_GD&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYT_OUT.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+"ZFIRP0123_DOC结构<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+DATA: IT_ZFIRP0123_DOC TYPE STANDARD TABLE OF ZFIRP0123_DOC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZFIRP0123_DOC&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0123_DOC.<br />
+<br />
+DATA: LT_MAX_DOC TYPE STANDARD TABLE OF ZFIRP0123_DOC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MAX_DOC&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0123_DOC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TMP_DOC&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZFIRP0123_DOC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TMP_DOC&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0123_DOC.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+*&nbsp;检查标记<br />
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+DATA: CHECK_FLAG TYPE CHAR1.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------<br />
+*&nbsp;利润中心<br />
+*-----------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+DATA: RT_PRCTR     TYPE RANGE OF PRCTR.<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------*<br />
+*&nbsp;查询条件<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BLK1 WITH FRAME TITLE TEXT-001.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXA-PRCTR&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_SNAME&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;SETNODE-SETNAME&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心组<br />
+SELECTION-SCREEN END OF BLOCK BLK1.<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK BLK2 WITH FRAME TITLE TEXT-002.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_BUDAT&nbsp;FOR&nbsp;BKPF-BUDAT&nbsp;OBLIGATORY&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"过账日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_BELNR&nbsp;FOR&nbsp;FAGLFLEXA-DOCNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_BLART&nbsp;FOR&nbsp;BKPF-BLART.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证类型<br />
+SELECTION-SCREEN END OF BLOCK BLK2.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&帮助<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR S_SNAME-LOW.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'K_GROUP_SELECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD_NAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CCSS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_SNAME-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_SET_PICKED&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;START-OF-SELECTION<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;CHECK_FLAG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;CHECK_FLAG&nbsp;IS&nbsp;INITIAL.&nbsp;&nbsp;&nbsp;"未检查出错误<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_GETDATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;DEL_GD.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"删除已归档数据<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;ALV相关<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;SHOW_DATA.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;数据检查<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_DATA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;MSG_STRING&nbsp;TYPE&nbsp;STRING.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;RT_PRCTR.<br />
+&nbsp;&nbsp;"检查屏幕选择时只能利润中心与利润中心组二选一输入<br />
+&nbsp;&nbsp;IF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHECK_FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MSG_STRING&nbsp;=&nbsp;'利润中心、利润中心组，只能且必须选择一个'.<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE&nbsp;S_PRCTR[]&nbsp;TO&nbsp;RT_PRCTR[].&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心不为空，通过利润中心取数<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_PRCTR&nbsp;USING&nbsp;S_SNAME[]&nbsp;RT_PRCTR&nbsp;&nbsp;.&nbsp;&nbsp;"取该利润中心组下所有利润中心<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHECK_FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MSG_STRING&nbsp;=&nbsp;'利润中心、利润中心组，只能且必须选择一个'.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;CHECK_FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;MSG_STRING&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.&nbsp;&nbsp;&nbsp;"S是消息类型，001是消息文本，在此处为&占位符，所以需要WITH文本来替代,系统消息类为00<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GETDATA.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_R_PRCTR&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;PRCTR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"一级节点为利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_R_PRCTR&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_R_PRCTR.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_R_MONAT&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;MONAT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计期间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_R_MONAT&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_R_MONAT,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETLEAF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALSIGN&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALSIGN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALOPTION&nbsp;TYPE&nbsp;SETLEAF-VALOPTION,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALFROM&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALFROM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALTO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALTO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETLEAF,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETLEAF&nbsp;LIKE&nbsp;LW_SETLEAF&nbsp;OCCURS&nbsp;0,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;WA_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETNODE-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;TYPE&nbsp;SETNODE-SUBSETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;WA_SETNODE,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_SETNODE&nbsp;LIKE&nbsp;WA_SETNODE&nbsp;OCCURS&nbsp;0,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETNAME,&nbsp;&nbsp;"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XUHAO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;TYPE&nbsp;SETNODE-SUBSETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;BSEG-PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETNAME,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETNAME&nbsp;LIKE&nbsp;LW_SETNAME&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_SETNAME&nbsp;LIKE&nbsp;LW_SETNAME&nbsp;OCCURS&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETNODE&nbsp;&nbsp;&nbsp;LIKE&nbsp;WA_SETNODE&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TMP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SETNAME&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SETNAMENEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SN_TMP&nbsp;&nbsp;LIKE&nbsp;LT_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SN_TMP&nbsp;&nbsp;LIKE&nbsp;LW_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SNAME&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SETNAMENEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_PRCTR&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_R_PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*取出所有相关的会计凭证<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:GT_OUT_TAB[],IT_ALV[].<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_OUT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAGLFLEXA&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;BKPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AS&nbsp;B&nbsp;&nbsp;ON&nbsp;A~RYEAR&nbsp;&nbsp;=&nbsp;B~GJAHR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~DOCNR&nbsp;&nbsp;=&nbsp;B~BELNR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~RBUKRS&nbsp;=&nbsp;B~BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~PRCTR&nbsp;IN&nbsp;RT_PRCTR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BUDAT&nbsp;IN&nbsp;S_BUDAT&nbsp;&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BLART&nbsp;IN&nbsp;S_BLART&nbsp;&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~DOCNR&nbsp;IN&nbsp;S_BELNR&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*建账套<br />
+*处理一级节点为利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;IT_R_PRCTR.<br />
+&nbsp;&nbsp;SELECT&nbsp;SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALSIGN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALOPTION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALFROM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALTO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETLEAF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SETLEAF<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SETNAME&nbsp;&nbsp;='CBAIDY'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SETLEAF&nbsp;INTO&nbsp;LW_SETLEAF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_R_PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_R_PRCTR-SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALSIGN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_R_PRCTR-OPTION&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALOPTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_R_PRCTR-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALFROM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_R_PRCTR-HIGH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALTO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_R_PRCTR&nbsp;TO&nbsp;IT_R_PRCTR."存区间值<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LS_OUT_TAB&nbsp;WHERE&nbsp;PRCTR&nbsp;IN&nbsp;IT_R_PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT_TAB-ZGROUP&nbsp;=&nbsp;&nbsp;LS_OUT_TAB-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;LS_OUT_TAB&nbsp;TRANSPORTING&nbsp;ZGROUP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*处理一级节点为利润中心组<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;IT_SETNAME,LT_SETNAME.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取子组<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;"父组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;"子组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SETNODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETNODE<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;SETNAME&nbsp;&nbsp;='CBAIDY'.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_SETNODE&nbsp;BY&nbsp;SETNAME&nbsp;SUBSETNAME.<br />
+<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_SETNODE&nbsp;)."取行数<br />
+<br />
+&nbsp;&nbsp;DO&nbsp;L_LINE&nbsp;TIMES.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_SETNODE-SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_SETNODE&nbsp;INTO&nbsp;WA_SETNODE&nbsp;INDEX&nbsp;SY-INDEX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LT_R_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_SETNODE-SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_SETNAME&nbsp;TO&nbsp;LT_R_SETNAME.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取组下面的利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LT_R_PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALSIGN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALOPTION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALFROM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALTO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETLEAF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SETLEAF&nbsp;&nbsp;&nbsp;"三个段范围的利润中心组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SETNAME&nbsp;&nbsp;IN&nbsp;LT_R_SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_SETLEAF&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SETLEAF&nbsp;INTO&nbsp;LW_SETLEAF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALSIGN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-OPTION&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALOPTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALFROM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-HIGH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALTO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_PRCTR&nbsp;TO&nbsp;LT_R_PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*由取出的利润中心反找回所属的利润中心组<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;PRCTR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;CEPC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;PRCTR&nbsp;IN&nbsp;LT_R_PRCTR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SETNAME&nbsp;INTO&nbsp;LW_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SETNAME-SUBSETNAME&nbsp;=&nbsp;WA_SETNODE-SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_SETNAME&nbsp;FROM&nbsp;LW_SETNAME&nbsp;TRANSPORTING&nbsp;SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_SETNAME&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_SETNAME&nbsp;=&nbsp;LT_SETNAME.&nbsp;&nbsp;&nbsp;&nbsp;"输出表IT_SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SETNAME&nbsp;INTO&nbsp;LW_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_SETNAME&nbsp;TO&nbsp;IT_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDDO.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LS_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_SETNAME&nbsp;INTO&nbsp;LW_SETNAME&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;LS_OUT_TAB-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT_TAB-ZGROUP&nbsp;=&nbsp;&nbsp;LW_SETNAME-SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;LS_OUT_TAB&nbsp;TRANSPORTING&nbsp;ZGROUP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_MONAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_R_MONAT.<br />
+&nbsp;&nbsp;WA_R_MONAT-SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;WA_R_MONAT-OPTION&nbsp;&nbsp;&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;WA_R_MONAT-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&1.<br />
+&nbsp;&nbsp;WA_R_MONAT-HIGH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&2.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_R_MONAT&nbsp;TO&nbsp;IT_R_MONAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_MONAT:<br />
+&nbsp;&nbsp;'1'&nbsp;'12',<br />
+&nbsp;&nbsp;'13'&nbsp;'16'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*MONAT&lt;=12时<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LS_OUT_TAB&nbsp;WHERE&nbsp;MONAT&nbsp;IN&nbsp;IT_R_MONAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_OUT_TAB-MONAT&nbsp;&lt;=&nbsp;12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT_TAB-ZMONAT&nbsp;=&nbsp;&nbsp;LS_OUT_TAB-MONAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;LS_OUT_TAB&nbsp;TRANSPORTING&nbsp;ZMONAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*MONAT&gt;12时<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LS_OUT_TAB&nbsp;WHERE&nbsp;MONAT&nbsp;IN&nbsp;IT_R_MONAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IT_R_MONAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_OUT_TAB-MONAT&nbsp;&gt;&nbsp;12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_OUT_TAB-ZMONAT&nbsp;=&nbsp;&nbsp;12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_OUT_TAB&nbsp;FROM&nbsp;LS_OUT_TAB&nbsp;TRANSPORTING&nbsp;ZMONAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*筛选凭证类型<br />
+*从&nbsp;ZFIRP0121_DTYPE&nbsp;取归档配置<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0121_DTYPE&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TYPE.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TYPE&nbsp;INTO&nbsp;WA_TYPE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;LS_OUT_TAB&nbsp;WITH&nbsp;KEY&nbsp;BLART&nbsp;=&nbsp;WA_TYPE-BLART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_GD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TYPE-DOC_TP&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_GD-BLART&nbsp;&nbsp;&nbsp;=&nbsp;WA_TYPE-BLART.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_OUT_TAB&nbsp;WHERE&nbsp;BLART&nbsp;=&nbsp;WA_TAB_GD-BLART.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;删除已归档数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM DEL_GD.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取已归档数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCLN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MONAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGROUP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMONAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BLART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_TMP_DOC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0123_DOC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;DOC_NUMBER&nbsp;IS&nbsp;NOT&nbsp;NULL.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;INTO&nbsp;WA_TMP_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TMP_DOC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_TMP_DOC&nbsp;INTO&nbsp;WA_TMP_DOC&nbsp;WITH&nbsp;KEY&nbsp;ZGROUP&nbsp;=&nbsp;WA_TMP_TAB-ZGROUP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR&nbsp;&nbsp;=&nbsp;WA_TMP_TAB-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMONAT&nbsp;=&nbsp;WA_TMP_TAB-ZMONAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCLN&nbsp;&nbsp;=&nbsp;WA_TMP_TAB-DOCLN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR&nbsp;&nbsp;=&nbsp;WA_TMP_TAB-BELNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_OUT_TAB&nbsp;WHERE&nbsp;ZGROUP&nbsp;=&nbsp;&nbsp;WA_TMP_TAB-ZGROUP&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR&nbsp;&nbsp;=&nbsp;&nbsp;WA_TMP_TAB-GJAHR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMONAT&nbsp;=&nbsp;&nbsp;WA_TMP_TAB-ZMONAT&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCLN&nbsp;&nbsp;=&nbsp;&nbsp;WA_TMP_TAB-DOCLN&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR&nbsp;&nbsp;=&nbsp;&nbsp;WA_TMP_TAB-BELNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*显示ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_OUT_TAB&nbsp;TO&nbsp;IT_ALV.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;归档凭证<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM PROCESS_BACKUP.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS&gt;&nbsp;TYPE&nbsp;ZFIRP0123_DOC.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_MAX_DOC&nbsp;TYPE&nbsp;ZFIRP0123_DOC-DOC_NUMBER.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_RS&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZFIRP0123_DOC.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_MAX_NO&nbsp;TYPE&nbsp;&nbsp;ZFIRP0123_DOC-DOC_NUMBER.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_NEXT&nbsp;TYPE&nbsp;ZFIRP0123_DOC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"下一条数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行索引<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NEXT&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"判断下一行的BELNR<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_START&nbsp;TYPE&nbsp;&nbsp;CHAR1.&nbsp;&nbsp;&nbsp;"初始标志<br />
+   </div>
+   <div class="codeComment">
+*获取每个账套当前的最大编号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_SELECTED&nbsp;DESCENDING&nbsp;BY&nbsp;ZGROUP&nbsp;GJAHR&nbsp;ZMONAT&nbsp;DOCLN&nbsp;.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_SELECTED&nbsp;TO&nbsp;IT_ZFIRP0123_DOC.<br />
+   </div>
+   <div class="codeComment">
+******处理归档编号<br />
+*&nbsp;取已归档数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_RS&nbsp;=&nbsp;IT_ZFIRP0123_DOC.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_RS&nbsp;BY&nbsp;ZGROUP&nbsp;GJAHR&nbsp;ZMONAT&nbsp;DOCLN&nbsp;BELNR.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_RS&nbsp;COMPARING&nbsp;ZGROUP&nbsp;GJAHR&nbsp;ZMONAT&nbsp;DOCLN&nbsp;BELNR.<br />
+&nbsp;&nbsp;IF&nbsp;LT_RS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCLN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MONAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGROUP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMONAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOC_NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_MAX_DOC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0123_DOC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_RS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZGROUP&nbsp;=&nbsp;LT_RS-ZGROUP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;&nbsp;=&nbsp;LT_RS-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZMONAT&nbsp;=&nbsp;LT_RS-ZMONAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BELNR&nbsp;&nbsp;=&nbsp;LT_RS-BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;保留最大的凭证编号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_MAX_DOC&nbsp;BY&nbsp;ZGROUP&nbsp;GJAHR&nbsp;ZMONAT&nbsp;BELNR&nbsp;DOC_NUMBER&nbsp;DESCENDING.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MAX_DOC&nbsp;COMPARING&nbsp;ZGROUP&nbsp;GJAHR&nbsp;ZMONAT.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MAX_DOC&nbsp;BY&nbsp;ZGROUP&nbsp;GJAHR&nbsp;ZMONAT&nbsp;DOCLN&nbsp;BELNR.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;确定将要归档数据的归档编号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZFIRP0123_DOC&nbsp;ASSIGNING&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_START.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;确定是否为关键字的第一条<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_START&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;-&nbsp;1.&nbsp;&nbsp;&nbsp;"和上一条进行比较<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_NEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ZFIRP0123_DOC&nbsp;INTO&nbsp;WA_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_NEXT-ZGROUP&nbsp;&lt;&gt;&nbsp;&lt;FS&gt;-ZGROUP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_NEXT-GJAHR&nbsp;&nbsp;&lt;&gt;&nbsp;&lt;FS&gt;-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_NEXT-ZMONAT&nbsp;&lt;&gt;&nbsp;&lt;FS&gt;-ZMONAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_START&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读取最大编号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_START&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MAX_DOC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MAX_DOC&nbsp;INTO&nbsp;LW_MAX_DOC&nbsp;WITH&nbsp;KEY&nbsp;ZGROUP&nbsp;=&nbsp;&lt;FS&gt;-ZGROUP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GJAHR&nbsp;&nbsp;=&nbsp;&lt;FS&gt;-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMONAT&nbsp;=&nbsp;&lt;FS&gt;-ZMONAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MAX_NO&nbsp;=&nbsp;LW_MAX_DOC-DOC_NUMBER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MAX_NO&nbsp;=&nbsp;L_MAX_NO&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS&gt;-DOC_NUMBER&nbsp;=&nbsp;L_MAX_NO.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;更新结果表&nbsp;&nbsp;和数据库交互时上传数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MODIFY&nbsp;ZFIRP0123_DOC&nbsp;FROM&nbsp;TABLE&nbsp;IT_ZFIRP0123_DOC&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'更新失败'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ENQUEUE_EZ_ZFIRP0123_DOC'.<br />
+   </div>
+   <div class="code">
+CALL FUNCTION 'DEQUEUE_EZ_ZFIRP0123_DOC'.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;DELETE_DOC_FROM_ALV.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;从ALV删除已归档数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM DELETE_DOC_FROM_ALV.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;GT_SELECTED[].<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_ALV&nbsp;WHERE&nbsp;SEL_BOX&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;ALV显示界面<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SHOW_DATA.<br />
+   </div>
+   <div class="codeComment">
+*清内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].<br />
+   </div>
+   <div class="codeComment">
+*清工作区<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表表名<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'SEL_BOX'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表字段名，必须大写<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'&nbsp;&nbsp;'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"表头为空<br />
+&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义CHECKBOX属性，X表示有效<br />
+&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义EDIT属性，允许用户自行勾选<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"将内表字段插回内表相应字段中<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'BUKRS'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'公司代码'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'GJAHR&nbsp;'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'会计年度'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'BELNR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'会计凭证编号'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'DOCLN'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'会计凭证行项目'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'PRCTR'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'利润中心'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZGROUP'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'所属账套'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'MONAT'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'会计期间'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行数值左对齐<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_ALV'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'BUDAT'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'过账日期'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'L'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行数值左对齐<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列宽自适应<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"前面补零<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调用显示函数REUSE_ALV_GRID_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"传入程序ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;""传入三个参数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;*双击某一行<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM USER_COMMAND USING UCOMM LIKE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELFIELD&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_GRID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+&nbsp;&nbsp;"刷新內表<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;L_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;L_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;SELFIELD-REFRESH&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;"刷新屏幕<br />
+&nbsp;&nbsp;SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.&nbsp;"行锁定<br />
+&nbsp;&nbsp;SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.&nbsp;"列锁定<br />
+<br />
+&nbsp;&nbsp;"&nbsp;确定选中数据<br />
+&nbsp;&nbsp;CLEAR:&nbsp;GT_SELECTED[].<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;INTO&nbsp;WA_ALV&nbsp;WHERE&nbsp;SEL_BOX&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_SELECTED.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_ALV&nbsp;TO&nbsp;WA_SELECTED.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_SELECTED&nbsp;TO&nbsp;GT_SELECTED.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;"读取用户双击的当前行<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_ALV.<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV&nbsp;INTO&nbsp;WA_ALV&nbsp;INDEX&nbsp;SELFIELD-TABINDEX.&nbsp;"读取内表中鼠标或者选择行的数据<br />
+<br />
+&nbsp;&nbsp;"判断用户具体做了什么动作<br />
+&nbsp;&nbsp;CASE&nbsp;UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&IC1'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"ALV中双击事件代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SELFIELD-SEL_TAB_FIELD&nbsp;=&nbsp;'IT_ALV-BELNR'.&nbsp;"表示单击某一单元格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'BLN'&nbsp;FIELD&nbsp;WA_ALV-BELNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'BUK'&nbsp;FIELD&nbsp;WA_ALV-BUKRS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'GJR'&nbsp;FIELD&nbsp;WA_ALV-GJAHR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;TRANSACTION&nbsp;'FB03'&nbsp;AND&nbsp;SKIP&nbsp;FIRST&nbsp;SCREEN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_GD'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调用归档功能<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GT_SELECTED[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;PROCESS_BACKUP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'&BACK'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"退出<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'ALL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;INTO&nbsp;WA_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV-SEL_BOX&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV&nbsp;FROM&nbsp;WA_ALV&nbsp;TRANSPORTING&nbsp;SEL_BOX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;INTO&nbsp;WA_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV-SEL_BOX&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV&nbsp;FROM&nbsp;WA_ALV&nbsp;TRANSPORTING&nbsp;SEL_BOX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;CLEAR&nbsp;UCOMM.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;自定义按钮<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM PF_STATUS_SET USING EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZFIRP0123_PF'&nbsp;.&nbsp;&nbsp;&nbsp;"双击绿色字，可以自定义按钮<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&通过利润中心组获取利润中心<br />
+*&&nbsp;I_SNAME&nbsp;:&nbsp;利润中心组<br />
+*&&nbsp;O_PRCTR&nbsp;:&nbsp;利润中心<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_PRCTR USING I_SNAME O_PRCTR.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETNODE-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;TYPE&nbsp;SETNODE-SUBSETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETLEAF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALSIGN&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALSIGN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALOPTION&nbsp;TYPE&nbsp;SETLEAF-VALOPTION,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALFROM&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALFROM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALTO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALTO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETLEAF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETHEADERT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;TYPE&nbsp;SETHEADERT-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPT&nbsp;TYPE&nbsp;SETHEADERT-DESCRIPT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETHEADERT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETHEADERT&nbsp;LIKE&nbsp;LW_SETHEADERT&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETLEAF&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_SETLEAF&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETNODE&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_SETNODE&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TMP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SETNAME&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SETNAMENEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SN_TMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SN_TMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SNAME&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SETNAMENEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_R_PRCTR.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取子组<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;"父组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;"子组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SETNODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETNODE<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;SETNAME&nbsp;&nbsp;='CBAIDY'.<br />
+&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;归集所有符合条件的组及子组到LT_R_SNAME<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_R_SNAME&nbsp;=&nbsp;I_SNAME.<br />
+&nbsp;&nbsp;IF&nbsp;LT_R_SNAME&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SETNAME&nbsp;=&nbsp;LT_R_SNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_SETNODE&nbsp;BY&nbsp;SETNAME&nbsp;SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TMP&nbsp;=&nbsp;LT_SETNODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_TMP&nbsp;WHERE&nbsp;SETNAME&nbsp;NOT&nbsp;IN&nbsp;LT_R_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_TMP&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TMP&nbsp;INTO&nbsp;LW_SETNODE.&nbsp;&nbsp;"存范围值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETNODE-SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_SETNAME&nbsp;TO&nbsp;LT_R_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_SETNODE&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS&nbsp;&nbsp;"不传值,&nbsp;作用:看内表中有没有这条数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETNODE-SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;=&nbsp;LW_SETNODE-SUBSETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_SETNODE&nbsp;INDEX&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDDO.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取组下面的利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LT_R_PRCTR.<br />
+&nbsp;&nbsp;SELECT&nbsp;SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALSIGN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALOPTION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALFROM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALTO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETLEAF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SETLEAF<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SETNAME&nbsp;&nbsp;IN&nbsp;LT_R_SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SETLEAF&nbsp;INTO&nbsp;LW_SETLEAF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALSIGN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-OPTION&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALOPTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALFROM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-HIGH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALTO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_PRCTR&nbsp;TO&nbsp;LT_R_PRCTR.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;O_PRCTR&nbsp;=&nbsp;LT_R_PRCTR.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_BELNR&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_BLART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;凭证类型<br />
+*&nbsp;S_BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;过账日期<br />
+*&nbsp;S_PRCTR&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;S_SNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;利润中心组<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

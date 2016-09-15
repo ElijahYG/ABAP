@@ -1,0 +1,734 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMIF0050_FM</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMMIF0050_FM</h2>
+<h3> Description: 商品（款式）主数据发布函数</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMMIF0050_FM.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IM_MATNR) TYPE  MATNR<br />
+*"     VALUE(IS_WAIT) TYPE  CHAR1 OPTIONAL<br />
+*"----------------------------------------------------------------------<br />
+*-----------------------------------------<br />
+*  判断接口状态<br />
+*-----------------------------------------<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zmmif0050_fm.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;WA_SYS_CONFIG&nbsp;TYPE&nbsp;ZSYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsap_get_status/zsap_get_status.html">'ZSAP_GET_STATUS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PID'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SYS_CONFIG&nbsp;=&nbsp;WA_SYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;CHECK&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'01'&nbsp;OR&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'03'.<br />
+&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  判断是否等待<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IS_WAIT&nbsp;EQ&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;UP&nbsp;TO&nbsp;5&nbsp;SECONDS.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  段定义的结构<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO&nbsp;TYPE&nbsp;ZMMIF0050_SGM_INFO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_ZQ&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMIF0050_SGM_ZQ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_KZFW&nbsp;TYPE&nbsp;ZMMIF0050_SGM_KZFW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  IDOC 定义的结构<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_CONTROL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;通讯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL&nbsp;TYPE&nbsp;EDIDC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;控制记录<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  数据读取结构及内表<br />
+*-----------------------------------------<br />
+*------------MODIFY BY LINAN 20160219---------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;TYPES:&nbsp;BEGIN&nbsp;OF&nbsp;STRU_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;TYPE&nbsp;MARA.<br />
+&nbsp;&nbsp;TYPES:&nbsp;WMAAB&nbsp;TYPE&nbsp;MAW1-WMAAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TMABC&nbsp;TYPE&nbsp;TMABCT-TMABC.<br />
+&nbsp;&nbsp;TYPES:&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_MARA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_MARA&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MARA&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_MARA.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*  DATA: IT_MARA TYPE STANDARD TABLE OF MARA,<br />
+*        WA_MARA TYPE                   MARA.<br />
+<br />
+*----------------END---------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;IT_ZMMEX0010_MARA&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZMMEX0010_MARA&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_ZQSEL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_ZQSEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZQSEL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_ZQSEL.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_KZSEL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_KZSEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KZSEL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_KZSEL.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  读取数据<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;L_MATNR&nbsp;TYPE&nbsp;MATNR.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_MATN1_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;IM_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;L_MATNR.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_MARA.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------MODIFY BY LINAN 20160219-新品标识相关字段-----------------------------------------<br />
+*  SELECT SINGLE * INTO CORRESPONDING FIELDS OF WA_MARA FROM MARA WHERE MATNR EQ IM_MATNR.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MAW1&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;EQ&nbsp;IM_MATNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;TMABC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;TMABCT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;WA_MARA-TMABC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SPRAS&nbsp;EQ&nbsp;SY-LANGU<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;MAABC&nbsp;EQ&nbsp;WA_MARA-WMAAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------END------------------------------------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_ZMMEX0010_MARA.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_ZMMEX0010_MARA&nbsp;FROM&nbsp;ZMMEX0010_MARA&nbsp;WHERE&nbsp;MATNR&nbsp;EQ&nbsp;IM_MATNR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 清空数据内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;IT_ZQSEL[],&nbsp;IT_KZSEL[].<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ZQSEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_ZQSEL&nbsp;WHERE&nbsp;MATNR&nbsp;EQ&nbsp;IM_MATNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_KZSEL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_KZSEL&nbsp;WHERE&nbsp;MATNR&nbsp;EQ&nbsp;IM_MATNR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  整理数据<br />
+*-----------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;WA_MARA&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_INFO.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_MARA&nbsp;TO&nbsp;WA_INFO.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_ZMMEX0010_MARA&nbsp;TO&nbsp;WA_INFO.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MAKTX&nbsp;INTO&nbsp;WA_INFO-MAKTX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MAKT&nbsp;WHERE&nbsp;MATNR&nbsp;EQ&nbsp;WA_INFO-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-MATNR&nbsp;=&nbsp;L_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_CUNIT_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_INFO-MEINS<br />
+   </div>
+   <div class="codeComment">
+*       LANGUAGE             = SY-LANGU<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+   </div>
+   <div class="codeComment">
+*       LONG_TEXT            =<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_INFO-MEINS<br />
+   </div>
+   <div class="codeComment">
+*       SHORT_TEXT           =<br />
+*     EXCEPTIONS<br />
+*       UNIT_NOT_FOUND       = 1<br />
+*       OTHERS = 2<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+* Implement suitable error handling here<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZMMIF0050_SGM_INFO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;WA_INFO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 指圈数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_ZQSEL[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ZQSEL&nbsp;INTO&nbsp;WA_ZQSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_EDIDD,&nbsp;WA_ZQ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_ZQSEL&nbsp;TO&nbsp;WA_ZQ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZMMIF0050_SGM_ZQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ZQ-MATNR&nbsp;=&nbsp;L_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;WA_ZQ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 克重范围数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_KZSEL[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*  Changed by huxiaowei @20151116<br />
+*  如果商品的可选克重段除了Z001之外，还有其他的例如C001，则排除Z001。<br />
+*  原因：期初上线时，由于很难对每款已有商品确定其可选克重段，所以是按品种一级+品种二级<br />
+*        来确定其可选克重段。但是同一个品种一级+品种二级中，有些商品是有克重段的，例如<br />
+*        从C001~C045，有极少商品是不分克重段的，所以该品种一级+品种二级下可选克重段是<br />
+*        C001~C045和Z001，那么该期初商品的可选克重段也就是C001~C045和Z001，但实际上该商品<br />
+*        的可选克重段不应该既有C001~C045，又有Z001。<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LINES(&nbsp;IT_KZSEL&nbsp;)&nbsp;&gt;&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_KZSEL&nbsp;WHERE&nbsp;EX_KCODE&nbsp;=&nbsp;'Z001'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_KZSEL&nbsp;BY&nbsp;MATNR&nbsp;EX_KCODE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  End<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_KZSEL&nbsp;INTO&nbsp;WA_KZSEL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_EDIDD,&nbsp;WA_KZFW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_KZSEL&nbsp;TO&nbsp;WA_KZFW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZMMIF0050_SGM_KZFW'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KZFW-MATNR&nbsp;&nbsp;&nbsp;=&nbsp;L_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;WA_KZFW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+****************设定idoc控制记录***************************<br />
+*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_CONTROL-RCVPRT&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRT.&nbsp;&nbsp;"接收方伙伴类型<br />
+&nbsp;&nbsp;WA_CONTROL-RCVPRN&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRN.&nbsp;&nbsp;"接收方的合作伙伴编号<br />
+&nbsp;&nbsp;WA_CONTROL-RCVPOR&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPOR.&nbsp;&nbsp;"接收者端口(SAP&nbsp;系统，EDI&nbsp;子系统)<br />
+<br />
+&nbsp;&nbsp;WA_CONTROL-MESTYP&nbsp;=&nbsp;'ZMMIF0050_MSG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"信息类型<br />
+&nbsp;&nbsp;WA_CONTROL-IDOCTP&nbsp;=&nbsp;'ZMMIF0050_IDOC'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;类型<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------<br />
+*    发送IDOC<br />
+*----------------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MASTER_IDOC_DISTRIBUTE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMUNICATION_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_WRITING_IDOC_STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDING_LOGICAL_SYSTEM_UNKNOWN&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGTY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="codeComment">
+*   如果商品在SAP不管理批次且计量单位为件，则产生一条虚拟批次主数据IDoc给POS<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;LT_MATNR&nbsp;TYPE&nbsp;ZCB01_TY_T_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MATNR&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XNPC&nbsp;&nbsp;TYPE&nbsp;ZCB01_TY_T_XNPC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_XNPC&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_XNPC.<br />
+   </div>
+   <div class="codeComment">
+* Changed by huxiaowei @2015.11.17 批次接口改用ZMMIF0061_IDOC<br />
+*    DATA:<br />
+*      WA_BATCH_INFO TYPE ZMMIF0060_SGM_INFO,<br />
+*      WA_BATCH_REF  TYPE ZMMIF0060_SGM_REF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;WA_BATCH_INFO&nbsp;TYPE&nbsp;ZMMIF0061_SGM_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;LV_TABNAME&nbsp;&nbsp;&nbsp;TYPE&nbsp;DDOBJNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_DFIES_TAB&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;DFIES,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_DFIES_TAB&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_DFIES_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;COMP&gt;&nbsp;TYPE&nbsp;ANY&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* End<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDD_BATCH&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_BATCH&nbsp;&nbsp;&nbsp;TYPE&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CONTROL_BATCH&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;通讯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL_BATCH&nbsp;TYPE&nbsp;EDIDC.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;调用公用Function产生虚拟批次信息，该Function会判断是否需要产生虚拟批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_MATNR-MATNR&nbsp;=&nbsp;WA_MARA-MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_MATNR&nbsp;TO&nbsp;LT_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zmmif0050_get_xnpc/zmmif0050_get_xnpc.html">'ZMMIF0050_GET_XNPC'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_MATNR&nbsp;=&nbsp;LT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_XNPC&nbsp;&nbsp;=&nbsp;LT_XNPC.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_XNPC&nbsp;INTO&nbsp;LS_XNPC&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;L_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;不需要导出虚拟批次，则Commit商品主档的IDoc<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DB_COMMIT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DEQUEUE_ALL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+   </div>
+   <div class="codeComment">
+*     发送商品款号的IDOC<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_CONTROL&nbsp;INTO&nbsp;WA_CONTROL&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL-DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_IS_NOT_TO_DEQUEUE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;需要导出虚拟批次<br />
+   </div>
+   <div class="codeComment">
+* Changed by huxiaowei @2015.11.17 批次接口改用ZMMIF0061_IDOC<br />
+*      WA_BATCH_INFO-MATNR = LS_XNPC-MATNR .<br />
+*      WA_BATCH_INFO-CHARG = LS_XNPC-CHARG .<br />
+*<br />
+*      WA_BATCH_INFO-ATNAM = 'ZSPTM' .<br />
+*      WA_BATCH_INFO-ATBEZ = '商品条码' .<br />
+*      WA_BATCH_INFO-ATWRT = LS_XNPC-ZSPTM .<br />
+*      WA_EDIDD_BATCH-SEGNAM = 'ZMMIF0060_SGM_INFO'.<br />
+*      WA_EDIDD_BATCH-SDATA = WA_BATCH_INFO .<br />
+*      APPEND WA_EDIDD_BATCH TO IT_EDIDD_BATCH .<br />
+*<br />
+*      WA_BATCH_INFO-ATNAM = 'ZBQMC' .<br />
+*      WA_BATCH_INFO-ATBEZ = '标签名称' .<br />
+*      WA_BATCH_INFO-ATWRT = LS_XNPC-ZBQMC .<br />
+*      WA_EDIDD_BATCH-SEGNAM = 'ZMMIF0060_SGM_INFO'.<br />
+*      WA_EDIDD_BATCH-SDATA = WA_BATCH_INFO .<br />
+*      APPEND WA_EDIDD_BATCH TO IT_EDIDD_BATCH .<br />
+*<br />
+*      WA_BATCH_INFO-ATNAM = 'ZLYJSFS' .<br />
+*      WA_BATCH_INFO-ATBEZ = '联营结算方式' .<br />
+*      WA_BATCH_INFO-ATWRT = LS_XNPC-ZLYJSFS .<br />
+*      WA_EDIDD_BATCH-SEGNAM = 'ZMMIF0060_SGM_INFO'.<br />
+*      WA_EDIDD_BATCH-SDATA = WA_BATCH_INFO .<br />
+*      APPEND WA_EDIDD_BATCH TO IT_EDIDD_BATCH .<br />
+*<br />
+*      WA_BATCH_INFO-ATNAM = 'ZXSJGJLDW' .<br />
+*      WA_BATCH_INFO-ATBEZ = '销售价格计算方式' .<br />
+*      WA_BATCH_INFO-ATWRT = LS_XNPC-ZXSJGJLDW .<br />
+*      WA_EDIDD_BATCH-SEGNAM = 'ZMMIF0060_SGM_INFO'.<br />
+*      WA_EDIDD_BATCH-SDATA = WA_BATCH_INFO .<br />
+*      APPEND WA_EDIDD_BATCH TO IT_EDIDD_BATCH .<br />
+*<br />
+*      CLEAR: WA_BATCH_REF.<br />
+*      WA_BATCH_REF-MATNR  = LS_XNPC-MATNR.<br />
+*      WA_BATCH_REF-CHARG  = LS_XNPC-CHARG.<br />
+*      WA_BATCH_REF-LVORM  = '' .<br />
+*      WA_BATCH_REF-EX_XNKH = LS_XNPC-EX_XNKH .<br />
+*      WA_BATCH_REF-EX_KCODE = LS_XNPC-EX_KCODE .<br />
+*      WA_BATCH_REF-EX_KZAVG = LS_XNPC-EX_KZAVG .<br />
+*      WA_EDIDD_BATCH-SEGNAM = 'ZMMIF0060_SGM_REF'.<br />
+*      WA_EDIDD_BATCH-SDATA  = WA_BATCH_REF.<br />
+*      APPEND WA_EDIDD_BATCH TO IT_EDIDD_BATCH.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_XNPC&nbsp;TO&nbsp;WA_BATCH_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;将数值字段前导空格去掉<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取得批次属性结构各字段数据类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_TABNAME&nbsp;=&nbsp;'ZMM_CHARACTERS'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DDIF_FIELDINFO_GET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LV_TABNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DFIES_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_DFIES_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERNAL_ERROR&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;Do&nbsp;nothing<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;LT_DFIES_TAB中是结构ZMM_CHARACTERS中各字段的属性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_DFIES_TAB&nbsp;INTO&nbsp;LS_DFIES_TAB&nbsp;WHERE&nbsp;INTTYPE&nbsp;=&nbsp;'P'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;LS_DFIES_TAB-FIELDNAME&nbsp;OF&nbsp;STRUCTURE&nbsp;WA_BATCH_INFO&nbsp;TO&nbsp;&lt;COMP&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;COMP&gt;&nbsp;IS&nbsp;ASSIGNED&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;&lt;COMP&gt;&nbsp;NO-GAPS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;WA_BATCH_INFO-EX_KZAVG&nbsp;NO-GAPS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_BATCH-SEGNAM&nbsp;=&nbsp;'ZMMIF0061_SGM_INFO'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD_BATCH-SDATA&nbsp;=&nbsp;WA_BATCH_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD_BATCH&nbsp;TO&nbsp;IT_EDIDD_BATCH&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+* End<br />
+*    ***************设定idoc控制记录***************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL_BATCH-RCVPRT&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRT.&nbsp;&nbsp;"接收方伙伴类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL_BATCH-RCVPRN&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRN.&nbsp;&nbsp;"接收方的合作伙伴编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL_BATCH-RCVPOR&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPOR.&nbsp;&nbsp;"接收者端口(SAP&nbsp;系统，EDI&nbsp;子系统)<br />
+   </div>
+   <div class="codeComment">
+* Changed by huxiaowei @2015.11.17 批次接口改用ZMMIF0061_IDOC<br />
+*      WA_CONTROL_BATCH-MESTYP = 'ZMMIF0060_MSG'.       "信息类型<br />
+*      WA_CONTROL_BATCH-IDOCTP = 'ZMMIF0060_IDOC'.      "IDOC 类型<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL_BATCH-MESTYP&nbsp;=&nbsp;'ZMMIF0061_MSG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"信息类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL_BATCH-IDOCTP&nbsp;=&nbsp;'ZMMIF0061_IDOC'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;类型<br />
+   </div>
+   <div class="codeComment">
+* End<br />
+*    ----------------------------------------------------------------------<br />
+*        发送IDOC<br />
+*    ----------------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MASTER_IDOC_DISTRIBUTE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMUNICATION_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CONTROL_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_EDIDD_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_WRITING_IDOC_STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDING_LOGICAL_SYSTEM_UNKNOWN&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGTY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="codeComment">
+*       发送idoc时会锁住一些系统表，此过程为等待完全操作完毕<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DB_COMMIT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DEQUEUE_ALL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+   </div>
+   <div class="codeComment">
+*     发送商品款号的IDOC<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_CONTROL&nbsp;INTO&nbsp;WA_CONTROL&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL-DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_IS_NOT_TO_DEQUEUE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*       发送虚拟批次的IDOC<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_CONTROL_BATCH&nbsp;INTO&nbsp;WA_CONTROL_BATCH&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL_BATCH-DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_IS_NOT_TO_DEQUEUE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFUNCTION.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+* Message class: 00<br />
+*001   &1&2&3&4&5&6&7&8<br />
+*<br />
+* Message class: AM<br />
+*287   无法维护地址；缺少表 TSADRV 中的条目<br />
+*290   在 TSADRV 中缺少条目；无法调用新地址维护<br />
+*291   在 TSADRV 中缺少条目；无法调用新地址维护<br />
+*298   未定义地址组 &；无法删除地址标志<br />
+*<br />
+* Message class: EC<br />
+*089   内部错误: 无法读取屏幕数据<br />
+*<br />
+* Message class: SCPR<br />
+*026   表 & 过宽，无法处理<br />
+*028   该表/视图 & 没有生成的维护对话<br />
+*035   字典接口错误：请联系 SAP<br />
+*120   未找到表/视图 &<br />
+*273   功能模块调用错误<br />
+*320   业务配置集处理错误<br />
+*395   内部字段描述读取错误<br />
+*399   无数据记录激活信息<br />
+*408   激活链接不支持表键值<br />
+*<br />
+* Message class: SV<br />
+*001   不支持所选择的功能<br />
+*002   已恢复的分录数: &<br />
+*004   没有找到与选择条件匹配的条目<br />
+*005   已选择一个条目<br />
+*006   所选择的表目数: &<br />
+*007   不存在上一个表目<br />
+*008   不存在下一条目<br />
+*009   存在包含相同代码的条目<br />
+*010   用此关键字的表目已经标记为删除了<br />
+*011   删除的表目数: &<br />
+*012   修改的表目数: &<br />
+*013   条目已删除<br />
+*014   复制的条目数: &<br />
+*015   目标代码必须与源代码不同<br />
+*016   重置表目数: &<br />
+*017   表目重置<br />
+*018   数据被保存<br />
+*019   请从允许的名称空间中选择代码<br />
+*024   指定目标表目<br />
+*025   指定目标表目<br />
+*026   请在执行此功能前选择条目<br />
+*028   表 & 不在数据字典中<br />
+*032   请将光标定位到一个有效的条目上<br />
+*033   在工作区中指定关键字<br />
+*037   & 的维护对话框不完全或未定义<br />
+*039   表 & 中没有相关字段<br />
+*040   & 个表目重置, & 个原有的和 & 个新的表目仍然被标注着<br />
+*041   & 个表目重置, & 个原始的表目仍然被标注着<br />
+*042   & 个表目重置, & 个新的表目仍然被标注着<br />
+*043   数据已保存<br />
+*044   只能读<br />
+*045   请输入早于结束日期的开始日期<br />
+*046   请输入处于开始日期后的结束日期<br />
+*047   将重叠的记录删除或定界<br />
+*049   数据被用户&锁定（只显示）<br />
+*050   系统错误: 不能锁定表/视图 &<br />
+*051   没有维护数据的权限；仅能显示<br />
+*053   您对所要求的数据无权显示<br />
+*054   在当前的集团 & 中不能维护数据<br />
+*055   对象 & 的地址找不到<br />
+*056   请在选择此功能前至少标注一个条目<br />
+*057   所选择的表目是新的<br />
+*058   所选择的表目是新的<br />
+*059   所选择的表目仍然是原始的状态<br />
+*060   所选择的表目仍然是原始的状态<br />
+*061   & 个表目仍然是原始的状态, & 个表目是新的<br />
+*065   不存在条目.双击提取长文本<br />
+*066   选择块结束<br />
+*084   没有能被显示的值<br />
+*092   正在处理修改任务 &<br />
+*095   修改修改任务 & 的系统错误<br />
+*096   任务 & 已被改变<br />
+*098   包含在任务 & 中标记的条目<br />
+*099   条目已标记为从任务 & 中删除<br />
+*105   & 条目为在任务 & 中包括而标记<br />
+*106   & 条目为在任务 & 中删除而标记<br />
+*107   条目已在任务 & 中<br />
+*108   & 条目已在任务 & 中<br />
+*109   & 表目包括，& 表目包含：&<br />
+*110   条目不在任务 & 中<br />
+*111   & 表目删除， & 表目不包括：&<br />
+*112   & 条目不在任务 & 中<br />
+*113   表目不能检索<br />
+*114   & 表目不能检索<br />
+*115   条目不能被删除<br />
+*116   & 表目不能删除<br />
+*117   请不要作任何更改（SAP 条目）<br />
+*120   在必要的时候可以获取并修改其它条目<br />
+*121   可能恢复并修改删除的条目<br />
+*122   条目已确定<br />
+*123   确定条目的序号：&<br />
+*124   处理确定的条目<br />
+*125   处理确定的条目<br />
+*127   请划定有效的界限<br />
+*128   提交类 &，无法传输<br />
+*129   不同任务的相关对象<br />
+*130   集团 & 是本地的，不允许传输<br />
+*132   任务 &1 的对象已锁定，用户 &2 只允许显示<br />
+*134   对象定义不一致，只能显示<br />
+*136   仔细地修改，条目属于客户<br />
+*138   检查维护对象 &1 或更新功能组 &2<br />
+*139   不验收地址数据<br />
+*140   删除的 &1 条目，验收的 &2 条目<br />
+*141   单个条目不能放入更改请求中<br />
+*142   传输对于特定的数据是不可能的<br />
+*153   没有选择语言<br />
+*160   安装系统代码页不允许任何其他语言<br />
+*161   将簇放在组成名称上<br />
+*162   对象 &1 &2 &3 不能放在一个请求中<br />
+*164   表格/视图 &1 不在词典中<br />
+*173   函数组 &1 不一致<br />
+*174   在非关键字段的工作区域输入值<br />
+*175   不支持选定的业务配置集函数<br />
+*177   数据记录包含来着业务配置集的固定值并且无法删除<br />
+*183   集中定制分配系统的远程访问中出现错误<br />
+*184   数据记录包含来自业务配置集的固定值并且无法更改<br />
+*202   您没有更改有固定 BC 集值字段的权限<br />
+*306   表/视图 & 不活动<br />
+*413   不能删除 & 选择的条目<br />
+*538   视图簇中不支持下拉列表<br />
+*757   您没有此表关键字的维护权限<br />
+*763   您没有此显示数据记录的维护权限<br />
+*764   更改数据记录选择<br />
+*766   限制显示数据集<br />
+*808   不是表格中所有的列都能在清单中显示<br />
+*810   视图 &1 多于 1000 个字符<br />
+*818   引入 &2 业务配置设置条目的 &1<br />
+*819   输入业务配置集<br />
+*830   已到达最后选择的条目<br />
+*831   已到达第一个选择条目<br />
+*<br />
+* Message class: TB<br />
+*109   No maintenance authorization for cross-client tables (see Help)<br />
+*<br />
+* Message class: TK<br />
+*430   客户 &1有“不可修改”的状态<br />
+*729   在此客户端中不允许更改资源库对象<br />
+*730   不允许更改资源库和跨客户端定制<br />
+*731   跨客户端定制不可修改<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

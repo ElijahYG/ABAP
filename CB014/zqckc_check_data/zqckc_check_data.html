@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZQCKC_CHECK_DATA</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZQCKC_CHECK_DATA</h2>
+<h3> Description: 期初库存导入 - 检查上传的数据</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZQCKC_CHECK_DATA.<br />
+<br />
+include <a href ="zqckc_check_data_top.html">ZQCKC_CHECK_DATA_TOP</a>.<br />
+include <a href ="zqckc_check_data_scr.html">ZQCKC_CHECK_DATA_SCR</a>.<br />
+include <a href ="zqckc_check_data_f01.html">ZQCKC_CHECK_DATA_F01</a>.<br />
+<br />
+START-OF-SELECTION .<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_LINES_ALL&nbsp;TYPE&nbsp;I&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINES_S&nbsp;TYPE&nbsp;I&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINES_E&nbsp;TYPE&nbsp;I&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_STR&nbsp;TYPE&nbsp;STRING&nbsp;.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_CHECK_DATA&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_UPDATE_DATA&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LV_LINES_ALL&nbsp;=&nbsp;LINES(&nbsp;GT_DATA&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;GT_DATA&nbsp;WHERE&nbsp;CHKFLG&nbsp;=&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;LV_LINES_E&nbsp;=&nbsp;LINES(&nbsp;GT_DATA&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;LV_LINES_S&nbsp;=&nbsp;LV_LINES_ALL&nbsp;-&nbsp;LV_LINES_E&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_DATA[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'共检查'&nbsp;LV_LINES_ALL&nbsp;'条记录，都正确！'&nbsp;''.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_STR&nbsp;=&nbsp;LV_LINES_S&nbsp;&&&nbsp;'，错误'&nbsp;&&&nbsp;LV_LINES_E&nbsp;&&&nbsp;'条！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'共检查'&nbsp;LV_LINES_ALL&nbsp;'条记录，正确'&nbsp;LV_STR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_DIS_ALV&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;输入选择条件<br />
+*&nbsp;T02&nbsp;选择检查范围<br />
+*&nbsp;T03&nbsp;是否检查批次在系统中已经存在<br />
+*&nbsp;T04&nbsp;是否检查经销商品库存金额大于0（一般情况下要检查）<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_CHKPC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;批次在系统中必须已经存在<br />
+*&nbsp;P_CHKVA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;是否检查经销商品库存金额大于0，X检查，空不检查<br />
+*&nbsp;RB_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;检查没有检查过的数据<br />
+*&nbsp;RB_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;检查没有检查过，和已检查但有错的数据<br />
+*&nbsp;S_WERKS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

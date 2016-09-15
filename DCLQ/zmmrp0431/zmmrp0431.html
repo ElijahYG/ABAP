@@ -1,0 +1,2555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0431</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0431</h2>
+<h3> Description: 采购计划报表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZMMRP0431.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZMMRP0431<br />
+*&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;MM-RP-0431<br />
+*&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;采购计划报表<br />
+*&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;liquan<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/11/11&nbsp;&nbsp;&nbsp;&nbsp;liquan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&定义常量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+CONSTANTS:<br />
+&nbsp;&nbsp;&nbsp;COS_DATE&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM&nbsp;VALUE&nbsp;'20151001'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:<br />
+&nbsp;&nbsp;ZMMRP0420,<br />
+&nbsp;&nbsp;MARA,<br />
+&nbsp;&nbsp;ZMMEX0010_MARA,<br />
+&nbsp;&nbsp;MSEG.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_GJS,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制表日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATUM_L&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购开始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATUM_H&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购结束日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XKCKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"现库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WDHKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"未到货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HJKCKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"合计库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HBRJXSKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日均销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;YJXSKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"预计销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;YJSYKCKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"预计剩余库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TJXS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调节系数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;YJJHKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"预计进货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TQJHKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"同期进货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HBJHKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比进货克重<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"物料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MEINS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_GJS,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WDHKZ&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"未到货克重<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-LGORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-CHARG,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLABS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-MEINS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_GJS,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XKCZL&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"现库存重量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"金重<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;TYT_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA&nbsp;&nbsp;&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;TYT_MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB&nbsp;&nbsp;&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;TYT_OUT_TAB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB&nbsp;OCCURS&nbsp;0.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义常量<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;G_XS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;GT_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MARA,<br />
+&nbsp;&nbsp;GT_MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;GT_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;GT_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_DATE&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0420-DATUM&nbsp;NO&nbsp;INTERVALS&nbsp;NO-EXTENSION,&nbsp;"制表日期<br />
+&nbsp;&nbsp;S_DATUM&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0420-DATUM&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"日期<br />
+&nbsp;&nbsp;S_DAT1&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0420-DATUM&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"同比日期<br />
+&nbsp;&nbsp;S_DAT2&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMRP0420-DATUM&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日期<br />
+&nbsp;&nbsp;S_EXTWG&nbsp;&nbsp;&nbsp;FOR&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;S_PZ01&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"品种一级<br />
+&nbsp;&nbsp;S_PZ02&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMEX0010_MARA-EX_PZ02,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"品种二级<br />
+&nbsp;&nbsp;S_PZ03&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMEX0010_MARA-EX_PZ03,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"品种三级<br />
+&nbsp;&nbsp;S_CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ZMMEX0010_MARA-EX_GJS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-WERKS&nbsp;NO&nbsp;INTERVALS&nbsp;NO-EXTENSION&nbsp;DEFAULT&nbsp;'DC80',&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;S_LGORT&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-LGORT&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库位<br />
+&nbsp;&nbsp;S_XS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;G_XS.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"系数<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&屏幕控制<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN OUTPUT .<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_CONTROLL_SCREEN.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&数据检查<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN.<br />
+&nbsp;&nbsp;IF&nbsp;SY-UCOMM&nbsp;=&nbsp;'ONLI'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;数据检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_DATA.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;自动给日期赋值<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_SET_VALUE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据查询<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕结束<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+END-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_SHOW_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_OUT_TAB.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;制表日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DATE[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_DATE-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_DATE-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_DATE-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;S_DATE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&自动给日期赋值<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_SET_VALUE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算同比、环比日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DATUM[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;同比日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT1[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_DAT1-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-SIGN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_DAT1-OPTION&nbsp;=&nbsp;S_DATUM-OPTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上年同天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_YEARS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT1-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上年同天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_YEARS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT1-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;S_DAT1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;环比日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT2[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_DAT2-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;S_DATUM-SIGN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_DAT2-OPTION&nbsp;=&nbsp;&nbsp;S_DATUM-OPTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上月同天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_MONTHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT2-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上月同天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_MONTHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT2-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;S_DAT2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&屏幕控制<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CONTROLL_SCREEN.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&数据检查<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;制表日期检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DATE[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_DATE-LOW'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'制表日期为必填项'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;日期检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DATUM-LOW&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_DATUM-LOW'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'日期(起)为必填项'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;日期检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DATUM-HIGH&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_DATUM-HIGH'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'日期(止)为必填项'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;商品大类检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_EXTWG[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_EXTWG-LOW'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'商品大类为必填项'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;地点检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_WERKS[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_WERKS-LOW'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'地点为必填项'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;库位检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_LGORT[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_LGORT-LOW'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'库位为必填项'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;同比日期检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT1[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT1-LOW&nbsp;&gt;&nbsp;S_DAT1-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_DAT1-LOW'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'同比日期起止需要同时填写，且结束日期须大于起始日期'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;环比日期检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT2[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT2-LOW&nbsp;&gt;&nbsp;S_DAT2-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;CURSOR&nbsp;FIELD&nbsp;'S_DAT2-LOW'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'环比日期起止需要同时填写，且结束日期须大于起始日期'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取符合条件的商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_MARA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取批次数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_MCHB.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取批次特性<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_CHARG_CHARACTERS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算现库存克重，并更新到批次数据中<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_XKCKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算未到货克重，并更新到商品数据中<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_WDHKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算环比销售克重,并更新到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_HBXSKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算同期进货克重，并更新到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_TQJHKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算环比进货克重，并更新到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_GET_HBJHKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;汇总数据到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_CAL_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;S_EXTWG[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_OUT_TAB&nbsp;WHERE&nbsp;EXTWG&nbsp;NOT&nbsp;IN&nbsp;S_EXTWG.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;S_CZ[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;GT_OUT_TAB&nbsp;WHERE&nbsp;CZ&nbsp;NOT&nbsp;IN&nbsp;S_CZ.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&汇总数据到输出表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CAL_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_XKCKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;step1：将现库存克重追加到输出表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_MCHB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;GT_MCHB&nbsp;).<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_MCHB&nbsp;INTO&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MCHB&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_NEXT-EXTWG&nbsp;&lt;&gt;&nbsp;LW_MCHB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-CZ&nbsp;&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;LW_MCHB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_MCHB-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_XKCKZ&nbsp;&nbsp;=&nbsp;L_XKCKZ&nbsp;+&nbsp;LW_MCHB-XKCZL.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;如果是最后一条<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-XKCKZ&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_XKCKZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"现库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MCHB-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MCHB-CZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_MCHB-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_XKCKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LT_OUT_TAB&nbsp;和&nbsp;GT_OUT_TAB&nbsp;合并<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_OUT_TAB&gt;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TMP&nbsp;TYPE&nbsp;TYT_OUT_TAB.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_OUT_TAB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT_TAB-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-XKCKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-XKCKZ&nbsp;+&nbsp;LW_OUT_TAB-XKCKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_OUT_TMP&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;STEP2:未到货克重增加到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_WDHKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA_NEXT&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MARA&nbsp;BY&nbsp;EXTWG&nbsp;EX_GJS&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;GT_MARA&nbsp;).<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_MARA&nbsp;INTO&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MARA&nbsp;INTO&nbsp;LW_MARA_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MARA_NEXT-EXTWG&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;LW_MARA-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MARA_NEXT-EX_GJS&nbsp;&nbsp;&lt;&gt;&nbsp;LW_MARA-EX_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MARA_NEXT-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_MARA-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_WDHKZ&nbsp;&nbsp;=&nbsp;L_WDHKZ&nbsp;+&nbsp;LW_MARA-WDHKZ.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;最后一条<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-WDHKZ&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_WDHKZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"未到货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MCHB-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MCHB-CZ.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_MCHB-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_WDHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LT_OUT_TAB&nbsp;和&nbsp;GT_OUT_TAB&nbsp;合并<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_OUT_TAB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT_TAB-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-WDHKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-WDHKZ&nbsp;+&nbsp;LW_OUT_TAB-WDHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_OUT_TMP&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;TYPE&nbsp;I.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;STEP3:编辑所有字段<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制表日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-DATUM_L&nbsp;&nbsp;=&nbsp;S_DATUM-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购开始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-DATUM_H&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH.&nbsp;&nbsp;&nbsp;&nbsp;"采购结束日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-XKCKZ&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-XKCKZ&nbsp;/&nbsp;1000.&nbsp;&nbsp;"现库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-WDHKZ&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-WDHKZ&nbsp;/&nbsp;1000.&nbsp;&nbsp;"未到货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-HJKCKZ&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-XKCKZ&nbsp;+&nbsp;&lt;FS_OUT_TAB&gt;-WDHKZ.&nbsp;"合计库存克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;S_DAT2-HIGH&nbsp;-&nbsp;S_DAT2-LOW&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-HBRJXSKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-HBRJXSKZ&nbsp;/&nbsp;1000&nbsp;/&nbsp;L_DATE.&nbsp;"环比日均销售克重<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-XSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH&nbsp;-&nbsp;S_DATE-LOW&nbsp;+&nbsp;1."销售周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-YJXSKZ&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-HBRJXSKZ&nbsp;*&nbsp;&lt;FS_OUT_TAB&gt;-XSZQ.&nbsp;"预计销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-YJSYKCKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-HJKCKZ&nbsp;-&nbsp;&lt;FS_OUT_TAB&gt;-YJXSKZ.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-TJXS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_XS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调节系数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-YJJHKZ&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-YJSYKCKZ&nbsp;+&nbsp;&lt;FS_OUT_TAB&gt;-TJXS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-TQJHKZ&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-TQJHKZ&nbsp;/&nbsp;1000.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-HBJHKZ&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-HBJHKZ&nbsp;/&nbsp;1000.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取符合条件的商品<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_MARA.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_MARA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取商品主数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;A~MATNR&nbsp;&nbsp;&nbsp;&nbsp;"物料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MEINS&nbsp;&nbsp;&nbsp;&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EX_PZ01&nbsp;&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EX_GJS&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~EX_PZ01&nbsp;IN&nbsp;S_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~EX_PZ02&nbsp;IN&nbsp;S_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~EX_PZ03&nbsp;IN&nbsp;S_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~MTART&nbsp;&nbsp;&nbsp;IN&nbsp;('Z002','Z009')<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取批次数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_MCHB.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_MCHB.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取符合条件的批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;GT_MARA&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;GT_MARA-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CLABS&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取批次特性<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GT_CHARG_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_MCHB&nbsp;TO&nbsp;LT_CHARG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取批次特性<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取现库存克重,并更新到批次数据中<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_XKCKZ.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_MCHB&gt;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;将大类、材质、品种一级、单位同步到MCHB中<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_MARA&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_CHARG_CHARACTERS&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;ATNAM.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_MCHB&nbsp;ASSIGNING&nbsp;&lt;FS_MCHB&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MARA&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_MCHB&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MCHB&gt;-MEINS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MARA-MEINS.&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MCHB&gt;-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MARA-EXTWG.&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MCHB&gt;-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_MARA-EX_PZ01.&nbsp;&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_MCHB&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;&lt;FS_MCHB&gt;-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZGJSCZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MCHB&gt;-CZ&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATWRT.&nbsp;"贵金属材质<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;单位为G，重量=库存；单位为PC，重量=库存*金重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;FS_MCHB&gt;-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MCHB&gt;-XKCZL&nbsp;=&nbsp;&lt;FS_MCHB&gt;-CLABS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_MCHB&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;&lt;FS_MCHB&gt;-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZJZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MCHB&gt;-ZJZ&nbsp;&nbsp;&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MCHB&gt;-XKCZL&nbsp;=&nbsp;&lt;FS_MCHB&gt;-CLABS&nbsp;*&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算未到货克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_WDHKZ.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_MARA&gt;&nbsp;TYPE&nbsp;TY_MARA.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_0140,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSCM0140_CGPZH&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSCMIF0140_ITEM-ZSCM0140_CGPZH,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EBELP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSCMIF0140_ITEM-EBELP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSCMIF0140_ITEM-MATNR,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BTGEW_Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSCMIF0140_ITEM-BTGEW_Y,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZSCMIF0140_ITEM-SHKZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_0140,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_WDHKZ&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_0140&nbsp;LIKE&nbsp;LW_0140&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;LIKE&nbsp;LW_0140&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TEMP&nbsp;LIKE&nbsp;LW_0140&nbsp;OCCURS&nbsp;0.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取未到货订单<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;"ZSCM0140_CGPZH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BTGEW_Y<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZSCMIF0140_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_0140<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;PO_CLOSE&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;删除不符合条件的订单<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_MARA&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_0140&nbsp;INTO&nbsp;LW_0140.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MARA&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_0140-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_0140&nbsp;TO&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;将未到货克重，更新到MARA表中<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_TEMP&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_WDHKZ.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TEMP&nbsp;INTO&nbsp;LW_0140.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;=&nbsp;LW_0140.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_WDHKZ&nbsp;=&nbsp;L_WDHKZ&nbsp;+&nbsp;LW_TEMP-BTGEW_Y&nbsp;-&nbsp;LW_TEMP-SHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MARA&nbsp;ASSIGNING&nbsp;&lt;FS_MARA&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_TEMP-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_MARA&gt;-WDHKZ&nbsp;=&nbsp;L_WDHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_WDHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算环比销售克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HBXSKZ.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_DATE_BEF&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;LT_R_DATE_BEF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_DATE_AFT&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SY-DATUM.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;如果环比日期在上线前<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT2-LOW&nbsp;&lt;&nbsp;COS_DATE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;上线前日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT2-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT2-HIGH&nbsp;&gt;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;&nbsp;&nbsp;=&nbsp;COS_DATE&nbsp;-&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT2-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_DATE&nbsp;TO&nbsp;LT_R_DATE_BEF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;上线后日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT2-HIGH&nbsp;&gt;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT2-LOW&nbsp;&lt;&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;=&nbsp;S_DAT2-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;=&nbsp;S_DAT2-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_DATE&nbsp;TO&nbsp;LT_R_DATE_AFT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算上线前环比销售克重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_R_DATE_BEF&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_HBXSKZ_BEF&nbsp;USING&nbsp;LT_R_DATE_BEF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算上线后环比销售克重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_R_DATE_AFT&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_HBXSKZ_AFT&nbsp;USING&nbsp;LT_R_DATE_AFT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算上线前环比销售克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HBXSKZ_BEF USING R_DATE LIKE S_DATE[].<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_0420&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_0420&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取历史销售数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0420<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_0420<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;DATUM&nbsp;IN&nbsp;R_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZTYPE&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ01&nbsp;IN&nbsp;S_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ02&nbsp;IN&nbsp;S_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ03&nbsp;IN&nbsp;S_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZGJSCZ&nbsp;&nbsp;IN&nbsp;S_CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;将日均销售克重按&nbsp;大类、材质、品种一级汇总后，更新到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_0420&nbsp;BY&nbsp;EXTWG&nbsp;ZGJSCZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_0420&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_NTGEW.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_0420&nbsp;INTO&nbsp;LW_0420.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否发生变化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_0420&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_NEXT-EXTWG&nbsp;&lt;&gt;&nbsp;LW_0420-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-ZGJSCZ&nbsp;&lt;&gt;&nbsp;LW_0420-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_0420-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW&nbsp;=&nbsp;L_NTGEW&nbsp;+&nbsp;LW_0420-NTGEW.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;如果发生变化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-HBRJXSKZ&nbsp;=&nbsp;L_NTGEW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日均销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_0420-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_0420-ZGJSCZ.&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_0420-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算上线后环比销售克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HBXSKZ_AFT USING R_DATE LIKE S_DATE[].<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE&nbsp;,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BWART,&nbsp;&nbsp;&nbsp;&nbsp;"移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-SHKZG,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_GJS,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"金重<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HBRJXSKZ&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否已读取批次信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB2&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MSEG&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TEMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取销售数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MSEG<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWART&nbsp;IN&nbsp;('251','252','643','644')<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BUDAT_MKPF&nbsp;IN&nbsp;R_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BUKRS&nbsp;=&nbsp;'8000'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;排除不符合的商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_MARA&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MCHB&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读取商品信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MARA&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_MSEG-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读取批次信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MCHB&nbsp;INTO&nbsp;LW_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_MSEG-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_MSEG-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LW_MSEG&nbsp;TO&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_MCHB&nbsp;TO&nbsp;LT_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-MCHB&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"标记已读取mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EX_PZ01&nbsp;=&nbsp;LW_MARA-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EX_GJS&nbsp;&nbsp;=&nbsp;LW_MCHB-CZ&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MCHB-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_MARA-EXTWG.&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_MSEG&nbsp;TO&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;释放内存空间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FREE&nbsp;LT_MSEG.<br />
+&nbsp;&nbsp;LT_MSEG&nbsp;=&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;FREE&nbsp;LT_TEMP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MCHB.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MCHB&nbsp;COMPARING&nbsp;ALL&nbsp;FIELDS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取（仅销售数据有的）批次信息、批次特性到LT_MCHB2&nbsp;,lt_charg_characters<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_MCHB&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MCHB2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LT_MCHB-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;LT_MCHB-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;取批次特性数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_MCHB2&nbsp;TO&nbsp;LT_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按物料、批次汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MSEG&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARG_CHARACTERS&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;ATNAM.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_MSEG&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否最后一个批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-MATNR&nbsp;&lt;&gt;&nbsp;LW_NEXT-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-CHARG&nbsp;&lt;&gt;&nbsp;LW_NEXT-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-SHKZG&nbsp;=&nbsp;'H'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;+&nbsp;LW_MSEG-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;-&nbsp;LW_MSEG-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;按批次汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;=&nbsp;LW_MSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-MENGE&nbsp;=&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MCHB&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_TEMP-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_TEMP-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZGJSCZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-EX_GJS&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATWRT.&nbsp;"贵金属材质<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单位为G，重量=库存；单位为PC，重量=库存*金重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MEINS&nbsp;&lt;&gt;&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_TEMP-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_TEMP-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZJZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-ZJZ&nbsp;&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-HBRJXSKZ&nbsp;=&nbsp;LW_TEMP-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-HBRJXSKZ&nbsp;=&nbsp;LW_TEMP-MENGE&nbsp;*&nbsp;LW_TEMP-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_TEMP&nbsp;TO&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;释放内存空间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FREE&nbsp;LT_MSEG.<br />
+&nbsp;&nbsp;LT_MSEG&nbsp;=&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;FREE&nbsp;LT_TEMP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按大类、材质、品种一级汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_MSEG&nbsp;BY&nbsp;EXTWG&nbsp;EX_GJS&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_MSEG&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否最后一个批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-EXTWG&nbsp;&nbsp;&lt;&gt;&nbsp;LW_NEXT-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-EX_GJS&nbsp;&lt;&gt;&nbsp;LW_NEXT-EX_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_NEXT-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;+&nbsp;LW_MSEG-HBRJXSKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-HBRJXSKZ&nbsp;=&nbsp;L_MENGE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日均销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MSEG-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MSEG-EX_GJS.&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_MSEG-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制表日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_L&nbsp;&nbsp;=&nbsp;S_DATUM-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购开始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_H&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH.&nbsp;&nbsp;&nbsp;&nbsp;"采购结束日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-XSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH&nbsp;-&nbsp;S_DATUM-LOW&nbsp;+&nbsp;1."销售周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-TJXS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_XS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调节系数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LT_OUT_TAB&nbsp;和&nbsp;GT_OUT_TAB&nbsp;合并<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_OUT_TAB&gt;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TMP&nbsp;TYPE&nbsp;TYT_OUT_TAB.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_OUT_TAB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT_TAB-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-HBRJXSKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-HBRJXSKZ&nbsp;+&nbsp;LW_OUT_TAB-HBRJXSKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_OUT_TMP&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算同期进货克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_TQJHKZ.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_DATE_BEF&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;LT_R_DATE_BEF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_DATE_AFT&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SY-DATUM.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;如果同期日期在上线前<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT1-LOW&nbsp;&lt;&nbsp;COS_DATE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;上线前日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT1-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT1-HIGH&nbsp;&gt;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;&nbsp;&nbsp;=&nbsp;COS_DATE&nbsp;-&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT1-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_DATE&nbsp;TO&nbsp;LT_R_DATE_BEF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;上线后日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT1-HIGH&nbsp;&gt;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT1-LOW&nbsp;&lt;&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;=&nbsp;S_DAT1-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;=&nbsp;S_DAT1-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_DATE&nbsp;TO&nbsp;LT_R_DATE_AFT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算上线前环比销售克重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_R_DATE_BEF&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_TQJHKZ_BEF&nbsp;USING&nbsp;LT_R_DATE_BEF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算上线后环比销售克重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_R_DATE_AFT&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_TQJHKZ_AFT&nbsp;USING&nbsp;LT_R_DATE_AFT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算上线前同期进货克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_TQJHKZ_BEF USING R_DATE LIKE S_DATE[].<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TAB&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_0420&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_0420&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取历史销售数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0420<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_0420<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;DATUM&nbsp;IN&nbsp;R_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZTYPE&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ01&nbsp;IN&nbsp;S_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ02&nbsp;IN&nbsp;S_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ03&nbsp;IN&nbsp;S_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZGJSCZ&nbsp;&nbsp;IN&nbsp;S_CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;将日均进货克重按&nbsp;大类、材质、品种一级汇总后，更新到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_0420&nbsp;BY&nbsp;EXTWG&nbsp;ZGJSCZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_0420&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_NTGEW.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_0420&nbsp;INTO&nbsp;LW_0420.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否发生变化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_0420&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_NEXT-EXTWG&nbsp;&lt;&gt;&nbsp;LW_0420-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-ZGJSCZ&nbsp;&lt;&gt;&nbsp;LW_0420-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_0420-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW&nbsp;=&nbsp;L_NTGEW&nbsp;+&nbsp;LW_0420-NTGEW.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;如果发生变化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-TQJHKZ&nbsp;&nbsp;&nbsp;=&nbsp;L_NTGEW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日均销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_0420-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_0420-ZGJSCZ.&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_0420-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制表日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_L&nbsp;&nbsp;=&nbsp;S_DATUM-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购开始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_H&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH.&nbsp;&nbsp;&nbsp;&nbsp;"采购结束日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-XSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH&nbsp;-&nbsp;S_DATUM-LOW&nbsp;+&nbsp;1."销售周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-TJXS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_XS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调节系数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LT_OUT_TAB&nbsp;和&nbsp;GT_OUT_TAB&nbsp;合并<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_OUT_TAB&gt;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TMP&nbsp;TYPE&nbsp;TYT_OUT_TAB.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_OUT_TAB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT_TAB-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-TQJHKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-TQJHKZ&nbsp;+&nbsp;LW_OUT_TAB-TQJHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_OUT_TMP&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算上线后同期进货克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_TQJHKZ_AFT USING R_DATE LIKE S_DATE[].<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE&nbsp;,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BWART,&nbsp;&nbsp;&nbsp;&nbsp;"移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-SHKZG,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_GJS,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"金重<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TQJHKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否已读取批次信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB2&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MSEG&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TEMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取进货数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MSEG<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWART&nbsp;IN&nbsp;('101','102')<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BUDAT_MKPF&nbsp;IN&nbsp;R_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;=&nbsp;&nbsp;'DC80'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;排除不符合的商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_MARA&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MCHB&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读取商品信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MARA&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_MSEG-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读取批次信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MCHB&nbsp;INTO&nbsp;LW_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_MSEG-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_MSEG-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LW_MSEG&nbsp;TO&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_MCHB&nbsp;TO&nbsp;LT_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-MCHB&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"标记已读取mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EX_PZ01&nbsp;=&nbsp;LW_MARA-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EX_GJS&nbsp;&nbsp;=&nbsp;LW_MCHB-CZ&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MCHB-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_MARA-EXTWG.&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_MSEG&nbsp;TO&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;释放内存空间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FREE&nbsp;LT_MSEG.<br />
+&nbsp;&nbsp;LT_MSEG&nbsp;=&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;FREE&nbsp;LT_TEMP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MCHB.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MCHB&nbsp;COMPARING&nbsp;ALL&nbsp;FIELDS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取（仅采购数据有的）批次信息、批次特性到LT_MCHB2&nbsp;,lt_charg_characters<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_MCHB&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MCHB2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LT_MCHB-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;LT_MCHB-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;取批次特性数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_MCHB2&nbsp;TO&nbsp;LT_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按物料、批次汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MSEG&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARG_CHARACTERS&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;ATNAM.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_MSEG&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否最后一个批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-MATNR&nbsp;&lt;&gt;&nbsp;LW_NEXT-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-CHARG&nbsp;&lt;&gt;&nbsp;LW_NEXT-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-SHKZG&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;+&nbsp;LW_MSEG-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;-&nbsp;LW_MSEG-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;按批次汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;=&nbsp;LW_MSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-MENGE&nbsp;=&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MCHB&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_TEMP-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_TEMP-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZGJSCZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-EX_GJS&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATWRT.&nbsp;"贵金属材质<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单位为G，重量=库存；单位为PC，重量=库存*金重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MEINS&nbsp;&lt;&gt;&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_TEMP-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_TEMP-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZJZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-ZJZ&nbsp;&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-TQJHKZ&nbsp;=&nbsp;LW_TEMP-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-TQJHKZ&nbsp;=&nbsp;LW_TEMP-MENGE&nbsp;*&nbsp;LW_TEMP-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_TEMP&nbsp;TO&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;释放内存空间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FREE&nbsp;LT_MSEG.<br />
+&nbsp;&nbsp;LT_MSEG&nbsp;=&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;FREE&nbsp;LT_TEMP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按大类、材质、品种一级汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_MSEG&nbsp;BY&nbsp;EXTWG&nbsp;EX_GJS&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_MSEG&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否最后一个批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-EXTWG&nbsp;&nbsp;&lt;&gt;&nbsp;LW_NEXT-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-EX_GJS&nbsp;&lt;&gt;&nbsp;LW_NEXT-EX_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_NEXT-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;+&nbsp;LW_MSEG-TQJHKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-TQJHKZ&nbsp;&nbsp;&nbsp;=&nbsp;L_MENGE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日均销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MSEG-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MSEG-EX_GJS.&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_MSEG-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制表日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_L&nbsp;&nbsp;=&nbsp;S_DATUM-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购开始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_H&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH.&nbsp;&nbsp;&nbsp;&nbsp;"采购结束日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-XSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH&nbsp;-&nbsp;S_DATUM-LOW&nbsp;+&nbsp;1."销售周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-TJXS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_XS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调节系数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LT_OUT_TAB&nbsp;和&nbsp;GT_OUT_TAB&nbsp;合并<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_OUT_TAB&gt;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TMP&nbsp;TYPE&nbsp;TYT_OUT_TAB.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_OUT_TAB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT_TAB-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-TQJHKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-TQJHKZ&nbsp;+&nbsp;LW_OUT_TAB-TQJHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_OUT_TMP&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算环比进货克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HBJHKZ.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_DATE_BEF&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;LT_R_DATE_BEF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_DATE_AFT&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SY-DATUM.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;如果环比日期在上线前<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT2-LOW&nbsp;&lt;&nbsp;COS_DATE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;上线前日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT2-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT2-HIGH&nbsp;&gt;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;&nbsp;&nbsp;=&nbsp;COS_DATE&nbsp;-&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;&nbsp;&nbsp;=&nbsp;S_DAT2-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_DATE&nbsp;TO&nbsp;LT_R_DATE_BEF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;上线后日期<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_DAT2-HIGH&nbsp;&gt;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_DAT2-LOW&nbsp;&lt;&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;=&nbsp;COS_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-LOW&nbsp;=&nbsp;S_DAT2-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_DATE-HIGH&nbsp;=&nbsp;S_DAT2-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_DATE&nbsp;TO&nbsp;LT_R_DATE_AFT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算上线前环比销售克重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_R_DATE_BEF&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_HBJHKZ_BEF&nbsp;USING&nbsp;LT_R_DATE_BEF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计算上线后环比销售克重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_R_DATE_AFT&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_HBJHKZ_AFT&nbsp;USING&nbsp;LT_R_DATE_AFT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算上线前环比进货克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HBJHKZ_BEF USING R_DATE LIKE S_DATE[].<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TAB&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_0420&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_0420&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0420&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取历史销售数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0420<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_0420<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;DATUM&nbsp;IN&nbsp;R_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZTYPE&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ01&nbsp;IN&nbsp;S_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ02&nbsp;IN&nbsp;S_PZ02<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EX_PZ03&nbsp;IN&nbsp;S_PZ03<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZGJSCZ&nbsp;&nbsp;IN&nbsp;S_CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;将日均进货克重按&nbsp;大类、材质、品种一级汇总后，更新到OUT表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_0420&nbsp;BY&nbsp;EXTWG&nbsp;ZGJSCZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_0420&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_NTGEW.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_0420&nbsp;INTO&nbsp;LW_0420.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否发生变化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_0420&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_NEXT-EXTWG&nbsp;&lt;&gt;&nbsp;LW_0420-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-ZGJSCZ&nbsp;&lt;&gt;&nbsp;LW_0420-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_NEXT-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_0420-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW&nbsp;=&nbsp;L_NTGEW&nbsp;+&nbsp;LW_0420-NTGEW.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;如果发生变化<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-HBJHKZ&nbsp;&nbsp;&nbsp;=&nbsp;L_NTGEW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日均进货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_0420-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_0420-ZGJSCZ.&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_0420-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制表日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_L&nbsp;&nbsp;=&nbsp;S_DATUM-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购开始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_H&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH.&nbsp;&nbsp;&nbsp;&nbsp;"采购结束日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-XSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH&nbsp;-&nbsp;S_DATUM-LOW&nbsp;+&nbsp;1."销售周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-TJXS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_XS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调节系数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NTGEW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LT_OUT_TAB&nbsp;和&nbsp;GT_OUT_TAB&nbsp;合并<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_OUT_TAB&gt;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TMP&nbsp;TYPE&nbsp;TYT_OUT_TAB.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_OUT_TAB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT_TAB-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-HBJHKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-HBJHKZ&nbsp;+&nbsp;LW_OUT_TAB-HBJHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_OUT_TMP&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算上线后环比进货克重<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HBJHKZ_AFT USING R_DATE LIKE S_DATE[].<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE&nbsp;,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BWART,&nbsp;&nbsp;&nbsp;&nbsp;"移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-SHKZG,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_GJS,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"金重<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HBJHKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MCHB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否已读取批次信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB2&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MSEG&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TEMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_MSEG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取进货数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZEILE<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHKZG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MSEG<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWART&nbsp;IN&nbsp;('101','102')<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BUDAT_MKPF&nbsp;IN&nbsp;R_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;=&nbsp;&nbsp;'DC80'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;排除不符合的商品<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_MARA&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MCHB&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读取商品信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MARA&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_MSEG-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读取批次信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MCHB&nbsp;INTO&nbsp;LW_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_MSEG-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_MSEG-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LW_MSEG&nbsp;TO&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_MCHB&nbsp;TO&nbsp;LT_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-MCHB&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"标记已读取mchb<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EX_PZ01&nbsp;=&nbsp;LW_MARA-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EX_GJS&nbsp;&nbsp;=&nbsp;LW_MCHB-CZ&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MCHB-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MSEG-EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_MARA-EXTWG.&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_MSEG&nbsp;TO&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;释放内存空间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FREE&nbsp;LT_MSEG.<br />
+&nbsp;&nbsp;LT_MSEG&nbsp;=&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;FREE&nbsp;LT_TEMP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MCHB.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MCHB&nbsp;COMPARING&nbsp;ALL&nbsp;FIELDS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取（仅采购数据有的）批次信息、批次特性到LT_MCHB2&nbsp;,lt_charg_characters<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;LT_MCHB&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MCHB2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LT_MCHB-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;LT_MCHB-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;取批次特性数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_MCHB2&nbsp;TO&nbsp;LT_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按物料、批次汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_LINE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MSEG.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MSEG&nbsp;BY&nbsp;MATNR&nbsp;CHARG.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARG_CHARACTERS&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;ATNAM.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_MSEG&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否最后一个批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-MATNR&nbsp;&lt;&gt;&nbsp;LW_NEXT-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-CHARG&nbsp;&lt;&gt;&nbsp;LW_NEXT-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-SHKZG&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;+&nbsp;LW_MSEG-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;-&nbsp;LW_MSEG-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;按批次汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP&nbsp;=&nbsp;LW_MSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-MENGE&nbsp;=&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MCHB&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_TEMP-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_TEMP-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZGJSCZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-EX_GJS&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATWRT.&nbsp;"贵金属材质<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单位为G，重量=库存；单位为PC，重量=库存*金重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MEINS&nbsp;&lt;&gt;&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LW_TEMP-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;LW_TEMP-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZJZ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-ZJZ&nbsp;&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_TEMP-MEINS&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-HBJHKZ&nbsp;=&nbsp;LW_TEMP-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TEMP-HBJHKZ&nbsp;=&nbsp;LW_TEMP-MENGE&nbsp;*&nbsp;LW_TEMP-ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_TEMP&nbsp;TO&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;释放内存空间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FREE&nbsp;LT_MSEG.<br />
+&nbsp;&nbsp;LT_MSEG&nbsp;=&nbsp;LT_TEMP.<br />
+&nbsp;&nbsp;FREE&nbsp;LT_TEMP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按大类、材质、品种一级汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_MSEG&nbsp;BY&nbsp;EXTWG&nbsp;EX_GJS&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_MSEG&nbsp;).<br />
+&nbsp;&nbsp;CLEAR&nbsp;L_MENGE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_MSEG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判断是否最后一个批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_END.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_TABIX&nbsp;=&nbsp;L_LINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MSEG&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MSEG-EXTWG&nbsp;&nbsp;&lt;&gt;&nbsp;LW_NEXT-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-EX_GJS&nbsp;&lt;&gt;&nbsp;LW_NEXT-EX_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;LW_MSEG-EX_PZ01&nbsp;&lt;&gt;&nbsp;LW_NEXT-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MENGE&nbsp;=&nbsp;L_MENGE&nbsp;+&nbsp;LW_MSEG-HBJHKZ.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_END&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-HBJHKZ&nbsp;&nbsp;&nbsp;=&nbsp;L_MENGE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"环比日均销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EXTWG&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MSEG-EXTWG.&nbsp;&nbsp;&nbsp;"商品大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_MSEG-EX_GJS.&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-EX_PZ01&nbsp;&nbsp;=&nbsp;LW_MSEG-EX_PZ01.&nbsp;"品种一级<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制表日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_L&nbsp;&nbsp;=&nbsp;S_DATUM-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购开始日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-DATUM_H&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH.&nbsp;&nbsp;&nbsp;&nbsp;"采购结束日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-XSZQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_DATUM-HIGH&nbsp;-&nbsp;S_DATUM-LOW&nbsp;+&nbsp;1."销售周期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB-TJXS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_XS-LOW.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"调节系数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;LT_OUT_TAB&nbsp;和&nbsp;GT_OUT_TAB&nbsp;合并<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_OUT_TAB&gt;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT_TMP&nbsp;TYPE&nbsp;TYT_OUT_TAB.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_OUT_TAB&nbsp;BY&nbsp;EXTWG&nbsp;CZ&nbsp;EX_PZ01.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_OUT_TAB&nbsp;INTO&nbsp;LW_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_OUT_TAB&nbsp;ASSIGNING&nbsp;&lt;FS_OUT_TAB&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_OUT_TAB-CZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;=&nbsp;LW_OUT_TAB-EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_OUT_TAB&gt;-HBJHKZ&nbsp;=&nbsp;&lt;FS_OUT_TAB&gt;-HBJHKZ&nbsp;+&nbsp;LW_OUT_TAB-HBJHKZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_OUT_TAB&nbsp;TO&nbsp;LT_OUT_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_OUT_TMP&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&显示<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_SHOW_ALV.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_TAB&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_FIELDCAT&nbsp;TO&nbsp;LT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据转换（GT_IN_TAB=&gt;GT_OUT_TAB）<br />
+*&nbsp;STEP1:创建FIELDCAT<br />
+*&nbsp;固定部分<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DF_ADD_FIELDCAT:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;'EXTWG&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-001&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;'CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-002&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;'EX_PZ01&nbsp;'&nbsp;&nbsp;TEXT-003&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'ZMMEX0010_MARA'&nbsp;'EX_PZ01'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;'DATE&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-004&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;'DATUM_L&nbsp;'&nbsp;&nbsp;TEXT-005&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;'DATUM_H&nbsp;'&nbsp;&nbsp;TEXT-006&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;'XKCKZ&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-007&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;'WDHKZ&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-008&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;'HJKCKZ&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-009&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;'HBRJXSKZ'&nbsp;&nbsp;TEXT-010&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11&nbsp;'XSZQ&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-011&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;'YJXSKZ&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-012&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13&nbsp;'YJSYKCKZ'&nbsp;&nbsp;TEXT-013&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;14&nbsp;'TJXS&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-014&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;15&nbsp;'YJJHKZ&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-015&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16&nbsp;'TQJHKZ&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-016&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17&nbsp;'HBJHKZ&nbsp;&nbsp;'&nbsp;&nbsp;TEXT-017&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LW_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;LW_LAYOUT-BOX_FNAME&nbsp;&nbsp;=&nbsp;'SEL'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_OUT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;001&nbsp;商品大类<br />
+*&nbsp;002&nbsp;贵金属材质<br />
+*&nbsp;003&nbsp;品种一级<br />
+*&nbsp;004&nbsp;制表日期<br />
+*&nbsp;005&nbsp;采购开始日期<br />
+*&nbsp;006&nbsp;采购结束日期<br />
+*&nbsp;007&nbsp;现库存克重<br />
+*&nbsp;008&nbsp;未到货克重<br />
+*&nbsp;009&nbsp;合计库存克重<br />
+*&nbsp;010&nbsp;环比日均销售克重<br />
+*&nbsp;011&nbsp;销售周期<br />
+*&nbsp;012&nbsp;预计销售克重<br />
+*&nbsp;013&nbsp;预计剩余库存克重<br />
+*&nbsp;014&nbsp;调节系数<br />
+*&nbsp;015&nbsp;预计进货克重<br />
+*&nbsp;016&nbsp;同期进货克重<br />
+*&nbsp;017&nbsp;环比进货克重<br />
+*&nbsp;T01&nbsp;查询条件<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;贵金属材质<br />
+*&nbsp;S_DAT1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;同比日期<br />
+*&nbsp;S_DAT2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;环比日期<br />
+*&nbsp;S_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;制表日期<br />
+*&nbsp;S_DATUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日期<br />
+*&nbsp;S_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品大类<br />
+*&nbsp;S_LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;库位<br />
+*&nbsp;S_PZ01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;品种一级<br />
+*&nbsp;S_PZ02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;品种二级<br />
+*&nbsp;S_PZ03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;品种三级<br />
+*&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;地点<br />
+*&nbsp;S_XS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系数<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

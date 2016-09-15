@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP0030_GUI</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP0030_GUI</h2>
+<h3> Description: Include ZSDRP0030_GUI</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP0030_GUI<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BLK01 WITH FRAME TITLE TEXT-001.<br />
+<br />
+SELECT-OPTIONS:S_RBUKRS   FOR FAGLFLEXT-RBUKRS  OBLIGATORY  DEFAULT '8000'.      "公司代码<br />
+SELECT-OPTIONS:S_YEARMO   FOR ZFIRP0130A-SPMON  OBLIGATORY  DEFAULT SY-DATUM+0(6) NO INTERVALS NO-EXTENSION. "年月<br />
+SELECT-OPTIONS:S_RACCT    FOR FAGLFLEXT-RACCT .        "会计期间<br />
+<br />
+SELECTION-SCREEN END OF BLOCK BLK01.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------*<br />
+*程序开始<br />
+*----------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SETDATA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_DATA.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA_MAIN&nbsp;USING&nbsp;IT_RACCT.<br />
+&nbsp;&nbsp;PERFORM&nbsp;DO_DATA.<br />
+&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------*<br />
+*给科目负值<br />
+*----------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SETDATA.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;定义宏，科目数据处理<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RACCT-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;&nbsp;&nbsp;"'E'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RACCT-OPTION&nbsp;&nbsp;=&nbsp;'EQ'.&nbsp;"'CP','BT','EQ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_RACCT-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RACCT-HIGH&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_RACCT&nbsp;TO&nbsp;IT_RACCT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_RACCT&nbsp;IS&nbsp;INITIAL.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"判断科目表是否为空<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DF_ADD_RACCT:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"添加数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005002',	"其他应收款_在途资金_建行卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005003',&nbsp;&nbsp;"其他应收款_在途资金_北京行卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005004',&nbsp;&nbsp;"其他应收款_在途资金_农商行卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005005',&nbsp;&nbsp;"其他应收款_在途资金_交行卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005006',&nbsp;&nbsp;"其他应收款_在途资金_中行卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005007',&nbsp;&nbsp;"其他应收款_在途资金_浦发行卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005016',&nbsp;&nbsp;"其他应收款_在途资金_工行卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005008',&nbsp;&nbsp;"其他应收款_在途资金_中欣卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005009',&nbsp;&nbsp;"其他应收款_在途资金_奥斯卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005010',&nbsp;&nbsp;"其他应收款_在途资金_雅联雅酷卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005011',&nbsp;&nbsp;"其他应收款_在途资金_EBC卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005013',&nbsp;&nbsp;"其他应收款_在途资金_金源燕莎卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005014',	&nbsp;"其他应收款_在途资金_蓝色港湾卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005015',	&nbsp;"其他应收款_在途资金_隆华卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005020',	&nbsp;"其他应收款_在途资金_星城卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005012',	&nbsp;"其他应收款_在途资金_资和信<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'1221005017'&nbsp;&nbsp;&nbsp;"其他应收款_在途资金_国际卡<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_RACCT[]&nbsp;=&nbsp;S_RACCT[].<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------*<br />
+*清空内表<br />
+*----------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FAG[],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_RACCT[],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_SHOW[],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ALV_SHOW_CHA[].<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------*<br />
+*数据检查<br />
+*----------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;S_RACCT-LOW&nbsp;&lt;&nbsp;'1221000000'&nbsp;OR&nbsp;S_RACCT-HIGH&nbsp;&gt;&nbsp;'1221999999'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'您输入的科目范围'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

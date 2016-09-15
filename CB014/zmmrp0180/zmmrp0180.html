@@ -1,0 +1,532 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0180</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0180</h2>
+<h3> Description: 公司领用出库单打印</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZMMRP0180<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;MM-RP-0180<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;公司领用出库单打印<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;YANGGANG<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/09/10&nbsp;&nbsp;&nbsp;&nbsp;YANGGANG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZMMRP0180.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+*DEFINE&nbsp;DATA<br />
+*--------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:MSEG,MAKT,MKPF,T001W,T001L,CSKT,T156T.<br />
+<br />
+TYPE-POOLS:SLIS. "SAP标准类型池<br />
+<br />
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.      "定义ALV显示字段的内表<br />
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.        "定义ALV如何显示字段的工作区<br />
+DATA: WA_LAYOUT   TYPE SLIS_LAYOUT_ALV.          "定义ALV显示格式的工作区<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_TAB,<br />
+   </div>
+   <div class="codeComment">
+*表头<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SEL_BOX&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发货地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001W-NAME1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发货地点-描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-LGORT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发货库位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LGOBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001L-LGOBE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发货库位-描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-KOSTL,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收货部门<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CSKT-KTEXT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收货部门-描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-BWART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;T156T-BTEXT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"移动类型-描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BUDAT_MKPF&nbsp;TYPE&nbsp;MSEG-BUDAT_MKPF,&nbsp;&nbsp;"凭证日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;USNAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MKPF-USNAM,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"制单人<br />
+   </div>
+   <div class="codeComment">
+*表体<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ZEILE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"序号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品编码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ERFMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-ERFMG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"数量<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"单位<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SGTXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-SGTXT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"备注<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MAKTX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MAKT-MAKTX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品名称<br />
+   </div>
+   <div class="codeComment">
+*用于查询<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MBLNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品凭证编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MJAHR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品凭证年度<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_TAB.<br />
+<br />
+DATA: LT_TAB     TYPE TABLE OF STRU_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CON_TAB&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;STRU_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CON_TAB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_TAB.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------选择屏幕----------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发货地点<br />
+&nbsp;&nbsp;S_KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收货部门<br />
+&nbsp;&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品编码<br />
+&nbsp;&nbsp;S_MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO-EXTENSION,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品凭证<br />
+&nbsp;&nbsp;S_BU_MKP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-BUDAT_MKPF&nbsp;NO-EXTENSION.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证日期<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+*GET&nbsp;DATA<br />
+*--------------------------------------------------------------------*<br />
+*SELECT&nbsp;*<br />
+*&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_TAB<br />
+*&nbsp;&nbsp;FROM&nbsp;MSEG&nbsp;&nbsp;AS&nbsp;G&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001W&nbsp;AS&nbsp;W&nbsp;&nbsp;&nbsp;ON&nbsp;G~WERKS&nbsp;EQ&nbsp;W~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001L&nbsp;AS&nbsp;L&nbsp;&nbsp;&nbsp;ON&nbsp;G~WERKS&nbsp;EQ&nbsp;L~WERKS&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~LGORT&nbsp;&nbsp;EQ&nbsp;L~LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CSKT&nbsp;&nbsp;AS&nbsp;KT&nbsp;&nbsp;ON&nbsp;G~KOSTL&nbsp;EQ&nbsp;KT~KOSTL&nbsp;&nbsp;&nbsp;AND&nbsp;KT~SPRAS&nbsp;EQ&nbsp;'1'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KT~KOKRS&nbsp;EQ&nbsp;'CBAI'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KT~DATBI&nbsp;EQ&nbsp;'99991231'&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T156T&nbsp;AS&nbsp;6T&nbsp;&nbsp;ON&nbsp;G~BWART&nbsp;EQ&nbsp;6T~BWART&nbsp;&nbsp;&nbsp;AND&nbsp;6T~SPRAS&nbsp;EQ&nbsp;'1'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;6T~SOBKZ&nbsp;EQ&nbsp;''<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;6T~KZBEW&nbsp;EQ&nbsp;''<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;6T~KZZUG&nbsp;EQ&nbsp;''<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;6T~KZVBR&nbsp;EQ&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKT&nbsp;&nbsp;AS&nbsp;T&nbsp;&nbsp;&nbsp;ON&nbsp;G~MATNR&nbsp;EQ&nbsp;T~MATNR&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;T~SPRAS&nbsp;&nbsp;EQ&nbsp;'1'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MKPF&nbsp;&nbsp;AS&nbsp;F&nbsp;&nbsp;&nbsp;ON&nbsp;G~MBLNR&nbsp;EQ&nbsp;F~MBLNR&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MJAHR&nbsp;&nbsp;EQ&nbsp;F~MJAHR<br />
+*&nbsp;&nbsp;WHERE&nbsp;G~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS&nbsp;&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_KOSTL&nbsp;&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_MATNR&nbsp;&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_MBLNR&nbsp;&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BUDAT_MKPF&nbsp;IN&nbsp;S_BU_MKP&nbsp;AND<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ&nbsp;'Z01'&nbsp;&nbsp;&nbsp;&nbsp;OR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ&nbsp;'Z03'&nbsp;&nbsp;&nbsp;&nbsp;OR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ&nbsp;'Z21'&nbsp;&nbsp;&nbsp;&nbsp;OR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ&nbsp;'Z31'&nbsp;&nbsp;&nbsp;&nbsp;OR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ&nbsp;'Z41'&nbsp;&nbsp;&nbsp;&nbsp;OR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ&nbsp;'Z81'&nbsp;&nbsp;&nbsp;&nbsp;OR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ&nbsp;'Z91'&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;LT_R_BWART&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;BWART,<br />
+&nbsp;&nbsp;LW_R_BWART&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;LT_R_BWART.<br />
+<br />
+<br />
+DEFINE DF_ADD_BWART.<br />
+&nbsp;&nbsp;CLEAR&nbsp;&nbsp;LW_R_BWART.<br />
+&nbsp;&nbsp;LW_R_BWART-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;"&nbsp;'I&nbsp;'表示包含在区间里面的&nbsp;'E'表示区间之外的<br />
+&nbsp;&nbsp;LW_R_BWART-OPTION&nbsp;&nbsp;=&nbsp;'CP'.&nbsp;&nbsp;"'EQ(等于),NE(不等于),GT(大于)，LT（小于）,LE(小于等于),CP(包含),NP(不包含)，'BT'&nbsp;(位于),&nbsp;&nbsp;'NB'（不位于）&nbsp;'GE'（大于等于）&nbsp;,<br />
+&nbsp;&nbsp;LW_R_BWART-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-HIGH&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;APPEND&nbsp;LW_R_BWART&nbsp;TO&nbsp;LT_R_BWART.<br />
+END-OF-DEFINITION.<br />
+<br />
+DF_ADD_BWART :<br />
+'Z01',<br />
+'Z03',<br />
+'Z21',<br />
+'Z31',<br />
+'Z41',<br />
+'Z81',<br />
+'Z91'.<br />
+<br />
+SELECT *<br />
+&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_TAB<br />
+&nbsp;&nbsp;FROM&nbsp;MSEG&nbsp;&nbsp;AS&nbsp;G&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001W&nbsp;AS&nbsp;W&nbsp;&nbsp;&nbsp;ON&nbsp;G~WERKS&nbsp;EQ&nbsp;W~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T001L&nbsp;AS&nbsp;L&nbsp;&nbsp;&nbsp;ON&nbsp;G~WERKS&nbsp;EQ&nbsp;L~WERKS&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~LGORT&nbsp;&nbsp;EQ&nbsp;L~LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CSKT&nbsp;&nbsp;AS&nbsp;KT&nbsp;&nbsp;ON&nbsp;G~KOSTL&nbsp;EQ&nbsp;KT~KOSTL&nbsp;&nbsp;&nbsp;AND&nbsp;KT~SPRAS&nbsp;EQ&nbsp;'1'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T156T&nbsp;AS&nbsp;6T&nbsp;&nbsp;ON&nbsp;G~BWART&nbsp;EQ&nbsp;6T~BWART&nbsp;&nbsp;&nbsp;AND&nbsp;6T~SPRAS&nbsp;EQ&nbsp;'1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;6T~SOBKZ&nbsp;EQ&nbsp;''&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKT&nbsp;&nbsp;AS&nbsp;T&nbsp;&nbsp;&nbsp;ON&nbsp;G~MATNR&nbsp;EQ&nbsp;T~MATNR&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;T~SPRAS&nbsp;&nbsp;EQ&nbsp;'1'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MKPF&nbsp;&nbsp;AS&nbsp;F&nbsp;&nbsp;&nbsp;ON&nbsp;G~MBLNR&nbsp;EQ&nbsp;F~MBLNR&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MJAHR&nbsp;&nbsp;EQ&nbsp;F~MJAHR<br />
+&nbsp;&nbsp;WHERE&nbsp;G~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS&nbsp;&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_KOSTL&nbsp;&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_MATNR&nbsp;&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_MBLNR&nbsp;&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BUDAT_MKPF&nbsp;IN&nbsp;S_BU_MKP&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G~BWART&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;LT_R_BWART&nbsp;&nbsp;&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------------------排重并显示ALV-----------------------------------*<br />
+   </div>
+   <div class="code">
+MOVE-CORRESPONDING LT_TAB TO LT_CON_TAB.<br />
+<br />
+SORT LT_CON_TAB BY MBLNR BUDAT_MKPF.<br />
+DELETE ADJACENT DUPLICATES FROM LT_CON_TAB COMPARING MBLNR BUDAT_MKPF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+*SHOW&nbsp;ALV<br />
+*--------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DEFINE DF_ADD_CHAR.<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;=&nbsp;&2.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;&nbsp;=&nbsp;&3.<br />
+&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.<br />
+&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;&nbsp;&nbsp;=&nbsp;&5.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+END-OF-DEFINITION.<br />
+<br />
+DF_ADD_CHAR:<br />
+<br />
+'LT_CON_TAB'   'SEL_BOX'     ''                   'X' 'X'  ,<br />
+'LT_CON_TAB'   'WERKS     '  '发货地点'           ''  ''   ,<br />
+'LT_CON_TAB'   'NAME1     '  '发货地点描述'       ''  ''   ,<br />
+'LT_CON_TAB'   'KOSTL     '  '收货部门'           ''  ''   ,<br />
+'LT_CON_TAB'   'KTEXT     '  '收货部门描述'       ''  ''   ,<br />
+'LT_CON_TAB'   'MBLNR'       '商品凭证'           ''  ''   ,<br />
+'LT_CON_TAB'   'BUDAT_MKPF'  '凭证日期'           ''  ''   .<br />
+<br />
+WA_LAYOUT-COLWIDTH_OPTIMIZE = 'X'."列宽自适应<br />
+WA_LAYOUT-ZEBRA = 'X'."显示前导零<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------按钮---------------------------------<br />
+   </div>
+   <div class="code">
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID&nbsp;"系统变量程序ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;&nbsp;"回掉状态集<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'FM_USER_COMMAND'&nbsp;"回掉用户命令<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------按钮-----------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CON_TAB<br />
+&nbsp;&nbsp;EXCEPTIONS&nbsp;"错误提示<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+IF SY-SUBRC &lt;&gt; 0.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------自定义按钮-------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM PF_STATUS_SET USING EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZMMRP0180_PF'&nbsp;.&nbsp;&nbsp;&nbsp;"双击绿色字，可以自定义按钮<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设置用户命令<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_USER_COMMAND USING FU_UCOMM    LIKE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FU_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_GRID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;刷新內表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;L_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;L_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;CASE&nbsp;FU_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_BACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_PRINT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_PRINT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_ALL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;ALL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_CANCEL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;CANCEL_ALL.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;FU_SELFIELD-REFRESH&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;FU_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;FU_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+ENDFORM.<br />
+<br />
+FORM ALL.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_CON_TAB&nbsp;INTO&nbsp;LW_CON_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CON_TAB-SEL_BOX&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_CON_TAB&nbsp;FROM&nbsp;LW_CON_TAB&nbsp;TRANSPORTING&nbsp;SEL_BOX.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+FORM CANCEL_ALL.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_CON_TAB&nbsp;INTO&nbsp;LW_CON_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CON_TAB-SEL_BOX&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_CON_TAB&nbsp;FROM&nbsp;LW_CON_TAB&nbsp;TRANSPORTING&nbsp;SEL_BOX.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&打印<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_PRINT.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS_OUT_TAB&gt;&nbsp;TYPE&nbsp;STRU_TAB.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OPTIONS&nbsp;TYPE&nbsp;SSFCRESOP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMRP0180,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0180,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONTROL&nbsp;TYPE&nbsp;SSFCTRLOP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_PRINT&nbsp;&nbsp;&nbsp;TYPE&nbsp;SSFCOMPOP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FNAME&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RS38L_FNAM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据筛选<br />
+*-------------------------------把X传到LT_OUT中----------------------*<br />
+*清空行项目表的标记，可以在执行完第一次打印点击返回后可以重新选择。<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TAB&nbsp;INTO&nbsp;LW_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TAB-SEL_BOX&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_TAB&nbsp;FROM&nbsp;LW_TAB.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TAB&nbsp;INTO&nbsp;LW_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CON_TAB&nbsp;INTO&nbsp;LW_CON_TAB&nbsp;WITH&nbsp;KEY&nbsp;MBLNR&nbsp;=&nbsp;LW_TAB-MBLNR&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_CON_TAB-SEL_BOX&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TAB-SEL_BOX&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_TAB&nbsp;FROM&nbsp;LW_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**清空ALV显示的表，让用户在打印预览之后点击返回到ALV后的X标记清空。<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_CON_TAB&nbsp;INTO&nbsp;LW_CON_TAB.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_CON_TAB-SEL_BOX&nbsp;=&nbsp;''.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_CON_TAB&nbsp;FROM&nbsp;LW_CON_TAB.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:LW_TAB.<br />
+&nbsp;&nbsp;CLEAR:LW_CON_TAB.<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;LT_OUT&nbsp;=&nbsp;LT_TAB.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_TAB&nbsp;TO&nbsp;LT_OUT.<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_OUT&nbsp;WHERE&nbsp;SEL_BOX&nbsp;&lt;&gt;&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_OUT&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'请选择打印数据'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取SMARTFORM的MODULE名<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'SSF_FUNCTION_MODULE_NAME'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMMRP0180_SF'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FM_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_FNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FORM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FUNCTION_MODULE&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;打印<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LW_CONTROL-NO_DIALOG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LW_CONTROL-PREVIEW&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LW_CONTROL-LANGU&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-LANGU.<br />
+&nbsp;&nbsp;LW_PRINT-TDIMMED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;LW_PRINT-TDDEST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZP01'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;L_FNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTROL_PARAMETERS&nbsp;=&nbsp;LW_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT_OPTIONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_PRINT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_SETTINGS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SPACE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JOB_OUTPUT_OPTIONS&nbsp;=&nbsp;LW_OPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMATTING_ERROR&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERNAL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEND_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_CANCELED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+&nbsp;&nbsp;CASE&nbsp;SY-SUBRC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'4'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'取消打印'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGTY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SY-MSGV2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SY-MSGV3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SY-MSGV4.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;公司领用出库单选择界面<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_BU_MKP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;凭证日期<br />
+*&nbsp;S_KOSTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;收货部门<br />
+*&nbsp;S_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品编码<br />
+*&nbsp;S_MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商品凭证<br />
+*&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发货地点<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

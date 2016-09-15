@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0120_F02</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0120_F02</h2>
+<h3> Description: Include ZFIRP0120_F02</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&nbsp;循环打印凭证<br />
+*---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM PROCESS_PRINT.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_SELECTED[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_SELECTED&nbsp;INTO&nbsp;WA_SELECTED.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;CALL_SMARTFORMS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;DOCUMENT_PRINT&nbsp;USING&nbsp;WA_SELECTED-BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SELECTED-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SELECTED-BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_PZCS-PRCTR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_BM.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;ELSE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'没有选中任何凭证'&nbsp;TYPE&nbsp;'S'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'I'.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*<br />
+*---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM CALL_SMARTFORMS.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'SSF_FUNCTION_MODULE_NAME'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"两个函数连调的原因是，SMARTFORMS会将你定义的名转成系统内的名字<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZFIRP0120_SF'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FM_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_FUNC_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"系统内的SMARTFORMS表名，系统自动生成30字符长<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FORM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_FUNCTION_MODULE&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&nbsp;打印一张凭证<br />
+*---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM DOCUMENT_PRINT USING S_BUKRS   TYPE BKPF-BUKRS    "传入参数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_GJAHR&nbsp;&nbsp;&nbsp;TYPE&nbsp;BKPF-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_BELNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;BKPF-BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S_PRCTR&nbsp;&nbsp;&nbsp;TYPE&nbsp;BSEG-PRCTR.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RSPOPNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LST_CONTROL&nbsp;TYPE&nbsp;SSFCTRLOP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LST_PRINT&nbsp;&nbsp;&nbsp;TYPE&nbsp;SSFCOMPOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*定义打印导入接口<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;WA_DOC_INFO&nbsp;TYPE&nbsp;&nbsp;ZFIRP0121_DOC.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_FOOT_INFO&nbsp;TYPE&nbsp;ZFIRP0122_PZCS.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&nbsp;&nbsp;DATA&nbsp;BEGIN&nbsp;OF&nbsp;WA_DOC_INFO.&nbsp;&nbsp;&nbsp;"包含ZFIRP0121_DOC中所有字段及新加的四个字段<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;TYPE&nbsp;ZFIRP0120_TY.<br />
+**&nbsp;&nbsp;DATA:&nbsp;NAME1&nbsp;TYPE&nbsp;LFA1-NAME1.<br />
+**&nbsp;&nbsp;DATA:&nbsp;NAME2&nbsp;TYPE&nbsp;KNA1-NAME1.<br />
+**&nbsp;&nbsp;DATA:&nbsp;MCTXT&nbsp;TYPE&nbsp;CEPCT-MCTXT.<br />
+**&nbsp;&nbsp;DATA:&nbsp;KTEXT&nbsp;TYPE&nbsp;CSKT-KTEXT.<br />
+**&nbsp;&nbsp;DATA&nbsp;END&nbsp;OF&nbsp;WA_DOC_INFO.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;IT_RESULT&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_OUT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RESULT&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_OUT.<br />
+<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;ZBL&nbsp;TYPE&nbsp;WRBTR.<br />
+&nbsp;&nbsp;DATA:ZBY&nbsp;TYPE&nbsp;WRBTR.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_ALV&nbsp;INTO&nbsp;WA_SMF&nbsp;WITH&nbsp;KEY&nbsp;SEL_BOX&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表中被选中的项都入到打印的工作空间中<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_SMF_TABLE[].&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清空存储打印的内表<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;整理数据放入传入参数的工作区<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_DOC_INFO-BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;S_BUKRS.<br />
+&nbsp;&nbsp;WA_DOC_INFO-BELNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;S_BELNR.<br />
+&nbsp;&nbsp;WA_DOC_INFO-GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;S_GJAHR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;WA_FOOT_INFO-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_PRCTR.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUTXT&nbsp;INTO&nbsp;WA_DOC_INFO-BUTXT&nbsp;FROM&nbsp;T001&nbsp;WHERE&nbsp;BUKRS&nbsp;=&nbsp;WA_DOC_INFO-BUKRS."公司名称编码转化<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;MONAT&nbsp;BUDAT&nbsp;NUMPG&nbsp;INTO&nbsp;(WA_DOC_INFO-MONAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_DOC_INFO-BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_DOC_INFO-NUMPG)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;BKPF&nbsp;WHERE&nbsp;BUKRS&nbsp;=&nbsp;S_BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BELNR&nbsp;=&nbsp;S_BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;=&nbsp;S_GJAHR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;DOC_NUMBER&nbsp;INTO&nbsp;WA_DOC_INFO-DOC_NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0121_DOC&nbsp;WHERE&nbsp;BUKRS&nbsp;=&nbsp;S_BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BELNR&nbsp;=&nbsp;S_BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;=&nbsp;S_GJAHR.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;ZCWZG&nbsp;ZCN&nbsp;&nbsp;INTO&nbsp;(WA_FOOT_INFO-ZCWZG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FOOT_INFO-ZCN)<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0122_PZCS&nbsp;WHERE&nbsp;PRCTR&nbsp;=&nbsp;S_PRCTR.<br />
+<br />
+*打印行项目<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;BSEG&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_RESULT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BELNR&nbsp;=&nbsp;WA_DOC_INFO-BELNR.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_RESULT&nbsp;INTO&nbsp;WA_RESULT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_RESULT-SHKZG&nbsp;=&nbsp;'H'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RESULT-WRBTR_H&nbsp;=&nbsp;WA_RESULT-WRBTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_RESULT-SHKZG&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RESULT-WRBTR_S&nbsp;=&nbsp;WA_RESULT-WRBTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;TXT20&nbsp;FROM&nbsp;SKAT&nbsp;INTO&nbsp;WA_RESULT-TXT20<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SAKNR&nbsp;=&nbsp;WA_RESULT-HKONT.<br />
+<br />
+"打印页脚中的复核人，制单人USNAM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;USNAM&nbsp;PPNAM&nbsp;FROM&nbsp;BKPF&nbsp;INTO&nbsp;(WA_RESULT-USNAM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_RESULT-PPNAM)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BELNR&nbsp;=&nbsp;WA_DOC_INFO-BELNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_RESULT&nbsp;FROM&nbsp;WA_RESULT&nbsp;TRANSPORTING&nbsp;WRBTR_H&nbsp;WRBTR_S&nbsp;TXT20&nbsp;USNAM&nbsp;PPNAM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBL&nbsp;=&nbsp;ZBL&nbsp;+&nbsp;WA_RESULT-WRBTR_S.&nbsp;&nbsp;"合计借方金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBY&nbsp;=&nbsp;ZBY&nbsp;+&nbsp;WA_RESULT-WRBTR_H.&nbsp;&nbsp;"合计贷方金额<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_RESULT&nbsp;TO&nbsp;IT_SMF_TABLE.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_SMF_TABLE&nbsp;INTO&nbsp;WA_SMF_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_SMF_TABLE-HJS&nbsp;=&nbsp;ZBL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_SMF_TABLE-HJH&nbsp;=&nbsp;ZBY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_SMF_TABLE-NAME1&nbsp;=&nbsp;WA_BM-NAME1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_SMF_TABLE-KTEXT&nbsp;=&nbsp;WA_BM-KTEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_SMF_TABLE-MCTXT&nbsp;=&nbsp;WA_BM-MCTXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_SMF_TABLE-NAME2&nbsp;=&nbsp;WA_BM-NAME1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_SMF_TABLE&nbsp;FROM&nbsp;WA_SMF_TABLE&nbsp;TRANSPORTING&nbsp;HJS&nbsp;HJH&nbsp;NAME1&nbsp;KTEXT&nbsp;MCTXT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*IF&nbsp;WA_SMF_TABLE-KOSTL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+*----------------------------------------------------------------------------------<br />
+*编码转描述<br />
+<br />
+*&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;WA_ALV&gt;&nbsp;TYPE&nbsp;TY_OUT.<br />
+*<br />
+*&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_ALV&nbsp;TO&nbsp;IT_BM.<br />
+*<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ZFIRP0120_FG_MODIFY'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BM&nbsp;=&nbsp;IT_BM.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;ASSIGNING&nbsp;&lt;WA_ALV&gt;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV&gt;-PRCTR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV&gt;-PRCTR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV&gt;-MCTXT&nbsp;=&nbsp;WA_BM-MCTXT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV&gt;-KOSTL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;WITH&nbsp;KEY&nbsp;KOSTL&nbsp;=&nbsp;&lt;WA_ALV&gt;-KOSTL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV&gt;-KTEXT&nbsp;=&nbsp;WA_BM-KTEXT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV&gt;-LIFNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;WITH&nbsp;KEY&nbsp;LIFNR&nbsp;=&nbsp;&lt;WA_ALV&gt;-LIFNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV&gt;-NAME1&nbsp;=&nbsp;WA_BM-NAME1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV&gt;-KUNNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;WITH&nbsp;KEY&nbsp;KUNNR&nbsp;=&nbsp;&lt;WA_ALV&gt;-KUNNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV&gt;-NAME1&nbsp;=&nbsp;WA_BM-NAME1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+*&nbsp;开始打印<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;LW_FUNC_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"连调的第二个函数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTROL_PARAMETERS&nbsp;=&nbsp;LST_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_SETTINGS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SPACE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT_OPTIONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LST_PRINT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_DOC_INFO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_DOC_INFO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_FOOT_INFO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_FOOT_INFO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_CONT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_SMF_TABLE<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;内表&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;smartforms的内表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMATTING_ERROR&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERNAL_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEND_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER_CANCELED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

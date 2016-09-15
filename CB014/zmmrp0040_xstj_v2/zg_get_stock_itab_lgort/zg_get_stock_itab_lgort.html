@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZG_GET_STOCK_ITAB_LGORT</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZG_GET_STOCK_ITAB_LGORT</h2>
+<h3> Description: 公用函数-查询库存-传入内表查询</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZG_GET_STOCK_ITAB_LGORT.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  TABLES<br />
+*"      IT_TAB TYPE  ZCB01_TY_T_ZG_GET_STOCK_LGORT<br />
+*"      ET_STOCK_NORMAL TYPE  ZCB01_TY_T_ZG_GET_STOCK<br />
+*"----------------------------------------------------------------------<br />
+**********************************************************************<br />
+*                          使用说明<br />
+* 1. 本功能提供查询库存的功能：<br />
+*    1.1 本功能可以查询正常在库存库存，也就是在地点+库存地点下的功能<br />
+*    1.2 传入表IT_TAB有以下字段：<br />
+*        MATNR    -   商品号码，不可为空<br />
+*        CHARG    -   批次号码，如果是非批次管理的商品，可以为空；如果是<br />
+*                     批次管理的商品，不能为空，否则找不到结果<br />
+*        WERKS    -   地点，不可为空<br />
+*        LGORT    -   库存地点，不可为空<br />
+*    1.3 从上面的传入表字段说明中可以看出，本功能适用于已知精确查询条件的情况；<br />
+*        如果不是，例如想查询某个商品下所有有库存的批次，这种情况应该使用功能：<br />
+*        ZG_GET_STOCK_CRITERIA<br />
+*    1.3 返回结果表ET_STOCK中有以下字段：<br />
+*        MATNR    -   商品款号<br />
+*        CHARG    -   批次号<br />
+*        ZSPTM    -   商品条码<br />
+*        WERKS    -   地点<br />
+*        LGORT    -   库存地点<br />
+*        LIFNR    -   供应商 （本功能该字段为空）<br />
+*        LBKUM    -   库存数量（这是SAP库存数量，其单位可能是克，也可能是件）<br />
+*        MEINS    -   库存数量单位（注意，该字段是SAP单位的内部格式，例如件的单位是ST）<br />
+*        LBKUM_G  -   库存重量（克）<br />
+*        LBKUM_PC -   库存件数（件）<br />
+*        STOCK_VAL  - 库存金额（库存成本）<br />
+*        ZJZ      -   单品金重<br />
+*2. 关于库存返回结果中的库存金额，SAP的库存金额的管理是在地点（WERKS）级别的，在库存地点（LGORT）<br />
+*   级别只有数量没有金额。本功能返回的库存和金额都是在库存地点级别，在计算库存地点的库存金额时，<br />
+*   使用地点级别的金额来计算：地点库存金额 * 库存地点库存数量 / 地点库存数量，并精确到小数点后6位。<br />
+*   如果你要产生的报表是汇总到地点级别的，可以将返回结果中库存地点级别的金额（按商品+批次+地点）累计，<br />
+*   并四舍五入到小数点后2位即可。<br />
+**********************************************************************<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zg_get_stock_itab_lgort.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LRT_MATNR&nbsp;TYPE&nbsp;ZCB01_TY_RT_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LRT_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRT_CHARG&nbsp;TYPE&nbsp;ZCB01_TY_RT_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_CHARG&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LRT_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRT_WERKS&nbsp;TYPE&nbsp;ZCB01_TY_RT_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LRT_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRT_LGORT&nbsp;TYPE&nbsp;ZCB01_TY_RT_LGORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_LGORT&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LRT_LGORT.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_LINES&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_START&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MAX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_STOCK_NULL&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_STOCK_NORMAL&nbsp;TYPE&nbsp;ZCB01_TY_T_ZG_GET_STOCK&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_TAB&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_TAB&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TAB&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TAB&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_TAB&nbsp;WHERE&nbsp;LGORT&nbsp;=&nbsp;''&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;IT_TAB&nbsp;BY&nbsp;WERKS&nbsp;LGORT&nbsp;MATNR&nbsp;CHARG&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;IT_TAB&nbsp;COMPARING&nbsp;WERKS&nbsp;LGORT&nbsp;MATNR&nbsp;CHARG&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_TAB[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;考虑到Range表在查询语句中数量的限制，将传入的IT_TAB中的数据分为多个处理批次<br />
+&nbsp;&nbsp;LV_MAX&nbsp;&nbsp;&nbsp;=&nbsp;8000&nbsp;.<br />
+&nbsp;&nbsp;LV_LINES&nbsp;=&nbsp;LINES(&nbsp;IT_TAB&nbsp;).<br />
+&nbsp;&nbsp;"&nbsp;计算循环处理的次数<br />
+&nbsp;&nbsp;IF&nbsp;LV_LINES&nbsp;MOD&nbsp;LV_MAX&nbsp;=&nbsp;0&nbsp;.&nbsp;"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINES&nbsp;DIV&nbsp;LV_MAX&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINES&nbsp;DIV&nbsp;LV_MAX&nbsp;+&nbsp;1&nbsp;.&nbsp;"<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;DO&nbsp;LV_TIMES&nbsp;TIMES&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_START&nbsp;=&nbsp;LV_MAX&nbsp;*&nbsp;(&nbsp;SY-INDEX&nbsp;-&nbsp;1&nbsp;)&nbsp;+&nbsp;1&nbsp;.&nbsp;"&nbsp;本次循环从内表IT_TAB的哪一行开始<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-INDEX&nbsp;=&nbsp;LV_TIMES&nbsp;.&nbsp;"&nbsp;最后一次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;=&nbsp;LV_LINES&nbsp;.&nbsp;"&nbsp;本次循环从内表IT_TAB的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;=&nbsp;LV_MAX&nbsp;*&nbsp;SY-INDEX&nbsp;.&nbsp;"&nbsp;本次循环从内表IT_TAB的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;LT_STOCK_NORMAL,&nbsp;LRT_MATNR,&nbsp;LRT_CHARG,&nbsp;LRT_WERKS,&nbsp;LRT_LGORT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB&nbsp;INTO&nbsp;LS_TAB&nbsp;FROM&nbsp;LV_START&nbsp;TO&nbsp;LV_END&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LRS_MATNR,LRS_CHARG,LRS_WERKS,LRS_LGORT&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-LOW&nbsp;=&nbsp;LS_TAB-MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_MATNR-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_MATNR&nbsp;TO&nbsp;LRT_MATNR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_CHARG-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_CHARG-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_CHARG-LOW&nbsp;=&nbsp;LS_TAB-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_CHARG-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_CHARG&nbsp;TO&nbsp;LRT_CHARG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-LOW&nbsp;=&nbsp;LS_TAB-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_WERKS-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_WERKS&nbsp;TO&nbsp;LRT_WERKS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_LGORT-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_LGORT-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_LGORT-LOW&nbsp;=&nbsp;LS_TAB-LGORT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRS_LGORT-HIGH&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LRS_LGORT&nbsp;TO&nbsp;LRT_LGORT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LRT_MATNR&nbsp;BY&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LRT_MATNR&nbsp;COMPARING&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LRT_CHARG&nbsp;BY&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LRT_CHARG&nbsp;COMPARING&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LRT_WERKS&nbsp;BY&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LRT_WERKS&nbsp;COMPARING&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LRT_LGORT&nbsp;BY&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LRT_LGORT&nbsp;COMPARING&nbsp;SIGN&nbsp;OPTION&nbsp;LOW&nbsp;HIGH&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zg_get_stock_criteria/zg_get_stock_criteria.html">'ZG_GET_STOCK_CRITERIA'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_STOCK_NORMAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_SIT_SC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_SIT_CC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_GET_SIV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LRT_WERKS[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_LGORT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LRT_LGORT[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LRT_MATNR[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IRT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LRT_CHARG[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_NORMAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_NORMAL[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_SIT_SC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_NULL[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_SIT_CC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_NULL[]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_STOCK_SIV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_STOCK_NULL[]<br />
+   </div>
+   <div class="codeComment">
+*     EXCEPTIONS<br />
+*       EMPTY_IRT_WERKS           = 1<br />
+*       OTHERS                    = 2<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+* Implement suitable error handling here<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_STOCK_NORMAL&nbsp;TO&nbsp;ET_STOCK_NORMAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDDO&nbsp;.<br />
+&nbsp;&nbsp;"因为上面将传入的数据转换成Range&nbsp;Table然后调用Function查询库存，因此可能会取得一些多余的结果，<br />
+&nbsp;&nbsp;"这里将多余的结果删除<br />
+&nbsp;&nbsp;SORT&nbsp;IT_TAB&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;WERKS&nbsp;LGORT&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;ET_STOCK_NORMAL&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;FS_STOCK_NORMAL&gt;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_STOCK_NORMAL&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;&lt;FS_STOCK_NORMAL&gt;-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;&lt;FS_STOCK_NORMAL&gt;-WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;=&nbsp;&lt;FS_STOCK_NORMAL&gt;-LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_STOCK_NORMAL&gt;-MATNR&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;DELETE&nbsp;ET_STOCK_NORMAL&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;''&nbsp;.<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

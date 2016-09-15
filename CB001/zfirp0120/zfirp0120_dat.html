@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0120_DAT</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0120_DAT</h2>
+<h3> Description: Include ZFIRP0120_DAT</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;数据检查<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_DATA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;MSG_STRING&nbsp;TYPE&nbsp;STRING.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;RT_PRCTR.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHECK_FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MSG_STRING&nbsp;=&nbsp;'利润中心、利润中心组，只能且必须选择一个'.<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE&nbsp;S_PRCTR[]&nbsp;TO&nbsp;RT_PRCTR[].&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心不为空，通过利润中心取数<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_PRCTR&nbsp;USING&nbsp;S_SNAME[]&nbsp;RT_PRCTR&nbsp;&nbsp;.&nbsp;&nbsp;"取该利润中心组下所有利润中心<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_PRCTR[]&nbsp;IS&nbsp;INITIAL&nbsp;AND&nbsp;S_SNAME[]&nbsp;IS&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHECK_FLAG&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MSG_STRING&nbsp;=&nbsp;'利润中心、利润中心组，只能且必须选择一个'.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;CHECK_FLAG&nbsp;=&nbsp;'X'..<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;MSG_STRING&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.&nbsp;&nbsp;&nbsp;"S是消息类型，001是消息文本，在此处为&占位符，所以需要WITH文本来替代,系统消息类为00<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GETDATA .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_NAME1&nbsp;TYPE&nbsp;CHAR35.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_ANLN1&nbsp;TYPE&nbsp;ANLN1.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_KOSTL&nbsp;TYPE&nbsp;KOSTL.<br />
+<br />
+&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;B~BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;B~GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;B~BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;B~BLART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;B~BLDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;B~BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;B~USNAM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;A~DOC_NUMBER<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0121_DOC&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"只有归档的文档进行打印<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BKPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~BUKRS&nbsp;EQ&nbsp;B~BUKRS&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~BELNR&nbsp;EQ&nbsp;B~BELNR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~GJAHR&nbsp;EQ&nbsp;B~GJAHR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MONAT&nbsp;EQ&nbsp;B~MONAT<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BLART&nbsp;IN&nbsp;S_BLART&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BUDAT&nbsp;IN&nbsp;S_BUDAT&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~GJAHR&nbsp;IN&nbsp;S_GJAHR&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BELNR&nbsp;IN&nbsp;S_BELNR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_ALV&nbsp;INTO&nbsp;WA_ALV.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_BSEG[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_BSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;BSEG&nbsp;WHERE&nbsp;BUKRS&nbsp;EQ&nbsp;WA_ALV-BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;BELNR&nbsp;EQ&nbsp;WA_ALV-BELNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;GJAHR&nbsp;EQ&nbsp;WA_ALV-GJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PRCTR&nbsp;IN&nbsp;RT_PRCTR.&nbsp;"<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_BSEG[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_ALV-SEL_BOX&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_ALV&nbsp;FROM&nbsp;WA_ALV&nbsp;TRANSPORTING&nbsp;SEL_BOX.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;DELETE&nbsp;IT_ALV&nbsp;WHERE&nbsp;SEL_BOX&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_BSEG&nbsp;INTO&nbsp;WA_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;NAME1&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;LFA1&nbsp;WHERE&nbsp;LIFNR&nbsp;=&nbsp;WA_BSEG-LIFNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;KTEXT&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;CSKT&nbsp;WHERE&nbsp;KOSTL&nbsp;=&nbsp;WA_BSEG-KOSTL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MCTXT&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;CEPCT&nbsp;WHERE&nbsp;PRCTR&nbsp;=&nbsp;WA_BSEG-PRCTR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;NAME1&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_BM1<br />
+&nbsp;&nbsp;&nbsp;FROM&nbsp;KNA1&nbsp;WHERE&nbsp;KUNNR&nbsp;=&nbsp;WA_BSEG-KUNNR.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&通过利润中心组获取利润中心<br />
+*&&nbsp;I_SNAME&nbsp;:&nbsp;利润中心组<br />
+*&&nbsp;O_PRCTR&nbsp;:&nbsp;利润中心<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_PRCTR USING I_SNAME O_PRCTR.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETNODE-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;TYPE&nbsp;SETNODE-SUBSETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETLEAF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALSIGN&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALSIGN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALOPTION&nbsp;TYPE&nbsp;SETLEAF-VALOPTION,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALFROM&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALFROM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALTO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SETLEAF-VALTO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETLEAF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SETHEADERT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SETNAME&nbsp;&nbsp;TYPE&nbsp;SETHEADERT-SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPT&nbsp;TYPE&nbsp;SETHEADERT-DESCRIPT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SETHEADERT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETHEADERT&nbsp;LIKE&nbsp;LW_SETHEADERT&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETLEAF&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_SETLEAF&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SETNODE&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_SETNODE&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_TMP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_SETNODE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SETNAME&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SETNAMENEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SN_TMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LT_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SN_TMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_R_SETNAME,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SNAME&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;SETNAMENEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_R_PRCTR.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取子组<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;"父组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;"子组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SETNODE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETNODE<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SUBCLASS&nbsp;=&nbsp;'1000'&nbsp;"成本控制范围<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;归集所有符合条件的组及子组到LT_R_SNAME<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_R_SNAME&nbsp;=&nbsp;I_SNAME.<br />
+&nbsp;&nbsp;IF&nbsp;LT_R_SNAME&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_SETNAME&nbsp;=&nbsp;LT_R_SNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_SETNODE&nbsp;BY&nbsp;SETNAME&nbsp;SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TMP&nbsp;=&nbsp;LT_SETNODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_TMP&nbsp;WHERE&nbsp;SETNAME&nbsp;NOT&nbsp;IN&nbsp;LT_R_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_TMP&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TMP&nbsp;INTO&nbsp;LW_SETNODE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-SIGN&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_R_SETNAME-LOW&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETNODE-SUBSETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_SETNAME&nbsp;TO&nbsp;LT_R_SETNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_SETNODE&nbsp;TRANSPORTING&nbsp;NO&nbsp;FIELDS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;SETNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETNODE-SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBSETNAME&nbsp;=&nbsp;LW_SETNODE-SUBSETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_SETNODE&nbsp;INDEX&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDDO.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取组下面的利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;LT_R_PRCTR.<br />
+&nbsp;&nbsp;SELECT&nbsp;SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALSIGN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALOPTION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALFROM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALTO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;SETLEAF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_SETLEAF<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;SETCLASS&nbsp;=&nbsp;'0106'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SUBCLASS&nbsp;=&nbsp;'1000'&nbsp;"成本控制范围<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SETNAME&nbsp;&nbsp;IN&nbsp;LT_R_SETNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SETLEAF&nbsp;INTO&nbsp;LW_SETLEAF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALSIGN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-OPTION&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALOPTION.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALFROM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_PRCTR-HIGH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SETLEAF-VALTO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_PRCTR&nbsp;TO&nbsp;LT_R_PRCTR.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;O_PRCTR&nbsp;=&nbsp;LT_R_PRCTR.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

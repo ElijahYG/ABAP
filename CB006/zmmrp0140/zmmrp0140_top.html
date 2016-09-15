@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0140_TOP</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0140_TOP</h2>
+<h3> Description: Include ZMMRP0140_TOP</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*---------------------------------------------------------------------*<br />
+*&nbsp;事件变量<br />
+*---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:ZMMRP0140_SCREEN,MSEG,MKPF,EKPO,EKKO,ZT001W,MCH1,AUSP,MCHB,ZMMRP0050_HEAD,ZMMRP0050_ITEM,ZMMRP0050_SCREEN,ZSDIF0050_HEAD,ZSDIF0050_ITEM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------------------------------------------------------------------------<br />
+*主屏幕选择用的结构<br />
+   </div>
+   <div class="code">
+DATA: OK_CODE TYPE SY-UCOMM.<br />
+<br />
+TYPES: BEGIN OF STRU_OPT_INFO,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS_OUT&nbsp;TYPE&nbsp;ZMMRP0140_SCREEN-WERKS_OUT,&nbsp;&nbsp;"发货工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT_OUT&nbsp;TYPE&nbsp;ZMMRP0140_SCREEN-LGORT_OUT,&nbsp;&nbsp;"发货地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS_IN&nbsp;&nbsp;TYPE&nbsp;ZMMRP0140_SCREEN-WERKS_IN,&nbsp;&nbsp;"收货工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT_IN&nbsp;&nbsp;TYPE&nbsp;ZMMRP0140_SCREEN-LGORT_IN,&nbsp;&nbsp;"收货地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YHDH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;NUMC13,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FHZG_IN&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-FHZG,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收货专柜<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERNR_IN	&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-PERNR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"收货人工号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BLDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-BLDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EKGRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD-EKGRP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"采购组<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR6,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"税码标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_OPT_INFO.<br />
+<br />
+DATA : WA_OPT_INTO TYPE STRU_OPT_INFO.<br />
+<br />
+DATA: G_CURSOR TYPE CHAR30.<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+"采购订单抬头<br />
+TYPES:BEGIN OF stru_ekko,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_EBELN&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;EKKO-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_LIFNR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;EKKO-LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_ekko.<br />
+<br />
+DATA: IT_TABLE_EKKO TYPE  STANDARD TABLE OF stru_ekko.<br />
+DATA: WA_TABLE_EKKO TYPE                    stru_ekko.<br />
+"商品凭证所用<br />
+TYPES:BEGIN OF stru_bseg,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_EBELN&nbsp;TYPE&nbsp;MSEG-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZEILE&nbsp;TYPE&nbsp;MSEG-ZEILE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MENGE&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MEINS&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZLYJSFS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,&nbsp;&nbsp;"联营结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_TEMPB&nbsp;TYPE&nbsp;MARA-TEMPB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZCKLSJ&nbsp;TYPE&nbsp;ZDE_ZCKLSJ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_WERKS&nbsp;TYPE&nbsp;CHAR4,&nbsp;&nbsp;"首次入库地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_SM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_bseg.<br />
+<br />
+DATA: IT_TABLE_BSEG  TYPE  STANDARD TABLE OF stru_bseg.<br />
+DATA: WA_TABLE_BSEG  TYPE                    stru_bseg.<br />
+<br />
+TYPES:BEGIN OF stru_bseg_temp,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CLABS&nbsp;TYPE&nbsp;MCHB-CLABS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_bseg_temp.<br />
+<br />
+DATA: IT_TABLE_BSEG_TEMP  TYPE  STANDARD TABLE OF stru_bseg_temp.<br />
+DATA: WA_TABLE_BSEG_TEMP  TYPE                    stru_bseg_temp.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*IT_TABLE_BSEG与MCHB关联查询后查询出来的结果用表<br />
+*TYPES:BEGIN&nbsp;OF&nbsp;stru_bseg_sel,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZEILE&nbsp;TYPE&nbsp;MSEG-ZEILE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MENGE&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_bseg_sel.<br />
+*<br />
+*DATA:IT_TABLE_BSEG_SEL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;&nbsp;stru_bseg_sel.<br />
+*DATA:WA_TABLE_BSEG_SEL&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stru_bseg_sel.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+"批次查询所用<br />
+TYPES:BEGIN OF stru_pc,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_pc.<br />
+<br />
+DATA: IT_TABLE_PC TYPE STANDARD TABLE OF stru_pc.<br />
+DATA: WA_TABLE_PC TYPE                   stru_pc.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*批次查询出来的内表<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF stru_pc_sel,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;&nbsp;TYPE&nbsp;&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;&nbsp;TYPE&nbsp;&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_ATNAM&nbsp;&nbsp;TYPE&nbsp;&nbsp;CABN-ATNAM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_ATINN&nbsp;&nbsp;TYPE&nbsp;&nbsp;AUSP-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_ATBEZ&nbsp;&nbsp;TYPE&nbsp;&nbsp;CABNT-ATBEZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_ATWRT&nbsp;&nbsp;TYPE&nbsp;&nbsp;AUSP-ATWRT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_ATFLV&nbsp;&nbsp;TYPE&nbsp;&nbsp;AUSP-ATFLV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_pc_sel.<br />
+<br />
+DATA:IT_TABLE_PC_SEL TYPE STANDARD TABLE OF stru_pc_sel.<br />
+DATA:WA_TABLE_PC_SEL TYPE                   stru_pc_sel.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*批次特性查询结果存放的结构<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF stru_pc_zl,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MARA-MATNR,&nbsp;&nbsp;&nbsp;"物料码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MCH1-CHARG,&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_EBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MSEG-EBELN,&nbsp;&nbsp;&nbsp;&nbsp;"采购订单编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MARA-MEINS,&nbsp;&nbsp;&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZBQMC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR30,&nbsp;&nbsp;&nbsp;"物料描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_SL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_SPDL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_SPDL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_PZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_PZ01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_ZT01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_ZT01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZFPH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR13,&nbsp;"分配号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZXSJGJLDW&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,&nbsp;&nbsp;"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZZQH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR7,&nbsp;&nbsp;"指圈号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZGG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR20,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZGJSCZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZCKLSJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_YHD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR30,&nbsp;"要货单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR4,&nbsp;&nbsp;"首次入库地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZLYJSFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,&nbsp;&nbsp;"联营结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CLABS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MCHB-CLABS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZSPBM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;char13,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MBLNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR10,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STYLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;LVC_T_STYL,&nbsp;&nbsp;"开发列编辑的选项<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHECKBOX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择行项目标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUMZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MCHB-CLABS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BZSL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MCHB-CLABS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_SM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_pc_zl.<br />
+<br />
+DATA: IT_TABLE_PC_ZL TYPE STANDARD TABLE OF stru_pc_zl.<br />
+DATA: WA_TABLE_PC_ZL TYPE                   stru_pc_zl.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*批次查询出来的数据整理后所用的内表,用于ALV显示<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF stru_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MARA-MATNR,&nbsp;&nbsp;&nbsp;"物料码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MCH1-CHARG,&nbsp;&nbsp;&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_EBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MSEG-EBELN,&nbsp;&nbsp;&nbsp;&nbsp;"采购订单编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MARA-MEINS,&nbsp;&nbsp;&nbsp;"基本单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZBQMC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR30,&nbsp;&nbsp;&nbsp;"物料描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_SL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_SPDL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_SPDL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_PZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_PZ01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_ZT01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_ZT01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZFPH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR13,&nbsp;"分配号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZXSJGJLDW&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,&nbsp;&nbsp;"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZZQH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR7,&nbsp;&nbsp;"指圈号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZGG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR20,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZGJSCZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZCKLSJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_YHD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR30,&nbsp;"要货单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR4,&nbsp;&nbsp;"首次入库地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZLYJSFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,&nbsp;&nbsp;"联营结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZSPBM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;char13,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STYLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;LVC_T_STYL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHECKBOX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择行项目标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUMZJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BZSL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_ZJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_SM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;CHAR3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_alv.<br />
+<br />
+DATA: IT_TABLE_ALV TYPE STANDARD TABLE OF stru_alv.<br />
+DATA: WA_TABLE_ALV TYPE                   stru_alv.<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*物料号所对应的中文描述。<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF stru_pc_text,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;MAKT-MATNR,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_pc_text.<br />
+DATA: IT_TABLE_PC_TEXT TYPE STANDARD TABLE OF stru_pc_text.<br />
+DATA: WA_TABLE_PC_TEXT TYPE                   stru_pc_text.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*批次所对应批次的信息，ALV用<br />
+*--------------------------------------------------------<br />
+   </div>
+   <div class="code">
+TYPES:BEGIN OF stru_mar_text,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;MAKT-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MEINS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;MARA-MEINS,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_MAKTX&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;MAKT-MAKTX,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_EXTWG&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_TEMPB&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;MARA-TEMPB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_mar_text.<br />
+DATA: IT_TABLE_mar_text TYPE STANDARD TABLE OF stru_mar_text.<br />
+DATA: WA_TABLE_mar_text TYPE                   stru_mar_text.<br />
+<br />
+DATA: GD_REPID LIKE SY-REPID,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*扫描分配号查询批次所对应批次的信息，ALV用<br />
+*--------------------------------------------------------<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MCHB_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-LGORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCHB-CLABS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MCHB_ALV.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYT_MCHB&nbsp;TYPE&nbsp;TY_MCHB_ALV&nbsp;OCCURS&nbsp;0,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB_ALV&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB_ALV&nbsp;&nbsp;TYPE&nbsp;TY_MCHB_ALV.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;LT_MCHB_ALV&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;TY_MCHB_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;LW_MCHB_ALV&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_MCHB_ALV.<br />
+<br />
+<br />
+&nbsp;DATA:&nbsp;PO_NUMBER&nbsp;&nbsp;LIKE&nbsp;&nbsp;BAPIMEPOHEADER-PO_NUMBER.<br />
+&nbsp;DATA:&nbsp;DELIV_NUMB&nbsp;&nbsp;&nbsp;TYPE&nbsp;BAPISHPDELIVNUMB-DELIV_NUMB.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------------------*<br />
+*程序实现功能修改后所有的两个结构<br />
+   </div>
+   <div class="code">
+&nbsp;TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_OUT_TAB1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,&nbsp;&nbsp;"物料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-CHARG,&nbsp;&nbsp;"批次号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,&nbsp;&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,&nbsp;&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BQTM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR13,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标签条码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR13,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"包码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TEMPB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-TEMPB,&nbsp;&nbsp;"商品码标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;7&nbsp;DECIMALS&nbsp;3,&nbsp;"克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;JS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DPKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;7&nbsp;DECIMALS&nbsp;3,&nbsp;"单品克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LABST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LABST,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;"商品类别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ,&nbsp;&nbsp;&nbsp;"品质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_ZT01&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_ZT01,&nbsp;"主题<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZQH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-ZQH&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"指圈号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-GG&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"规格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-CZ&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LSJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-LSJ&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FWERK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-FWERK,&nbsp;&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;JSFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR4,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MWSKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MWSKZ,&nbsp;"税码<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT_TAB1,<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_OUT_TAB2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MATNR,&nbsp;&nbsp;"物料号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-CHARG,&nbsp;&nbsp;"批次号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MENGE,&nbsp;&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MSEG-MEINS,&nbsp;&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BQTM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR13,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"标签条码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR13,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"包码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TEMPB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-TEMPB,&nbsp;&nbsp;"商品码标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;7&nbsp;DECIMALS&nbsp;3,&nbsp;"克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;JS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DPKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;7&nbsp;DECIMALS&nbsp;3,&nbsp;"单品克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LABST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;LABST,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;&nbsp;"商品类别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ01,&nbsp;"品种<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_PZ,&nbsp;&nbsp;&nbsp;"品质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_ZT01&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_MARA-EX_ZT01,&nbsp;"主题<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZQH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-ZQH&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"指圈号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-GG&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"规格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-CZ&nbsp;&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LSJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-LSJ&nbsp;&nbsp;,&nbsp;&nbsp;&nbsp;"零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FWERK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM-FWERK,&nbsp;&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MWSKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MWSKZ,&nbsp;"税码<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT_TAB2,<br />
+&nbsp;&nbsp;TYT_OUT_TAB1&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB1&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;TYT_OUT_TAB2&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_OUT_TAB2&nbsp;OCCURS&nbsp;0.<br />
+<br />
+DATA:   GT_OUT_TAB1    TYPE TYT_OUT_TAB1.<br />
+DATA:   GT_OUT_TAB2    TYPE TYT_OUT_TAB2.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------*<br />
+*要货单查询所有的结果<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;stru_yhdcx,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DOC_NUMBER&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0050_HEAD-DOC_NUMBER,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ITEM_NO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0050_ITEM-ITEM_NO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ORD_TYP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0050_HEAD-ORD_TYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0050_ITEM-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0050_ITEM-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ERDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0050_HEAD-ERDAT,<br />
+&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_yhdcx.<br />
+<br />
+&nbsp;&nbsp;DATA:IT_TABLE_YHDCX&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;stru_yhdcx.<br />
+&nbsp;&nbsp;DATA:WA_TABLE_YHDCX&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stru_yhdcx.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------*<br />
+*DATA:&nbsp;Z_ZFHNO(12)&nbsp;TYPE&nbsp;I.<br />
+<br />
+*-----------------------------------------------------------------*<br />
+*将批次对属物料的相关属性查询出来，存在相应的结构中。<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;stru_zmmex0010_mara,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z_MATNR&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MARA-MATNR&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_SPDL&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_SPDL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_PZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_PZ01,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_ZT01&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_ZT01,<br />
+&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_zmmex0010_mara.<br />
+<br />
+&nbsp;DATA:IT_TABLE_ZMMEX0010_MARA&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;stru_zmmex0010_mara.<br />
+&nbsp;DATA:WA_TABLE_ZMMEX0010_MARA&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stru_zmmex0010_mara.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------------------------<br />
+*DATA:&nbsp;it_fieldcat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;slis_t_fieldcat_alv,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义ALV显示字段的内表&nbsp;&nbsp;&nbsp;"定义类型<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wa_fieldcat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;&nbsp;it_fieldcat.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义ALV显示字段的工作区<br />
+*DATA:&nbsp;wa_layout&nbsp;TYPE&nbsp;&nbsp;slis_layout_alv.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义ALV显示格式的工作区，即布局<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+DATA: it_fieldcat      TYPE   LVC_T_FCAT,       "定义ALV显示字段的内表   "定义类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wa_fieldcat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;LVC_S_FCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"定义ALV显示字段的工作区<br />
+<br />
+DATA: wa_layout TYPE  LVC_S_LAYO.                   "定义ALV显示格式的工作区，即布局<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------------------------------------------------------------------------<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;DATA:&nbsp;G_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,&nbsp;"判断联营商品是否跨公司代销的开关<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR6,&nbsp;"根据结算方式，给税码赋值的变量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_CHECK_YHD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1.&nbsp;"判断要货单状态是否符合要求使用的字段，符合要求就过账。<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-------------------------------------------------------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;DATA:&nbsp;LS_EDIT&nbsp;TYPE&nbsp;LVC_S_STYL,&nbsp;"开发ALV编辑判断所用<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_EDIT&nbsp;TYPE&nbsp;LVC_T_STYL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA:&nbsp;&nbsp;L_NUM2&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;"删除是用到的检查变量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_CHECK&nbsp;TYPE&nbsp;C.<br />
+<br />
+&nbsp;&nbsp;&nbsp;DATA:&nbsp;&nbsp;L_EXTWG&nbsp;TYPE&nbsp;CHAR1.&nbsp;"判断商品大类是否一致的过账标识<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

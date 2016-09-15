@@ -1,0 +1,527 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0210_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0210_F01</h2>
+<h3> Description: ZFIRP0210_F01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_AUTH_CHECK<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_AUTH_CHECK .<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;WERKS_D,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_WERKS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_WERKS&nbsp;.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按地点检查权限<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"&nbsp;先按用户输入的地点查询<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'指定的地点不存在！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;REFRESH:&nbsp;GRT_WERKS&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AUTHORITY-CHECK&nbsp;OBJECT&nbsp;'M_MSEG_WMB'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'ACTVT'&nbsp;FIELD&nbsp;'03'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;'WERKS'&nbsp;FIELD&nbsp;LS_WERKS-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GRS_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GRS_WERKS-SIGN&nbsp;=&nbsp;'I'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GRS_WERKS-OPTION&nbsp;=&nbsp;'EQ'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GRS_WERKS-LOW&nbsp;=&nbsp;LS_WERKS-WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GRS_WERKS-HIGH&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GRS_WERKS&nbsp;TO&nbsp;GRT_WERKS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GRT_WERKS[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'您没有指定地点的权限！'&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_BILLING<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_MAIN .<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_BILLING&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;GT_BILLING[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有找到符合条件的销售发票！'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_JSRK&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_GET_ATTRIBUTE&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_PROCESS_DATA&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_ATTRIBUTE<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_ATTRIBUTE .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取得商品名称<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BILLING&nbsp;TO&nbsp;GT_MAKT&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MAKT&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;GT_MAKT&nbsp;COMPARING&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;GT_MAKT[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;MAKTX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_MAKT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MAKT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_MAKT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;GT_MAKT-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPRAS&nbsp;=&nbsp;SY-LANGU.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取得批次属性<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;LT_CHARG&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG&nbsp;.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_BILLING&nbsp;TO&nbsp;LT_CHARG&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARG&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_CHARG&nbsp;COMPARING&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_CHARG&nbsp;WHERE&nbsp;CHARG&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;LT_CHARG[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_BILLING<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_BILLING .<br />
+&nbsp;&nbsp;SELECT&nbsp;K~FKDAT,&nbsp;P~WERKS,&nbsp;P~VBELN,P~POSNR,P~MATNR,&nbsp;P~CHARG,&nbsp;K~EX_POSNUM,&nbsp;K~EX_POSTYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"非以旧换新小票的<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'20'&nbsp;AND&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI3&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'20'&nbsp;AND&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI3&nbsp;)&nbsp;END&nbsp;AS&nbsp;NORM_KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'20'&nbsp;AND&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~NETWR&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'20'&nbsp;AND&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~NETWR&nbsp;)&nbsp;END&nbsp;AS&nbsp;NORM_NETWR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'20'&nbsp;AND&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI2&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'20'&nbsp;AND&nbsp;K~EX_POSTYP&nbsp;&lt;&gt;&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI2&nbsp;)&nbsp;END&nbsp;AS&nbsp;NORM_WAVWR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"以旧换新小票的<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI6&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI6&nbsp;)&nbsp;END&nbsp;AS&nbsp;YJHX_KZWI6,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI1&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI1&nbsp;)&nbsp;END&nbsp;AS&nbsp;YJHX_KZWI1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI3&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI3&nbsp;)&nbsp;END&nbsp;AS&nbsp;YJHX_KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~NETWR&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~NETWR&nbsp;)&nbsp;END&nbsp;AS&nbsp;YJHX_NETWR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI2&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;(&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;K~EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)&nbsp;AND&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI2&nbsp;)&nbsp;END&nbsp;AS&nbsp;YJHX_WAVWR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"所有的<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI3&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~KZWI3&nbsp;)&nbsp;END&nbsp;AS&nbsp;SUM_KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~NETWR&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~NETWR&nbsp;)&nbsp;END&nbsp;AS&nbsp;SUM_NETWR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~ZXSJS&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~ZXSJS&nbsp;)&nbsp;END&nbsp;AS&nbsp;ZXSJS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;WHEN&nbsp;P~SHKZG&nbsp;=&nbsp;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~ZXSKZ&nbsp;)&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;P~SHKZG&nbsp;&lt;&gt;&nbsp;'X'&nbsp;THEN&nbsp;&nbsp;ABS(&nbsp;P~ZXSKZ&nbsp;)&nbsp;END&nbsp;AS&nbsp;ZXSKZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;@GT_BILLING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRK&nbsp;AS&nbsp;K<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;VBRP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~VBELN&nbsp;=&nbsp;K~VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;P~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;K~FKDAT&nbsp;IN&nbsp;@S_FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;K~BUKRS&nbsp;IN&nbsp;@S_BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;K~VBELN&nbsp;IN&nbsp;@S_VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;K~FKART&nbsp;=&nbsp;'FP'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;P~WERKS&nbsp;IN&nbsp;@GRT_WERKS&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_JSRK<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_GET_JSRK .<br />
+&nbsp;&nbsp;SELECT&nbsp;K~BKTXT&nbsp;AS&nbsp;EX_POSNUM,&nbsp;K~BUDAT&nbsp;AS&nbsp;FKDAT,&nbsp;K~MBLNR&nbsp;AS&nbsp;BMLNR,&nbsp;K~MJAHR&nbsp;AS&nbsp;MJAHR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~MENGE&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~MENGE&nbsp;END&nbsp;)&nbsp;AS&nbsp;MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~DMBTR&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~DMBTR&nbsp;END&nbsp;)&nbsp;AS&nbsp;DMBTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(&nbsp;CASE&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'H'&nbsp;THEN&nbsp;G~DMBTR&nbsp;*&nbsp;-1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;G~SHKZG&nbsp;=&nbsp;'S'&nbsp;THEN&nbsp;G~DMBTR&nbsp;END&nbsp;)&nbsp;AS&nbsp;DMBTR_REMAIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@GT_JSRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;K<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MSEG&nbsp;AS&nbsp;G&nbsp;ON&nbsp;&nbsp;G~MBLNR&nbsp;=&nbsp;K~MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~MJAHR&nbsp;=&nbsp;K~MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;K~BUDAT&nbsp;IN&nbsp;@S_FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~BUKRS&nbsp;IN&nbsp;@S_BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~WERKS&nbsp;IN&nbsp;@S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;G~BWART&nbsp;IN&nbsp;('Z56','Z57')<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;K~BKTXT,&nbsp;K~BUDAT,&nbsp;K~MBLNR,&nbsp;K~MJAHR&nbsp;.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PROCESS_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PROCESS_DATA .<br />
+<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;T001W-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT1&nbsp;TYPE&nbsp;ADRC-SORT1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_WERKS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_WERKS&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_TWEWT&nbsp;TYPE&nbsp;TWEWT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TWEWT&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_TWEWT&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_MAKT&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_MAKT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_JSCB&nbsp;TYPE&nbsp;VBRP-MWSBP&nbsp;.&nbsp;"&nbsp;旧饰成本<br />
+&nbsp;&nbsp;SELECT&nbsp;W~WERKS&nbsp;C~SORT1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W&nbsp;AS&nbsp;W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ADRC&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~ADDRNUMBER&nbsp;=&nbsp;W~ADRNR.<br />
+<br />
+&nbsp;&nbsp;"定义计算毛利率的宏<br />
+&nbsp;&nbsp;DEFINE&nbsp;CAL_PERCENTR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;&1&nbsp;销售收入，&2&nbsp;毛利额，&3&nbsp;毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&2&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&3&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&1&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&2&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&3&nbsp;=&nbsp;'99999.99'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&3&nbsp;=&nbsp;'-99999.99'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&3&nbsp;=&nbsp;&2&nbsp;/&nbsp;&1&nbsp;*&nbsp;100.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;END-OF-DEFINITION&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_TWEWT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;TWEWT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SPRAS&nbsp;=&nbsp;SY-LANGU&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_JSRK&nbsp;BY&nbsp;EX_POSNUM&nbsp;FKDAT&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_WERKS&nbsp;BY&nbsp;WERKS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_TWEWT&nbsp;BY&nbsp;EXTWG&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MAKT&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_BATCH&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_BILLING&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;FS_BILLING&gt;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;&lt;FS_BILLING&gt;-WERKS&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-NAME1&nbsp;=&nbsp;LS_WERKS-SORT1.&nbsp;&nbsp;&nbsp;&nbsp;"地点简称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_TWEWT&nbsp;INTO&nbsp;LS_TWEWT&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;&lt;FS_BILLING&gt;-EXTWG&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-EWBEZ&nbsp;=&nbsp;LS_TWEWT-EWBEZ&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;"商品大类名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_MAKT&nbsp;INTO&nbsp;LS_MAKT&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_BILLING&gt;-MATNR&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-MAKTX&nbsp;=&nbsp;LS_MAKT-MAKTX&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;"商品名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_BATCH&nbsp;INTO&nbsp;LS_BATCH&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS_BILLING&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;&lt;FS_BILLING&gt;-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-ZBQMC&nbsp;=&nbsp;LS_BATCH-ZBQMC&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;"批次标签名称<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SFLY&nbsp;=&nbsp;LS_BATCH-SFLY&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"是否联营<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-ZLYJSFS&nbsp;=&nbsp;LS_BATCH-ZLYJSFS.&nbsp;"结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-FKDAT&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"销售日期<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-WERKS&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"地点<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001W-NAME1&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"地点名称<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-VBELN&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;POSNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-POSNR&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;EX_POSNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-EX_POSNUM,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;EX_POSTYP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-EX_POSTYP,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MATNR&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-CHARG&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"商品大类<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EWBEZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TWEWT-EWBEZ&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"商品大类名称<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;NORM_KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"非旧新-销售(含税)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;NORM_NETWR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-NETWR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"非旧新-销售(不含税)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;NORM_WAVWR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MWSBP&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"非旧新-商品成本<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NORM_GPVAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-NETWR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"非旧新-毛利额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NORM_GPPER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KONP-KBETR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"非旧新-毛利率<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;YJHX_KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI6&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-原售价（含税）<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;YJHX_KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-现售价（含税）<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;YJHX_KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-销售(含税，扣点后)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;YJHX_NETWR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-NETWR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-销售(不含税)<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;YJHX_WAVWR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MWSBP&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-商品成本<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YJHX_REDUCE_RATE&nbsp;TYPE&nbsp;KONP-KBETR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-抵值比例<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YJHX_WAVWR_JS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MWSBP&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧饰入库成本<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YJHX_WAVWR_FINAL&nbsp;TYPE&nbsp;VBRP-MWSBP&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-最终成本<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YJHX_GPVAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-NETWR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-毛利额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YJHX_GPPER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KONP-KBETR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"旧新-毛利率<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;SUM_KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"合计-销售（含税）<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;√&nbsp;SUM_NETWR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-NETWR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"合计-消息（不含税）<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM_WAVWR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MWSBP&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"合计-销售成本<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM_GPVAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-NETWR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"合计-毛利额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM_GPPER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KONP-KBETR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;"合计-毛利率<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;FS_BILLING&gt;-EX_POSTYP&nbsp;&lt;&gt;&nbsp;'20'&nbsp;AND&nbsp;&lt;FS_BILLING&gt;-EX_POSTYP&nbsp;&lt;&gt;&nbsp;'21'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;非以旧换新销售<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-NORM_GPVAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-NORM_NETWR&nbsp;-&nbsp;&lt;FS_BILLING&gt;-NORM_WAVWR&nbsp;.&nbsp;"&nbsp;非旧新-毛利金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAL_PERCENTR:&nbsp;&lt;FS_BILLING&gt;-NORM_NETWR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-NORM_GPVAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-NORM_GPPER&nbsp;.&nbsp;"&nbsp;非旧新-毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_WAVWR&nbsp;=&nbsp;&lt;FS_BILLING&gt;-NORM_WAVWR&nbsp;.&nbsp;"合计&nbsp;-&nbsp;销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_GPVAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-NORM_GPVAL&nbsp;.&nbsp;"合计-毛利额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_GPPER&nbsp;=&nbsp;&lt;FS_BILLING&gt;-NORM_GPPER&nbsp;.&nbsp;"合计-毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;以旧换新<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LV_JSCB&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_JSCB&nbsp;=&nbsp;0&nbsp;.&nbsp;"&nbsp;如果商品销售成本为0，就不用分摊旧饰成本了<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_JSRK&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;FS_JSRK&gt;)&nbsp;WITH&nbsp;KEY&nbsp;EX_POSNUM&nbsp;=&nbsp;&lt;FS_BILLING&gt;-EX_POSNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_BILLING&gt;-FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_JSCB&nbsp;=&nbsp;0&nbsp;.&nbsp;"&nbsp;没有找到对应旧饰入库的单据，也就不用分摊旧饰成本了<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;FS_BILLING&gt;-YJHX_KZWI6&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_JSCB&nbsp;=&nbsp;0&nbsp;.&nbsp;&nbsp;&nbsp;"&nbsp;如果原售价为0，那么分摊旧饰成本也为0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;FS_BILLING&gt;-YJHX_KZWI1&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_JSCB&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR&nbsp;.&nbsp;"&nbsp;如果原售价不为0，现售价为0，那么抵值比例是100%，分摊旧饰成本等于商品成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;旧饰分摊成本&nbsp;=&nbsp;（（原售价&nbsp;-&nbsp;现售价）&nbsp;/&nbsp;原售价&nbsp;&nbsp;）&nbsp;*&nbsp;商品销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_JSCB&nbsp;=&nbsp;(&nbsp;ABS(&nbsp;&lt;FS_BILLING&gt;-YJHX_KZWI6&nbsp;)&nbsp;-&nbsp;ABS(&nbsp;&lt;FS_BILLING&gt;-YJHX_KZWI1&nbsp;)&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;ABS(&nbsp;&lt;FS_BILLING&gt;-YJHX_KZWI6&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果计算出来的旧饰分摊成本&nbsp;大于&nbsp;旧饰入库单据中的剩余未分摊成本，则旧饰分摊成本&nbsp;=&nbsp;剩余未分摊成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ABS(&nbsp;LV_JSCB&nbsp;)&nbsp;&gt;&nbsp;ABS(&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_JSCB&nbsp;=&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;更新旧饰入库单据中的剩余未分摊成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;=&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;-&nbsp;LV_JSCB&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_JS&nbsp;=&nbsp;LV_JSCB&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_FINAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR&nbsp;-&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_JS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_GPVAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_NETWR&nbsp;-&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_FINAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAL_PERCENTR:&nbsp;&lt;FS_BILLING&gt;-YJHX_NETWR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_GPVAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_GPPER&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_WAVWR&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_FINAL&nbsp;.&nbsp;"合计&nbsp;-&nbsp;销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_GPVAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_GPVAL&nbsp;.&nbsp;"合计-毛利额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_GPPER&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_GPPER&nbsp;.&nbsp;"合计-毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GS_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_ALV&nbsp;=&nbsp;&lt;FS_BILLING&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;GS_ALV-VBELN,&nbsp;GS_ALV-POSNR,&nbsp;GS_ALV-EX_POSNUM,&nbsp;GS_ALV-EX_POSTYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_ALV-MATNR,&nbsp;GS_ALV-CHARG,&nbsp;GS_ALV-MAKTX,&nbsp;GS_ALV-SFLY,&nbsp;GS_ALV-ZBQMC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_ALV-NORM_GPPER,&nbsp;GS_ALV-YJHX_GPPER,GS_ALV-SUM_GPPER&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;GS_ALV&nbsp;INTO&nbsp;GT_ALV&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ALV&nbsp;BY&nbsp;FKDAT&nbsp;WERKS&nbsp;EXTWG&nbsp;.<br />
+&nbsp;&nbsp;"&nbsp;如果旧饰入库凭证中的金额没有分摊完（四舍五入的原因），将未分摊完的金额继续分摊到Billing中<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_JSRK&nbsp;ASSIGNING&nbsp;&lt;FS_JSRK&gt;&nbsp;WHERE&nbsp;DMBTR_REMAIN&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_BILLING&nbsp;ASSIGNING&nbsp;&lt;FS_BILLING&gt;&nbsp;WHERE&nbsp;EX_POSNUM&nbsp;=&nbsp;&lt;FS_JSRK&gt;-EX_POSNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&lt;FS_JSRK&gt;-FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;(&nbsp;EX_POSTYP&nbsp;=&nbsp;'20'&nbsp;OR&nbsp;EX_POSTYP&nbsp;=&nbsp;'21'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;YJHX_WAVWR&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;YJHX_WAVWR_FINAL&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA(LV_WAVWR_REMAIN)&nbsp;=&nbsp;ABS(&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR&nbsp;)&nbsp;-&nbsp;&nbsp;ABS(&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_JS&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LV_WAVWR_REMAIN&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ABS(&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;)&nbsp;&lt;=&nbsp;LV_WAVWR_REMAIN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果旧饰入库剩余奖金额小于等于该行发票成本未分摊金额，则调整金额等于旧饰入库剩余金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATA(LV_WAVWR_ADJUST)&nbsp;=&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果旧饰入库剩余奖金额大于该行发票成本未分摊金额，则调整金额等于该行发票成本未分摊金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;&lt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_WAVWR_ADJUST&nbsp;=&nbsp;LV_WAVWR_REMAIN&nbsp;*&nbsp;-1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_WAVWR_ADJUST&nbsp;=&nbsp;LV_WAVWR_REMAIN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;更新该行发票的旧饰成本、毛利额、毛利率等<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_JS&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_JS&nbsp;+&nbsp;LV_WAVWR_ADJUST&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_FINAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR&nbsp;-&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_JS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_GPVAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_NETWR&nbsp;-&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_FINAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAL_PERCENTR:&nbsp;&lt;FS_BILLING&gt;-YJHX_NETWR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_GPVAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-YJHX_GPPER&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_WAVWR&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_WAVWR_FINAL&nbsp;.&nbsp;"合计&nbsp;-&nbsp;销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_GPVAL&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_GPVAL&nbsp;.&nbsp;"合计-毛利额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_BILLING&gt;-SUM_GPPER&nbsp;=&nbsp;&lt;FS_BILLING&gt;-YJHX_GPPER&nbsp;.&nbsp;"合计-毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"将继续分摊的金额累加到ALV中<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_ALV&nbsp;ASSIGNING&nbsp;FIELD-SYMBOL(&lt;FS_ALV&gt;)&nbsp;WITH&nbsp;KEY&nbsp;FKDAT&nbsp;=&nbsp;&lt;FS_BILLING&gt;-FKDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;&lt;FS_BILLING&gt;-WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;=&nbsp;&lt;FS_BILLING&gt;-EXTWG&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-YJHX_WAVWR_JS&nbsp;=&nbsp;&lt;FS_ALV&gt;-YJHX_WAVWR_JS&nbsp;+&nbsp;LV_WAVWR_ADJUST&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-YJHX_WAVWR_FINAL&nbsp;=&nbsp;&lt;FS_ALV&gt;-YJHX_WAVWR&nbsp;-&nbsp;&lt;FS_ALV&gt;-YJHX_WAVWR_JS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-YJHX_GPVAL&nbsp;=&nbsp;&lt;FS_ALV&gt;-YJHX_NETWR&nbsp;-&nbsp;&lt;FS_ALV&gt;-YJHX_WAVWR_FINAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-SUM_WAVWR&nbsp;=&nbsp;&lt;FS_ALV&gt;-SUM_WAVWR&nbsp;+&nbsp;&nbsp;LV_WAVWR_ADJUST.&nbsp;"合计&nbsp;-&nbsp;销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-SUM_GPVAL&nbsp;=&nbsp;&lt;FS_ALV&gt;-SUM_NETWR&nbsp;-&nbsp;&nbsp;&lt;FS_ALV&gt;-SUM_WAVWR&nbsp;.&nbsp;"合计-毛利额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;更新旧饰入库单据中的未分摊金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;=&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;-&nbsp;LV_WAVWR_ADJUST&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;FS_JSRK&gt;-DMBTR_REMAIN&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.&nbsp;"&nbsp;如果旧饰入库单据中的未分摊金额为0，则退出该循环，继续下一张未分摊完的就是入库单据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;"&nbsp;计算各种比率<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV&nbsp;ASSIGNING&nbsp;&lt;FS_ALV&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;非以旧换新-毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CAL_PERCENTR:&nbsp;&lt;FS_ALV&gt;-NORM_NETWR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-NORM_GPVAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-NORM_GPPER&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;以旧换新-毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CAL_PERCENTR:&nbsp;&lt;FS_ALV&gt;-YJHX_NETWR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-YJHX_GPVAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-YJHX_GPPER&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;合计-毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CAL_PERCENTR:&nbsp;&lt;FS_ALV&gt;-SUM_NETWR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-SUM_GPVAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS_ALV&gt;-SUM_GPPER&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_ALV&nbsp;BY&nbsp;FKDAT&nbsp;WERKS&nbsp;EXTWG&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_BILLING&nbsp;BY&nbsp;FKDAT&nbsp;WERKS&nbsp;VBELN&nbsp;POSNR&nbsp;.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,853 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_BATCH_CHECK</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMM_BATCH_CHECK</h2>
+<h3> Description: 检查批次特性</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMM_BATCH_CHECK.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IM_IS_QC) TYPE  CHAR1 DEFAULT 'X'<br />
+*"  TABLES<br />
+*"      IT_BATCH STRUCTURE  ZQC_BATCH<br />
+*"      ET_BATCH_RIGHT STRUCTURE  ZQC_BATCH<br />
+*"      ET_BATCH_ERROR STRUCTURE  ZQC_BATCH<br />
+*"----------------------------------------------------------------------<br />
+* IM_IS_QC = 'X' 是指期初批次主数据导入的检查；<br />
+* IM_IS_QC = ''  是上线后定期批次检查，会结合库存、价格等进行检查<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zmm_batch_check.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XCHPF&nbsp;&nbsp;TYPE&nbsp;MARA-XCHPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEMPB&nbsp;&nbsp;TYPE&nbsp;MARA-TEMPB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MTART&nbsp;&nbsp;TYPE&nbsp;MARA-MTART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;TYPE&nbsp;MARA-EXTWG,&nbsp;"大类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;TYPE&nbsp;MARA-RAUBE,&nbsp;"小类<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;不要使用款式上的贵金属材质，因为有些杂款上不会维护该字段，而应该使用批次特性上的ZGJSCZ<br />
+   </div>
+   <div class="codeComment">
+*          EX_GJS TYPE ZMMEX0010_MARA-EX_GJS, "贵金属材质<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_MATNR&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR&nbsp;LIKE&nbsp;LS_MATNR.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_BATCH&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_BATCH&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_MBEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MBEW-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTAR&nbsp;TYPE&nbsp;MBEW-BWTAR,<br />
+   </div>
+   <div class="codeComment">
+*          BWKEY TYPE MBEW-BWKEY,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LBKUM&nbsp;TYPE&nbsp;MBEW-LBKUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SALK3&nbsp;TYPE&nbsp;MBEW-SALK3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_MBEW&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_MBEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_MBEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MBEW_TEMP&nbsp;LIKE&nbsp;LT_MBEW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MOD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;DECIMALS&nbsp;4.<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIFNR&nbsp;TYPE&nbsp;LFA1-LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_LIFNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_LIFNR&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_LIFNR.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ZXQZSJB&nbsp;TYPE&nbsp;ZMMEX0010_ZSJD&nbsp;,&nbsp;&nbsp;"镶嵌主石级别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZGJSCZ&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_GJS&nbsp;,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZXSKGFD&nbsp;TYPE&nbsp;ZMMEX0010_JJJB&nbsp;,&nbsp;&nbsp;"销售克工费档<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZLYJSFS&nbsp;TYPE&nbsp;ZMMDG0010_JSFS&nbsp;,&nbsp;&nbsp;"联营结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZGJSYS&nbsp;&nbsp;TYPE&nbsp;ZMMEX0010_GJSYS&nbsp;,&nbsp;&nbsp;"贵金属颜色<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZXQZSLX&nbsp;TYPE&nbsp;ZMMEX0010_BSCZ&nbsp;,&nbsp;&nbsp;"镶嵌主石类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZXQZSYS&nbsp;TYPE&nbsp;ZMMEX0010_ZSYS&nbsp;,&nbsp;&nbsp;"镶嵌主石颜色<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZXQZSQG&nbsp;TYPE&nbsp;ZMMEX0010_ZSQG&nbsp;,&nbsp;&nbsp;"镶嵌主石切工<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001W&nbsp;.&nbsp;&nbsp;"初次入库地点<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_ZXQZSJB&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_ZSJD&nbsp;,&nbsp;&nbsp;"镶嵌主石级别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZGJSCZ&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_GJS&nbsp;,&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZXSKGFD&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_JJJB&nbsp;,&nbsp;&nbsp;"销售克工费档<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZLYJSFS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMDG0010_JSFS&nbsp;,&nbsp;&nbsp;"联营结算方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZGJSYS&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_GJSYS&nbsp;,&nbsp;&nbsp;"贵金属颜色<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZXQZSLX&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_BSCZ&nbsp;,&nbsp;&nbsp;"镶嵌主石类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZXQZSYS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_ZSYS&nbsp;,&nbsp;&nbsp;"镶嵌主石颜色<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZXQZSQG&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMMEX0010_ZSQG&nbsp;,&nbsp;&nbsp;"镶嵌主石切工<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;T001W&nbsp;.&nbsp;&nbsp;"初次入库地点<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ZB00&nbsp;TYPE&nbsp;A909,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZB00&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ZB00.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ZTJJ&nbsp;TYPE&nbsp;A908,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZTJJ&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ZTJJ.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_ZKSG&nbsp;TYPE&nbsp;A911,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZKSG&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ZKSG.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_BATCH[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;ET_BATCH_RIGHT,&nbsp;ET_BATCH_ERROR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;取得商品主数据<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_BATCH[]&nbsp;TO&nbsp;LT_MATNR[]&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MATNR&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MATNR&nbsp;COMPARING&nbsp;MATNR&nbsp;.<br />
+&nbsp;&nbsp;SELECT&nbsp;A~MATNR&nbsp;A~MEINS&nbsp;A~XCHPF&nbsp;A~TEMPB&nbsp;A~MTART&nbsp;A~EXTWG&nbsp;A~RAUBE<br />
+   </div>
+   <div class="codeComment">
+*         Z~EX_GJS<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;AS&nbsp;A<br />
+   </div>
+   <div class="codeComment">
+*    INNER JOIN ZMMEX0010_MARA AS Z ON Z~MATNR = A~MATNR<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;=&nbsp;LT_MATNR-MATNR&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MATNR&nbsp;BY&nbsp;MATNR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"镶嵌主石级别<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZXQZSJB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_ZSJD&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZXQZSJB&nbsp;BY&nbsp;EX_ZSJD&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"贵金属材质<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_GJS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZGJSCZ&nbsp;BY&nbsp;EX_GJS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"销售克工费档<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_JJJB&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZXSKGFD&nbsp;BY&nbsp;EX_JJJB&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"联营结算方式<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZLYJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMDG0010_JSFS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZLYJSFS&nbsp;BY&nbsp;BM&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"贵金属颜色<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZGJSYS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_GJSYS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZGJSYS&nbsp;BY&nbsp;EX_GJSYS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"镶嵌主石类型<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZXQZSLX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_BSCZ&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZXQZSLX&nbsp;BY&nbsp;EX_BSCZ&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"镶嵌主石颜色<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZXQZSYS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_ZSYS&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZXQZSYS&nbsp;BY&nbsp;EX_ZSYS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"镶嵌主石切工<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_ZXQZSQG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_ZSQG&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ZXQZSQG&nbsp;BY&nbsp;EX_ZSQG&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"初次入库地点<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_WERKS&nbsp;BY&nbsp;WERKS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"取得供应商<br />
+&nbsp;&nbsp;SELECT&nbsp;LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;LFA1&nbsp;.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_LIFNR&nbsp;BY&nbsp;LIFNR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;如果不是期初导入批次检查（IM_IS_QC&nbsp;=&nbsp;''，则还要取得以下数据）<br />
+&nbsp;&nbsp;IF&nbsp;IM_IS_QC&nbsp;=&nbsp;''&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*    SELECT MATNR BWTAR BWKEY LBKUM<br />
+*      INTO TABLE LT_MBEW_TEMP<br />
+*      FROM MBEW<br />
+*      FOR ALL ENTRIES IN LT_MATNR<br />
+*      WHERE MATNR = LT_MATNR-MATNR<br />
+*        AND LBKUM &lt;&gt; 0 .<br />
+*    IF SY-SUBRC = 0 .<br />
+*      LOOP AT LT_MBEW_TEMP INTO LS_MBEW .<br />
+*        LS_MBEW-BWKEY = '' .<br />
+*        COLLECT LS_MBEW INTO LT_MBEW .<br />
+*      ENDLOOP.<br />
+*    ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取库存<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;BWTAR&nbsp;SUM(&nbsp;LBKUM&nbsp;)&nbsp;AS&nbsp;LBKUM&nbsp;SUM(&nbsp;SALK3&nbsp;)&nbsp;AS&nbsp;SALK3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LBKUM&nbsp;&lt;&gt;&nbsp;0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;MATNR&nbsp;BWTAR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_MBEW&nbsp;BY&nbsp;MATNR&nbsp;BWTAR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取ZB00销售基础金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZB00<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A909<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KSCHL&nbsp;=&nbsp;'ZB00'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_ZB00&nbsp;BY&nbsp;EXTWG&nbsp;RAUBE&nbsp;EX_GJS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取ZTJJ投资克基础价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZTJJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A908<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KSCHL&nbsp;=&nbsp;'ZTJJ'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_ZTJJ&nbsp;BY&nbsp;EXTWG&nbsp;RAUBE&nbsp;EX_GJS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取ZKSG&nbsp;销售克工费(元/G)和ZKG1&nbsp;克工费档提价率(%)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZKSG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A911<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;KAPPL&nbsp;=&nbsp;'V'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KSCHL&nbsp;IN&nbsp;(&nbsp;'ZKSG',&nbsp;'ZKG1'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATAB&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;DATBI&nbsp;&gt;=&nbsp;SY-DATUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_ZKSG&nbsp;BY&nbsp;KSCHL&nbsp;ZXSKGFD&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;检查每一条批次信息<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_BATCH&nbsp;INTO&nbsp;LS_BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LS_BATCH-ERR_MSG,LS_BATCH-CHKFLG,LS_BATCH-NEED_IMPORT&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 基本检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查商品是否存在，且允许批次管理<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;LS_LAST_MATNR保持上一条批次的款式属性，如果这条批次和上一条批次的款式相同，就不同再读取了，提高效率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-MATNR&nbsp;&lt;&gt;&nbsp;LS_BATCH-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MATNR&nbsp;INTO&nbsp;LS_LAST_MATNR&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_BATCH-MATNR&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'商品在系统中不存在；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_BATCH&nbsp;TO&nbsp;ET_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LS_LAST_MATNR-XCHPF&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'商品不允许批次管理；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_BATCH&nbsp;TO&nbsp;ET_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTINUE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+* 必须项和相关性检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;1.&nbsp;&nbsp;&nbsp;商品条码必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZSPTM&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'商品条码ZSPTM必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;2.&nbsp;&nbsp;&nbsp;供应商代码必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZGYSDM&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-MTART&nbsp;&lt;&gt;&nbsp;'Z008'&nbsp;.&nbsp;"&nbsp;Z008是虚拟物料<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'供应商代码ZGYSDM必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LS_BATCH-ZGYSDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LS_BATCH-ZGYSDM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_LIFNR&nbsp;INTO&nbsp;LS_LIFNR&nbsp;WITH&nbsp;KEY&nbsp;LIFNR&nbsp;=&nbsp;LS_BATCH-ZGYSDM&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'供应商代码在系统中不存在；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;3.&nbsp;&nbsp;&nbsp;标签名称必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZBQMC&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'标签名称ZBQMC必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;4.&nbsp;&nbsp;&nbsp;初次入库地点必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-WERKS&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'初次入库地点WERKS必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;5.&nbsp;&nbsp;&nbsp;贵金属材质必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-MTART&nbsp;=&nbsp;'Z002'&nbsp;AND&nbsp;LS_BATCH-ZGJSCZ&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'贵金属材质ZGJSCZ必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;6.&nbsp;&nbsp;&nbsp;结算方式必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'结算方式ZLYJSFS必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;7.&nbsp;&nbsp;&nbsp;销售价格计算单位必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'销售价格计算单位ZXSJGJLDW必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当销售价格计算单位为G，单品金重必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJZ&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJZ&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'销售价格计算单位为G，单件克重ZJZ必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当销售价格计算单位为G，贵金属材质必须有值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;LS_BATCH-ZGJSCZ&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'销售价格计算单位为G，贵金属材质必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;商品单位为G，单件克重必须有值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJZ&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJZ&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'商品单位为G，单件克重ZJZ必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当销售价格计算单位为G，销售克工费档必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;LS_BATCH-ZXSKGFD&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'销售价格计算单位为G，销售克工费档ZXSKGFD必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当销售价格计算单位为PC，参考零售价必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'PC'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZCKLSJ&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZCKLSJ&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当销售价格计算单位为PC，参考零售价ZCKLSJ必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*    " 当结算方式为Z05、销售价格计算单位为G、采购数量单位为G，参考零售价必须有值；<br />
+*    IF LS_BATCH-ZLYJSFS = 'Z05' AND LS_BATCH-ZXSJGJLDW = 'G' AND<br />
+*        LS_LAST_MATNR-MEINS = 'G' AND ( LS_BATCH-ZCKLSJ IS INITIAL OR LS_BATCH-ZCKLSJ = 0 ) .<br />
+*      LS_BATCH-ERR_MSG = LS_BATCH-ERR_MSG && '当结算方式为Z05、销售价格计算单位为G、采购数量单位为G，参考零售价ZCKLSJ必须有值；' .<br />
+*    ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z04、销售价格计算单位为G、采购数量单位为G，结算克金价必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z04'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJSJJ&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJSJJ&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z04、销售价格计算单位为G、采购数量单位为G，结算克金价ZJSJJ必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z04、销售价格计算单位为G、采购数量单位为G，结算克工费必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z04'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJSKGF&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJSKGF&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z04、销售价格计算单位为G、采购数量单位为G，结算克工费ZJSKGF必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z11、销售价格计算单位为G、采购数量单位为G，结算克工费必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z11'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJSKGF&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJSKGF&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z11、销售价格计算单位为G、采购数量单位为G，结算克工费ZJSKGF必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z05、销售价格计算单位为G、采购数量单位为G，结算克倒扣值必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z05'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJSDKZ&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJSDKZ&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z05、销售价格计算单位为G、采购数量单位为G，结算克倒扣值ZJSDKZ必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z07、销售价格计算单位为PC、采购数量单位为PC，结算扣率必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z07'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'PC'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'ST'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJSKL&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJSKL&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z07、销售价格计算单位为PC、采购数量单位为PC，结算扣率ZJSKL必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z10、销售价格计算单位为G、采购数量单位为G，结算扣率必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z10'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJSKL&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJSKL&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z10、销售价格计算单位为G、采购数量单位为G，结算扣率ZJSKL必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z12、销售价格计算单位为G、采购数量单位为G，结算扣率必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z12'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZJSKL&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZJSKL&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z12、销售价格计算单位为G、采购数量单位为G，结算扣率ZJSKL必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;当结算方式为Z06、销售价格计算单位为PC、采购数量单位为PC，联营结算一口价必须有值；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;=&nbsp;'Z06'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'PC'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'ST'&nbsp;AND&nbsp;(&nbsp;LS_BATCH-ZLYJSYKJ&nbsp;IS&nbsp;INITIAL&nbsp;OR&nbsp;LS_BATCH-ZLYJSYKJ&nbsp;=&nbsp;0&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'当结算方式为Z06、销售价格计算单位为PC、采购数量单位为PC，联营结算一口价ZLYJSYKJ必须有值；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;指圈号应该&lt;35；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZZQH&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;LS_BATCH-ZZQH&nbsp;&gt;&nbsp;35&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'指圈号ZZQH应&lt;35；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"圈口号&gt;=35；<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZQKH&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;LS_BATCH-ZQKH&nbsp;&lt;&nbsp;35&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'圈口号ZQKH应&gt;=35；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;规格以cm结尾<br />
+   </div>
+   <div class="codeComment">
+*    IF LS_BATCH-ZGG IS NOT INITIAL AND LS_BATCH-ZGG NP '*CM' .<br />
+*      LS_BATCH-ERR_MSG = LS_BATCH-ERR_MSG && '规格ZGG应以cm结尾；' .<br />
+*    ENDIF.<br />
+<br />
+* 特性值内容检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;"检查联营结算方式的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZLYJSFS&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZLYJSFS&nbsp;INTO&nbsp;LS_ZLYJSFS&nbsp;WITH&nbsp;KEY&nbsp;BM&nbsp;=&nbsp;LS_BATCH-ZLYJSFS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'联营结算方式'&nbsp;&&&nbsp;LS_BATCH-ZLYJSFS&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌主石类型的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQZSLX&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSLX&nbsp;INTO&nbsp;LS_ZXQZSLX&nbsp;WITH&nbsp;KEY&nbsp;EX_BSCZ&nbsp;=&nbsp;LS_BATCH-ZXQZSLX&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌主石类型'&nbsp;&&&nbsp;LS_BATCH-ZXQZSLX&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石类型1的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSLX1&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSLX&nbsp;INTO&nbsp;LS_ZXQZSLX&nbsp;WITH&nbsp;KEY&nbsp;EX_BSCZ&nbsp;=&nbsp;LS_BATCH-ZXQPSLX1&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石类型1'&nbsp;&&&nbsp;LS_BATCH-ZXQPSLX1&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石类型2的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSLX2&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSLX&nbsp;INTO&nbsp;LS_ZXQZSLX&nbsp;WITH&nbsp;KEY&nbsp;EX_BSCZ&nbsp;=&nbsp;LS_BATCH-ZXQPSLX2&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石类型2'&nbsp;&&&nbsp;LS_BATCH-ZXQPSLX2&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石类型3的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSLX3&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSLX&nbsp;INTO&nbsp;LS_ZXQZSLX&nbsp;WITH&nbsp;KEY&nbsp;EX_BSCZ&nbsp;=&nbsp;LS_BATCH-ZXQPSLX3&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石类型3'&nbsp;&&&nbsp;LS_BATCH-ZXQPSLX3&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石类型4的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSLX4&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSLX&nbsp;INTO&nbsp;LS_ZXQZSLX&nbsp;WITH&nbsp;KEY&nbsp;EX_BSCZ&nbsp;=&nbsp;LS_BATCH-ZXQPSLX4&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石类型4'&nbsp;&&&nbsp;LS_BATCH-ZXQPSLX4&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查贵金属材质的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZGJSCZ&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZGJSCZ&nbsp;INTO&nbsp;LS_ZGJSCZ&nbsp;WITH&nbsp;KEY&nbsp;EX_GJS&nbsp;=&nbsp;LS_BATCH-ZGJSCZ&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'贵金属材质'&nbsp;&&&nbsp;LS_BATCH-ZGJSCZ&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查贵金属颜色&nbsp;的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZGJSYS&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZGJSYS&nbsp;INTO&nbsp;LS_ZGJSYS&nbsp;WITH&nbsp;KEY&nbsp;EX_GJSYS&nbsp;=&nbsp;LS_BATCH-ZGJSYS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'贵金属颜色'&nbsp;&&&nbsp;LS_BATCH-ZGJSYS&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查销售克工费档的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSKGFD&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXSKGFD&nbsp;INTO&nbsp;LS_ZXSKGFD&nbsp;WITH&nbsp;KEY&nbsp;EX_JJJB&nbsp;=&nbsp;LS_BATCH-ZXSKGFD&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'销售克工费档'&nbsp;&&&nbsp;LS_BATCH-ZXSKGFD&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌主石级别的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQZSJB&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSJB&nbsp;INTO&nbsp;LS_ZXQZSJB&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSJD&nbsp;=&nbsp;LS_BATCH-ZXQZSJB&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌主石级别'&nbsp;&&&nbsp;LS_BATCH-ZXQZSJB&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石级别1的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSJB1&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSJB&nbsp;INTO&nbsp;LS_ZXQZSJB&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSJD&nbsp;=&nbsp;LS_BATCH-ZXQPSJB1&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石级别1'&nbsp;&&&nbsp;LS_BATCH-ZXQPSJB1&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石级别2的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSJB2&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSJB&nbsp;INTO&nbsp;LS_ZXQZSJB&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSJD&nbsp;=&nbsp;LS_BATCH-ZXQPSJB2&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石级别2'&nbsp;&&&nbsp;LS_BATCH-ZXQPSJB2&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石级别3的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSJB3&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSJB&nbsp;INTO&nbsp;LS_ZXQZSJB&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSJD&nbsp;=&nbsp;LS_BATCH-ZXQPSJB3&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石级别3'&nbsp;&&&nbsp;LS_BATCH-ZXQPSJB3&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石级别4的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSJB4&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSJB&nbsp;INTO&nbsp;LS_ZXQZSJB&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSJD&nbsp;=&nbsp;LS_BATCH-ZXQPSJB4&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石级别4'&nbsp;&&&nbsp;LS_BATCH-ZXQPSJB4&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌主石切工的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQZSQG&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSQG&nbsp;INTO&nbsp;LS_ZXQZSQG&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSQG&nbsp;=&nbsp;LS_BATCH-ZXQZSQG&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌主石切工'&nbsp;&&&nbsp;LS_BATCH-ZXQZSQG&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌主石颜色的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQZSYS&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSYS&nbsp;INTO&nbsp;LS_ZXQZSYS&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSYS&nbsp;=&nbsp;LS_BATCH-ZXQZSYS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌主石颜色'&nbsp;&&&nbsp;LS_BATCH-ZXQZSYS&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石颜色1的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSYS1&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSYS&nbsp;INTO&nbsp;LS_ZXQZSYS&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSYS&nbsp;=&nbsp;LS_BATCH-ZXQPSYS1&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石颜色1'&nbsp;&&&nbsp;LS_BATCH-ZXQPSYS1&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石颜色2的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSYS2&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSYS&nbsp;INTO&nbsp;LS_ZXQZSYS&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSYS&nbsp;=&nbsp;LS_BATCH-ZXQPSYS2&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石颜色2'&nbsp;&&&nbsp;LS_BATCH-ZXQPSYS2&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石颜色3的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSYS3&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSYS&nbsp;INTO&nbsp;LS_ZXQZSYS&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSYS&nbsp;=&nbsp;LS_BATCH-ZXQPSYS3&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石颜色3'&nbsp;&&&nbsp;LS_BATCH-ZXQPSYS3&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌旁石颜色4的值&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQPSYS4&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZXQZSYS&nbsp;INTO&nbsp;LS_ZXQZSYS&nbsp;WITH&nbsp;KEY&nbsp;EX_ZSYS&nbsp;=&nbsp;LS_BATCH-ZXQPSYS4&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌旁石颜色4'&nbsp;&&&nbsp;LS_BATCH-ZXQPSYS4&nbsp;&&&nbsp;'不存在！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查赠品标记的值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZZPBJ&nbsp;&lt;&gt;&nbsp;''&nbsp;AND&nbsp;LS_BATCH-ZZPBJ&nbsp;&lt;&gt;&nbsp;'X'&nbsp;&nbsp;AND&nbsp;LS_BATCH-ZZPBJ&nbsp;&lt;&gt;&nbsp;'1'&nbsp;AND&nbsp;LS_BATCH-ZZPBJ&nbsp;&lt;&gt;&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'赠品标记'&nbsp;&&&nbsp;LS_BATCH-ZZPBJ&nbsp;&&&nbsp;'不正确！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查包装标记的值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZBZBJ&nbsp;&lt;&gt;&nbsp;''&nbsp;AND&nbsp;LS_BATCH-ZBZBJ&nbsp;&lt;&gt;&nbsp;'X'&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'包装标记'&nbsp;&&&nbsp;LS_BATCH-ZBZBJ&nbsp;&&&nbsp;'不正确！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查镶嵌主石荧光类别的值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXQZSYGJB&nbsp;&lt;&gt;&nbsp;''&nbsp;AND&nbsp;LS_BATCH-ZXQZSYGJB&nbsp;&lt;&gt;&nbsp;'A'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ZXQZSYGJB&nbsp;&lt;&gt;&nbsp;'B'&nbsp;AND&nbsp;LS_BATCH-ZXQZSYGJB&nbsp;&lt;&gt;&nbsp;'C'&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ZXQZSYGJB&nbsp;&lt;&gt;&nbsp;'D'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'镶嵌主石荧光类别'&nbsp;&&&nbsp;LS_BATCH-ZXQZSYGJB&nbsp;&&&nbsp;'不正确！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查销售价格计算单位的值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;&lt;&gt;&nbsp;''&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;&lt;&gt;&nbsp;'G'&nbsp;AND&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;&lt;&gt;&nbsp;'PC'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'销售价格计算单位'&nbsp;&&&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;&&&nbsp;'不正确！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"检查初次入库地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-WERKS&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_WERKS&nbsp;INTO&nbsp;LS_WERKS&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LS_BATCH-WERKS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'初次入库地点'&nbsp;&&&nbsp;LS_BATCH-WERKS&nbsp;&&&nbsp;'不正确！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 检查一些金额字段的合理范围<br />
+*  ZCGKDJ 采购克单价   &lt;=1000<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZCGKDJ&nbsp;&gt;&nbsp;1000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZCGKDJ采购克单价合理值应&lt;=1000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ZCGKGF 采购克工费   &lt;=1000<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZCGKGF&nbsp;&gt;&nbsp;1000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZCGKGF采购克工费合理值应&lt;=1000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ZCGGFJF  采购克附加费  &lt;=1000<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZCGGFJF&nbsp;&gt;&nbsp;1000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZCGGFJF采购克附加费合理值应&lt;=1000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ZXSKFJGF	销售克附加费 	&lt;=1000<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSKFJGF&nbsp;&gt;&nbsp;1000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZXSKFJGF销售克附加费合理值应&lt;=1000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ZJSJJ  结算克金价   &lt;=1000<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZJSJJ&nbsp;&gt;&nbsp;1000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZJSJJ结算克金价合理值应&lt;=1000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ZJSKGF 结算克工费   &lt;=1000<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZJSKGF&nbsp;&gt;&nbsp;1000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZJSKGF结算克工费合理值应&lt;=1000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ZJSDKZ 结算倒扣值   &lt;=1000<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZJSDKZ&nbsp;&gt;&nbsp;1000&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZJSDKZ结算倒扣值合理值应&lt;=1000'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*  ZJSKL  结算扣率  &lt;=100<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZJSKL&nbsp;&gt;&nbsp;100&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'ZJSKL结算扣率合理值应&lt;=100'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 非期初上线导入批次的检查，检查和库存有关是否正确<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IM_IS_QC&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LV_MOD&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MBEW&nbsp;INTO&nbsp;LS_MBEW&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_BATCH-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWTAR&nbsp;=&nbsp;LS_BATCH-CHARG&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查商品基本单位为G时，其库存数量与批次特性（单品金重）是否吻合<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-MEINS&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"01&nbsp;一般商品,&nbsp;02&nbsp;&nbsp;批次码,&nbsp;03&nbsp;大类码,&nbsp;X&nbsp;&nbsp;其他<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-TEMPB&nbsp;=&nbsp;'01'&nbsp;.&nbsp;"&nbsp;01&nbsp;&nbsp;一般商品，一个批次只能有一件商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZJZ&nbsp;&lt;&gt;&nbsp;LS_MBEW-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'一般商品单品克重：'&nbsp;&&&nbsp;LS_BATCH-ZJZ&nbsp;&&&nbsp;'和库存重量：'&nbsp;&&&nbsp;LS_MBEW-LBKUM&nbsp;&&&nbsp;'不匹配'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZJZ&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MOD&nbsp;=&nbsp;LS_MBEW-LBKUM&nbsp;MOD&nbsp;LS_BATCH-ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LV_MOD&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'批次/大类码商品单品克重：'&nbsp;&&&nbsp;LS_BATCH-ZJZ&nbsp;&&&nbsp;'和库存重量：'&nbsp;&&&nbsp;LS_MBEW-LBKUM&nbsp;&&&nbsp;'不匹配'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"检查商品基本单位为PC时，其库存数量是否为整数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MOD&nbsp;=&nbsp;LS_MBEW-LBKUM&nbsp;MOD&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LV_MOD&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'单位为PC的商品其库存数量必须是整数，现库存为：'&nbsp;&&&nbsp;LS_MBEW-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-TEMPB&nbsp;=&nbsp;'01'&nbsp;AND&nbsp;LS_MBEW-LBKUM&nbsp;&gt;&nbsp;1&nbsp;.&nbsp;"&nbsp;01&nbsp;&nbsp;一般商品，一个批次只能有一件商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'计件的一般商品库存最多只能有一件，现在有：'&nbsp;&&&nbsp;LS_MBEW-LBKUM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"检查联营商品库存数量金额应该为0，经销商品库存金额应该大于0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-SFLY&nbsp;=&nbsp;''&nbsp;.&nbsp;"经销商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;在LT_MBEW都是库存数量大于0的，因此对于经销商品，其库存金额应该不能等于0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_MBEW-SALK3&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'经销商品库存数量不为0，其库存金额也应不为0！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE."&nbsp;联营商品<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_MBEW-SALK3&nbsp;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'联营商品库存金额应该为0！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+* 非期初上线导入批次的检查，检查和价格有关是否正确<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IM_IS_QC&nbsp;=&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;销售价格计算单位为G的，要检查是否有金价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSJGJLDW&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-EXTWG&nbsp;=&nbsp;'D04'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"大类为D04的，必须维护ZTJJ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZTJJ&nbsp;INTO&nbsp;LS_ZTJJ&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;LS_LAST_MATNR-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;LS_LAST_MATNR-RAUBE<br />
+   </div>
+   <div class="codeComment">
+* Changed by huxiaowei @20151127 Begin<br />
+* 贵金属材质使用批次特性的，而不是款式属性的，因为有些款式（杂款）没有维护贵金属材质<br />
+*                                                   EX_GJS = LS_LAST_MATNR-EX_GJS.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;=&nbsp;LS_BATCH-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'没有维护ZTJJ：大类'&nbsp;&&&nbsp;LS_LAST_MATNR-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&&nbsp;'，小类'&nbsp;&&&nbsp;LS_LAST_MATNR-RAUBE<br />
+   </div>
+   <div class="codeComment">
+*                                                && '，贵金属材质' && LS_LAST_MATNR-EX_GJS && '；'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&&nbsp;'，贵金属材质'&nbsp;&&&nbsp;LS_BATCH-ZGJSCZ&nbsp;&&&nbsp;'；'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"大类不为D04的，必须维护ZB00<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZB00&nbsp;INTO&nbsp;LS_ZB00&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;LS_LAST_MATNR-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;LS_LAST_MATNR-RAUBE<br />
+   </div>
+   <div class="codeComment">
+*                                                   EX_GJS = LS_LAST_MATNR-EX_GJS.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_GJS&nbsp;=&nbsp;LS_BATCH-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'没有维护ZB00：大类'&nbsp;&&&nbsp;LS_LAST_MATNR-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&&nbsp;'，小类'&nbsp;&&&nbsp;LS_LAST_MATNR-RAUBE<br />
+   </div>
+   <div class="codeComment">
+*                                                && '，贵金属材质' && LS_LAST_MATNR-EX_GJS && '；'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&&nbsp;'，贵金属材质'&nbsp;&&&nbsp;LS_BATCH-ZGJSCZ&nbsp;&&&nbsp;'；'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查克工费档的工费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ZXSKGFD&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;大类D04，小类19，贵金属材质403的是投资银，其工费档条件类型有的是ZKG1，有的是ZKSG，除此之外都是ZKSG<br />
+   </div>
+   <div class="codeComment">
+*        IF LS_LAST_MATNR-EXTWG = 'D04' AND LS_LAST_MATNR-RAUBE = '19' AND LS_LAST_MATNR-EX_GJS = '403' .<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_LAST_MATNR-EXTWG&nbsp;=&nbsp;'D04'&nbsp;AND&nbsp;LS_LAST_MATNR-RAUBE&nbsp;=&nbsp;'19'&nbsp;AND&nbsp;LS_BATCH-ZGJSCZ&nbsp;=&nbsp;'403'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZKSG&nbsp;INTO&nbsp;LS_ZKSG&nbsp;WITH&nbsp;KEY&nbsp;ZXSKGFD&nbsp;=&nbsp;LS_BATCH-ZXSKGFD&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'投资银产品没有ZKSG或ZKG1：工费档'&nbsp;&&&nbsp;LS_BATCH-ZXSKGFD&nbsp;&&&nbsp;'；'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZKSG&nbsp;INTO&nbsp;LS_ZKSG&nbsp;WITH&nbsp;KEY&nbsp;KSCHL&nbsp;&nbsp;&nbsp;=&nbsp;'ZKSG'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSKGFD&nbsp;=&nbsp;LS_BATCH-ZXSKGFD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-ERR_MSG&nbsp;=&nbsp;LS_BATCH-ERR_MSG&nbsp;&&&nbsp;'没有维护ZKSG：工费档'&nbsp;&&&nbsp;LS_BATCH-ZXSKGFD&nbsp;&nbsp;&&&nbsp;'；'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+* Changed by huxiaowei @20151127 End<br />
+<br />
+<br />
+* 最后处理<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_BATCH-ERR_MSG&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-CHKFLG&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_BATCH&nbsp;TO&nbsp;ET_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_BATCH-CHKFLG&nbsp;=&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_BATCH&nbsp;TO&nbsp;ET_BATCH_RIGHT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

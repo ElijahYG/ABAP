@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSAP_FOUND_TABLES_BY_FIELD</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSAP_FOUND_TABLES_BY_FIELD</h2>
+<h3> Description: 通过字段名_查找数据库表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZSAP_FOUND_TABLES_BY_FIELD.<br />
+<br />
+TABLES: DD02T, DD03L, DD02L.<br />
+DATA: BEGIN OF FIELD1 OCCURS 0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;STRUCTURE&nbsp;DD03L.<br />
+DATA: END OF FIELD1.<br />
+DATA: BEGIN OF FIELD2 OCCURS 0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;STRUCTURE&nbsp;DD03L.<br />
+DATA SU TYPE I.<br />
+DATA: END OF FIELD2.<br />
+DATA:FIELD_SUM TYPE I.<br />
+<br />
+SELECT-OPTIONS IFIED FOR DD03L-FIELDNAME.<br />
+SELECT-OPTIONS ITTYPE FOR DD02L-TABCLASS.<br />
+<br />
+DATA FIELDSUM TYPE I.<br />
+<br />
+SELECT * FROM DD03L INTO TABLE FIELD1 WHERE FIELDNAME IN IFIED.<br />
+<br />
+SORT FIELD1 BY TABNAME.<br />
+<br />
+LOOP AT IFIED.<br />
+&nbsp;&nbsp;FIELDSUM&nbsp;=&nbsp;SY-TABIX.<br />
+ENDLOOP.<br />
+<br />
+LOOP AT FIELD1.<br />
+&nbsp;&nbsp;FIELD_SUM&nbsp;=&nbsp;FIELD_SUM&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;FIELD1&nbsp;TO&nbsp;FIELD2.<br />
+&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;TABNAME.<br />
+   </div>
+   <div class="codeComment">
+*field2-tabname&nbsp;=&nbsp;field1-tabname.<br />
+*move-corresponding&nbsp;field1&nbsp;to&nbsp;field2.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;FIELD2-SU&nbsp;=&nbsp;FIELD_SUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;FIELD2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;FIELD2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;FIELD_SUM.<br />
+&nbsp;&nbsp;ENDAT.<br />
+ENDLOOP.<br />
+<br />
+LOOP AT FIELD2 WHERE SU = FIELDSUM.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;DD02T&nbsp;WHERE&nbsp;TABNAME&nbsp;=&nbsp;FIELD2-TABNAME&nbsp;AND<br />
+&nbsp;&nbsp;DDLANGUAGE&nbsp;=&nbsp;SY-LANGU.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;DD02L&nbsp;WHERE&nbsp;TABNAME&nbsp;=&nbsp;FIELD2-TABNAME&nbsp;AND<br />
+&nbsp;&nbsp;TABCLASS&nbsp;IN&nbsp;ITTYPE&nbsp;AND<br />
+&nbsp;&nbsp;AS4LOCAL&nbsp;=&nbsp;FIELD2-AS4LOCAL&nbsp;AND<br />
+&nbsp;&nbsp;AS4VERS&nbsp;=&nbsp;FIELD2-AS4VERS.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;FIELD2-TABNAME,DD02L-TABCLASS,DD02T-DDTEXT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;IFIED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;字段名<br />
+*&nbsp;ITTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;表类别<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

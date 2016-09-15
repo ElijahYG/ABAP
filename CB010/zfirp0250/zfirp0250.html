@@ -1,0 +1,1548 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0250</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0250</h2>
+<h3> Description: 盈亏表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZFIRP0250<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;FI-RP-00250<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;盈亏表<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;GUOYUE<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2016/08/16&nbsp;&nbsp;&nbsp;&nbsp;GUOYUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZFIRP0250.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&INCLUDE<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+include <a href ="zfi_common_form.html">ZFI_COMMON_FORM</a>.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入选择屏幕表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:SETNODE,FAGLFLEXT,MBEW.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引用类型池<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPE-POOLS: SLIS, ICON.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;定义ALV显示字段的内表<br />
+   </div>
+   <div class="code">
+DATA: IT_FIELDCAT TYPE LVC_T_FCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE LVC_S_FCAT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT   TYPE LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+   </div>
+   <div class="code">
+DATA: GD_REPID LIKE SY-REPID,                        "建立小图标用的语句<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REF_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.<br />
+   </div>
+   <div class="codeComment">
+*-----------------按钮--------------------<br />
+<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF STRU_001,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+<br />
+   </div>
+   <div class="codeComment">
+********************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XSSR_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"销售收入<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_MDMJ_BY&nbsp;&nbsp;TYPE&nbsp;ZT001W-EX_MDMJ,&nbsp;"营业面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DWMJXS_BY&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"单位面积销售<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XSCB_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MLE_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"毛利额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DWBJML_BY&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"单位面积毛利<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MLL_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJ_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"租金<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZS_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"增值税<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XFS_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"消费税<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CJJYF_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"城建教育费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGGZ_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"职工工资<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HZFGZ_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"合作方工资<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GXTQ_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"各项提取<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LPGZ_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"劳派工资<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SDF_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"水电费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLF_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"差旅费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DHF_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"电话费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZYED_BY&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"资金占用额度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZYF_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"资金占用费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YSFY_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"运输费用<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GGFJTX_BY&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"广告费及摊销<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXFTX_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"装修费摊销<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JCF_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"检测费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JLF_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"精炼费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SSH_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"首饰盒<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JFHB_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"积分回报<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WYF_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"物业费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHER_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"其他<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SKSXF_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"刷卡手续费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZCHJ_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"支出合计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRE_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"利润额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DWMJLR_BY&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"单位面积利润<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRL_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"利润率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI3_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z1002_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601002*本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z1003_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601002*本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z6001003_BY&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6001003*本月<br />
+   </div>
+   <div class="codeComment">
+*****************************************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XSSR_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"销售收入<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_MDMJ_BN&nbsp;&nbsp;TYPE&nbsp;ZT001W-EX_MDMJ,&nbsp;"营业面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DWMJXS_BN&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"单位面积销售<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XSCB_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MLE_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"毛利额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DWBJML_BN&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"单位面积毛利<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MLL_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJ_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"租金<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZZS_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"增值税<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XFS_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"消费税<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CJJYF_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"城建教育费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGGZ_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"职工工资<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HZFGZ_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"合作方工资<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GXTQ_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"各项提取<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LPGZ_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"劳派工资<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SDF_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"水电费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLF_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"差旅费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DHF_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"电话费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZYED_BN&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"资金占用额度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZJZYF_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"资金占用费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YSFY_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"运输费用<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GGFJTX_BN&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"广告费及摊销<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXFTX_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"装修费摊销<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JCF_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"检测费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JLF_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"精炼费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SSH_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"首饰盒<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JFHB_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"积分回报<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WYF_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"物业费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHER_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"其他<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SKSXF_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"刷卡手续费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZCHJ_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"支出合计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRE_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"利润额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DWMJLR_BN&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"单位面积利润<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LRL_BN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"利润率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KZWI3_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z1002_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601002*本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z1003_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601003*本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z6001003_BN&nbsp;TYPE&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6001003*本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;KNA1-SORTL,&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZT001W-EX_POS,&nbsp;"扣点门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_001.<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RACCT&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-RACCT,&nbsp;"科目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DRCRK&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-DRCRK,&nbsp;"借贷标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSLVT&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSLVT,&nbsp;"期初余额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL01&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"期间01&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL02&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL02,&nbsp;"期间02&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL03&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL03,&nbsp;"期间03&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL04&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL04,&nbsp;"期间04&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL05&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL05,&nbsp;"期间05&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL06&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL06,&nbsp;"期间06&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL07&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL07,&nbsp;"期间07&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL08&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL08,&nbsp;"期间08&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL09&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL09,&nbsp;"期间09&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL10&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL10,&nbsp;"期间10&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL11&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL11,&nbsp;"期间11&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL12&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL12,&nbsp;"期间12&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL13&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL13,&nbsp;"期间13&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;HSL14&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL14,&nbsp;"期间14&nbsp;发生额<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_FAG.<br />
+<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;VBRP-WERKS,&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_XFS&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZMMEX0010_MARA-EX_XFS,&nbsp;"是否消费税<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;VBRP-MATNR,&nbsp;"商品号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;NETWR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;VBRP-NETWR,&nbsp;"出具发票项目的凭证货币净值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI3&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;VBRP-KZWI3,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"VBRP小计3<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_002.<br />
+<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_003,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZT001W-WERKS,&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_MDMJ&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZT001W-EX_MDMJ,&nbsp;"门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORTL&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;KNA1-SORTL,&nbsp;"地点描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_POS&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;ZT001W-EX_POS,&nbsp;"扣点门店<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_003.<br />
+<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_005,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z1002_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601002*本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z1002_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601002*本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z1003_BN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601003*本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z1003_BY&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6601002*本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z6001003_BN&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6001003*本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;Z6001003_BY&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"科目6001003*本月<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_005.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA IT_TABLE      TYPE STANDARD TABLE OF STRU_001."根据结构生成内表 "IT_表示内表，声明生成一个内表，这个内表定义同stru_0020<br />
+DATA WA_TABLE      TYPE                   STRU_001."为内表建立工作区 " WA :工作区，工作区一次只能显示一条记录，为内表建立工作区<br />
+DATA GT_ALV_TABLE  TYPE STANDARD TABLE OF STRU_001."根据结构生成内表 "IT_表示内表，声明生成一个内表，这个内表定义同stru_0020<br />
+DATA GW_ALV_TABLE  TYPE                   STRU_001."为内表建立工作区 " WA :工作区，工作区一次只能显示一条记录，为内表建立工作区<br />
+<br />
+DATA: GT_FAG TYPE STANDARD TABLE OF TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_TMP&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TY_FAG.<br />
+<br />
+DATA: IT_XFS_BY TYPE STANDARD TABLE OF STRU_002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BY&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_002.<br />
+<br />
+DATA: IT_XFS_BN TYPE STANDARD TABLE OF STRU_002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BN&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_002.<br />
+<br />
+DATA: IT_MDMJ TYPE STANDARD TABLE OF STRU_003,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_MDMJ&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_003.<br />
+<br />
+DATA: LT_XSSR TYPE STANDARD TABLE OF STRU_001, "销售收入<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_001,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XSCB&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_001,&nbsp;"销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_001,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_SDF&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_001,&nbsp;"水电费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SDF&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_001,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CLF&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_001,&nbsp;"差旅费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CLF&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_001,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_DHF&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_001,&nbsp;"电话费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_DHF&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_001.<br />
+<br />
+DATA: LT_6601002 TYPE STANDARD TABLE OF STRU_005,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_005,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_6601003&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_005,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_005,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_6001003&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_005,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_005.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-T01.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXT-RBUKRS&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS,&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;S_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXT-PRCTR&nbsp;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;S_SNAME&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;SETNODE-SETNAME,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"利润中心组<br />
+&nbsp;&nbsp;S_GJAHR&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;FAGLFLEXT-RYEAR&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS&nbsp;OBLIGATORY,&nbsp;&nbsp;&nbsp;"会计年度<br />
+&nbsp;&nbsp;S_MONAT&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;MBEW-LFMON&nbsp;OBLIGATORY&nbsp;NO-EXTENSION&nbsp;NO&nbsp;INTERVALS.&nbsp;&nbsp;"会计期间<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+SELECTION-SCREEN BEGIN OF BLOCK BK2 WITH FRAME TITLE TEXT-T02.<br />
+PARAMETERS:    Z_BY   RADIOBUTTON GROUP GP1 DEFAULT 'X' USER-COMMAND RADIO, "本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Z_BNLJ&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;GP1.&nbsp;"本年累计<br />
+SELECTION-SCREEN END OF BLOCK BK2.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&帮助<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR S_SNAME-LOW.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'K_GROUP_SELECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD_NAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CCSS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_SNAME-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_SET_PICKED&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR S_SNAME-HIGH.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'K_GROUP_SELECT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLASS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0106'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD_NAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CCSS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_SNAME-HIGH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO_SET_PICKED&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_DATA."数据检查<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA."取数<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_XFS_BY.&nbsp;"取消费税本月<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_XFS_BN."取消费税本年<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_MDMJ."取门店面积<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_CAL_DATA.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FULL_ALV."填充ALV<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_ALVSHOW."ALV<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:IT_TABLE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&数据检查<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_DATA.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;L_COUNT&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.&nbsp;&nbsp;&nbsp;&nbsp;"计数器<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;检查1：限制公司代码、利润中心、利润中心组只能取一个<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_BUKRS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;L_COUNT&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;S_PRCTR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;L_COUNT&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;S_SNAME&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_COUNT&nbsp;=&nbsp;L_COUNT&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;计数器不等于1表示不为三选一<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;L_COUNT&nbsp;&lt;&gt;&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'公司代码、利润中心、利润中心组，只能且必须选择一个'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*检查期间输入不能大于12.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_MONAT-LOW&nbsp;&gt;&nbsp;12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'会计期间输入不能大于12'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_PRCTR&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;PRCTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_RACCT&nbsp;TYPE&nbsp;RANGE&nbsp;OF&nbsp;HKONT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;&nbsp;LT_R_RACCT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;利润中心不为空，通过利润中心取数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_PRCTR&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_R_PRCTR&nbsp;=&nbsp;S_PRCTR[].<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;利润中心组不为空，则取该利润中心组下所有的利润中心<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_SNAME&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_PRCTR&nbsp;USING&nbsp;S_SNAME[]&nbsp;LT_R_PRCTR&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;LT_R_PRCTR&nbsp;IS&nbsp;INITIAL&nbsp;AND&nbsp;S_BUKRS&nbsp;IS&nbsp;INITIAL."防止利润中心下没有利润中心（或利润中心组输错）时select语句出的数据不是真正的数据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'这个利润中心组下没有利润中心'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;科目数据处理<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_R_RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-SIGN&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.&nbsp;"&nbsp;'I&nbsp;'表示包含在区间里面的&nbsp;'E'表示区间之外的<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-OPTION&nbsp;&nbsp;=&nbsp;'BT'.&nbsp;&nbsp;"'EQ(等于),NE(不等于),GT(大于)，LT（小于）,LE(小于等于),CP(包含),NP(不包含)，'BT'&nbsp;(位于),&nbsp;&nbsp;'NB'（不位于）&nbsp;'GE'（大于等于）&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_R_RACCT-HIGH&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_R_RACCT&nbsp;TO&nbsp;LT_R_RACCT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_RACCT&nbsp;:<br />
+&nbsp;&nbsp;&nbsp;'6001000000'&nbsp;'6001999999',<br />
+&nbsp;&nbsp;&nbsp;'6401000000'&nbsp;'6401999999',<br />
+&nbsp;&nbsp;&nbsp;'6601009009'&nbsp;'6601009009',<br />
+&nbsp;&nbsp;&nbsp;'6601009029'&nbsp;'6601009029',<br />
+&nbsp;&nbsp;&nbsp;'6601009011'&nbsp;'6601009011',<br />
+&nbsp;&nbsp;&nbsp;'6601002000'&nbsp;'6601002999',<br />
+&nbsp;&nbsp;&nbsp;'6601003000'&nbsp;'6601003999'.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;RACCT&nbsp;&nbsp;"科目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DRCRK&nbsp;&nbsp;"借贷标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSLVT&nbsp;&nbsp;"期初余额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL01&nbsp;&nbsp;"期间01&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL02&nbsp;&nbsp;"期间02&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL03&nbsp;&nbsp;"期间03&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL04&nbsp;&nbsp;"期间04&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL05&nbsp;&nbsp;"期间05&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL06&nbsp;&nbsp;"期间06&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL07&nbsp;&nbsp;"期间07&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL08&nbsp;&nbsp;"期间08&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL09&nbsp;&nbsp;"期间09&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL10&nbsp;&nbsp;"期间10&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL11&nbsp;&nbsp;"期间11&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL12&nbsp;&nbsp;"期间12&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL13&nbsp;&nbsp;"期间13&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HSL14&nbsp;&nbsp;"期间14&nbsp;发生额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;FAGLFLEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;GT_FAG<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;RBUKRS&nbsp;IN&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"公司代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PRCTR&nbsp;&nbsp;IN&nbsp;LT_R_PRCTR&nbsp;&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RYEAR&nbsp;&nbsp;IN&nbsp;S_GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"会计年度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RACCT&nbsp;&nbsp;IN&nbsp;LT_R_RACCT&nbsp;&nbsp;&nbsp;"科目<br />
+&nbsp;&nbsp;.<br />
+ENDFORM.<br />
+<br />
+FORM GET_XFS_BY."取消费税<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_XFS_BY&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_BY&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_02&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_002.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*---------------------取当月最后一天--------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;L_DATE1&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;"LOW&nbsp;月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE2&nbsp;TYPE&nbsp;SY-DATUM.&nbsp;"LOW&nbsp;月末最后一天<br />
+<br />
+&nbsp;&nbsp;L_DATE1&nbsp;=&nbsp;S_GJAHR-LOW&nbsp;&&&nbsp;S_MONAT-LOW&nbsp;&&&nbsp;'01'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取当月最后一天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE1&nbsp;"LOW月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SET_LAST_DAY_OF_MONTH&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE2.&nbsp;"LOW月末最后一天<br />
+   </div>
+   <div class="codeComment">
+*---------------------取当月最后一天--------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;Z~EX_XFS&nbsp;"是否消费税<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V~MATNR&nbsp;&nbsp;"商品号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V~NETWR&nbsp;&nbsp;"出具发票项目的凭证货币净值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V~WERKS&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V~KZWI3&nbsp;&nbsp;"销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRP&nbsp;AS&nbsp;V<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;VBRK&nbsp;AS&nbsp;K&nbsp;ON&nbsp;K~VBELN&nbsp;=&nbsp;V~VBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;V~MATNR&nbsp;=&nbsp;Z~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_XFS_BY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;K~FKDAT&nbsp;&gt;=&nbsp;L_DATE1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;K~FKDAT&nbsp;=&lt;&nbsp;L_DATE2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;Z~EX_XFS&nbsp;=&nbsp;'X'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_XFS_BY&nbsp;BY&nbsp;WERKS.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_XFS_BY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_BY,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_02.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_XFS_BY&nbsp;INTO&nbsp;LW_XFS_BY.<br />
+   </div>
+   <div class="codeComment">
+*防星<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_02&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_XFS_BY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BY-PRCTR&nbsp;=&nbsp;'P'&nbsp;&&&nbsp;LW_XFS_02-WERKS."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BY-NETWR&nbsp;=&nbsp;WA_XFS_BY-NETWR&nbsp;+&nbsp;LW_XFS_02-NETWR."出具发票项目的凭证货币净值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BY-KZWI3&nbsp;=&nbsp;WA_XFS_BY-KZWI3&nbsp;+&nbsp;LW_XFS_02-KZWI3."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;WERKS."地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_XFS_BY&nbsp;TO&nbsp;IT_XFS_BY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+FORM GET_XFS_BN."取消费税本年<br />
+&nbsp;&nbsp;DATA:LT_XFS_BN&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_BN&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_03&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_002.<br />
+   </div>
+   <div class="codeComment">
+*---------------------取当月最后一天--------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;L_DATE1&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;"LOW&nbsp;月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE2&nbsp;TYPE&nbsp;SY-DATUM.&nbsp;"LOW&nbsp;月末最后一天<br />
+&nbsp;&nbsp;DATA&nbsp;&nbsp;L_DATE3&nbsp;TYPE&nbsp;SY-DATUM.<br />
+<br />
+&nbsp;&nbsp;L_DATE1&nbsp;=&nbsp;S_GJAHR-LOW&nbsp;&&&nbsp;S_MONAT-LOW&nbsp;&&&nbsp;'01'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取当月最后一天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE1&nbsp;"LOW月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SET_LAST_DAY_OF_MONTH&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE2.&nbsp;"LOW月末最后一天<br />
+   </div>
+   <div class="codeComment">
+*---------------------取当月最后一天--------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;L_DATE3&nbsp;=&nbsp;S_GJAHR-LOW&nbsp;&&&nbsp;'01'&nbsp;&&&nbsp;'01'."本年第一天<br />
+&nbsp;&nbsp;SELECT&nbsp;Z~EX_XFS&nbsp;"是否消费税<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V~MATNR&nbsp;&nbsp;"商品号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V~NETWR&nbsp;&nbsp;"出具发票项目的凭证货币净值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V~WERKS&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;FROM&nbsp;VBRP&nbsp;AS&nbsp;V<br />
+&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;VBRK&nbsp;AS&nbsp;K&nbsp;ON&nbsp;K~VBELN&nbsp;=&nbsp;V~VBELN<br />
+&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;ZMMEX0010_MARA&nbsp;AS&nbsp;Z&nbsp;ON&nbsp;V~MATNR&nbsp;=&nbsp;Z~MATNR<br />
+&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_XFS_BN<br />
+&nbsp;&nbsp;WHERE&nbsp;K~FKDAT&nbsp;&gt;=&nbsp;L_DATE3<br />
+&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;K~FKDAT&nbsp;=&lt;&nbsp;L_DATE2<br />
+&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;Z~EX_XFS&nbsp;=&nbsp;'X'&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_XFS_BN&nbsp;BY&nbsp;WERKS.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_XFS_BN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_BN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_03.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_XFS_BN&nbsp;INTO&nbsp;LW_XFS_BN.<br />
+   </div>
+   <div class="codeComment">
+*防星<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_XFS_03&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_XFS_BN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BN-PRCTR&nbsp;=&nbsp;'P'&nbsp;&&&nbsp;LW_XFS_03-WERKS."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BN-NETWR&nbsp;=&nbsp;WA_XFS_BN-NETWR&nbsp;+&nbsp;LW_XFS_03-NETWR."出具发票项目的凭证货币净值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_XFS_BN-KZWI3&nbsp;=&nbsp;WA_XFS_BN-KZWI3&nbsp;+&nbsp;LW_XFS_03-KZWI3."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;WERKS."地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_XFS_BN&nbsp;TO&nbsp;IT_XFS_BN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+FORM GET_MDMJ."取门店面积<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;WA_MDMJ&gt;&nbsp;TYPE&nbsp;STRU_003.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;W~WERKS&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~EX_MDMJ&nbsp;"门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W~EX_POS&nbsp;&nbsp;"扣点门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;K~SORTL&nbsp;&nbsp;"地点描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;&nbsp;ZT001W&nbsp;AS&nbsp;&nbsp;W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KNA1&nbsp;AS&nbsp;K&nbsp;ON&nbsp;K~WERKS&nbsp;=&nbsp;W~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_MDMJ.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_MDMJ&nbsp;ASSIGNING&nbsp;&lt;WA_MDMJ&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_MDMJ&gt;-PRCTR&nbsp;=&nbsp;'P'&nbsp;&&&nbsp;&lt;WA_MDMJ&gt;-WERKS.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&计算<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_CAL_DATA.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS&gt;.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RACCT&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-RACCT,&nbsp;"科目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DRCRK&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-DRCRK,&nbsp;"借贷标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE1&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE2&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SUM,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_INDEX&nbsp;TYPE&nbsp;NUMC2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MAX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SUM&nbsp;&nbsp;LIKE&nbsp;LW_SUM&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FAG&nbsp;&nbsp;TYPE&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TMP&nbsp;&nbsp;TYPE&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM&nbsp;TYPE&nbsp;TY_FAG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_FIELD&nbsp;TYPE&nbsp;CHAR100.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;STEP1：按&nbsp;科目&nbsp;利润中心&nbsp;汇总数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_FAG&nbsp;BY&nbsp;RACCT&nbsp;PRCTR.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;确定合计到哪个期间<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_MONAT-HIGH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MAX&nbsp;=&nbsp;S_MONAT-HIGH.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_MAX&nbsp;=&nbsp;S_MONAT-LOW.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_FSUM.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_FAG&nbsp;INTO&nbsp;LW_TMP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;防止*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FAG&nbsp;=&nbsp;LW_TMP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;按科目、利润中心&nbsp;期间汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSLVT&nbsp;=&nbsp;LW_FSUM-HSLVT&nbsp;+&nbsp;LW_FAG-HSLVT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL01&nbsp;=&nbsp;LW_FSUM-HSL01&nbsp;+&nbsp;LW_FAG-HSL01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL02&nbsp;=&nbsp;LW_FSUM-HSL02&nbsp;+&nbsp;LW_FAG-HSL02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL03&nbsp;=&nbsp;LW_FSUM-HSL03&nbsp;+&nbsp;LW_FAG-HSL03.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL04&nbsp;=&nbsp;LW_FSUM-HSL04&nbsp;+&nbsp;LW_FAG-HSL04.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL05&nbsp;=&nbsp;LW_FSUM-HSL05&nbsp;+&nbsp;LW_FAG-HSL05.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL06&nbsp;=&nbsp;LW_FSUM-HSL06&nbsp;+&nbsp;LW_FAG-HSL06.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL07&nbsp;=&nbsp;LW_FSUM-HSL07&nbsp;+&nbsp;LW_FAG-HSL07.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL08&nbsp;=&nbsp;LW_FSUM-HSL08&nbsp;+&nbsp;LW_FAG-HSL08.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL09&nbsp;=&nbsp;LW_FSUM-HSL09&nbsp;+&nbsp;LW_FAG-HSL09.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL10&nbsp;=&nbsp;LW_FSUM-HSL10&nbsp;+&nbsp;LW_FAG-HSL10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL11&nbsp;=&nbsp;LW_FSUM-HSL11&nbsp;+&nbsp;LW_FAG-HSL11.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FSUM-HSL12&nbsp;=&nbsp;LW_FSUM-HSL12&nbsp;+&nbsp;LW_FAG-HSL12&nbsp;+&nbsp;LW_FAG-HSL13&nbsp;+&nbsp;LW_FAG-HSL14.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;PRCTR."科目&nbsp;利润中心<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_SUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DO&nbsp;12&nbsp;TIMES.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_INDEX&nbsp;=&nbsp;SY-INDEX.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FIELD&nbsp;=&nbsp;'LW_FSUM-HSL'&nbsp;&&&nbsp;L_INDEX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ASSIGN&nbsp;(L_FIELD)&nbsp;TO&nbsp;&lt;FS&gt;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;计算当年的发生额<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_INDEX&nbsp;&lt;=&nbsp;L_MAX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE1&nbsp;=&nbsp;LW_SUM-VALUE1&nbsp;+&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDDO.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本月<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_MAX&nbsp;=&nbsp;01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;03.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL03.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;04.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL04.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;05.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL05.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;06.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL06.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;07.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL07.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;08.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL08.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;09.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL09.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;11.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL11.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;L_MAX&nbsp;=&nbsp;12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE2&nbsp;=&nbsp;LW_FSUM-HSL12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本年累计<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-VALUE1&nbsp;=&nbsp;LW_SUM-VALUE1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-RACCT&nbsp;&nbsp;=&nbsp;LW_FAG-RACCT.&nbsp;&nbsp;"科目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM-PRCTR&nbsp;&nbsp;=&nbsp;LW_FAG-PRCTR.&nbsp;&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_SUM&nbsp;TO&nbsp;LT_SUM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;处理完毕，清空工作区<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FSUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_SUM_02,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RACCT&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-RACCT,&nbsp;"科目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DRCRK&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-DRCRK,&nbsp;"借贷标识<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE1&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE2&nbsp;TYPE&nbsp;&nbsp;&nbsp;FAGLFLEXT-HSL01,&nbsp;"本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_SUM_02,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SUM_02&nbsp;LIKE&nbsp;LW_SUM_02&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_SUM_02.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;STEP2：数据匹配到输出内表中<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_SUM&nbsp;TO&nbsp;LT_SUM_02.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_SUM_02&nbsp;BY&nbsp;PRCTR&nbsp;RACCT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LW_XSSR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SDF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CLF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_DHF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SUM_02,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_NEXT.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;L_LINE&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;TYPE&nbsp;SY-TABIX.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_XSSR.<br />
+&nbsp;&nbsp;L_LINE&nbsp;=&nbsp;LINES(&nbsp;LT_SUM_02&nbsp;).<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_SUM_02&nbsp;INTO&nbsp;LW_SUM_02.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;判定是否到科目最后一条<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;SY-TABIX.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_LINE&nbsp;=&nbsp;L_TABIX.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;销售收入<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6001000000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6001999999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-PRCTR&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-XSSR_BN&nbsp;=&nbsp;LW_XSSR-XSSR_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-XSSR_BY&nbsp;=&nbsp;LW_XSSR-XSSR_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_XSSR&nbsp;TO&nbsp;LT_XSSR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_XSSR.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;销售成本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6401000000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6401999999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-XSCB_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_XSCB-XSCB_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-XSCB_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_XSCB-XSCB_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_XSCB&nbsp;TO&nbsp;LT_XSCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_XSCB.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;广告费及摊销（科目6601002*-6601003*）乘以（取自VBRP中的KZWI3/6001003*）<br />
+*科目6601002*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601002000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601002999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-Z1002_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601002-Z1002_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-Z1002_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601002-Z1002_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_6601002&nbsp;TO&nbsp;LT_6601002.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6601002.<br />
+   </div>
+   <div class="codeComment">
+*科目6601003*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601003000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601003999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-Z1003_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601003-Z1003_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-Z1003_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601003-Z1003_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_6601003&nbsp;TO&nbsp;LT_6601003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6601003.<br />
+   </div>
+   <div class="codeComment">
+*科目6001003*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601003000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601003999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-Z6001003_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6001003-Z6001003_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-Z6001003_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6001003-Z6001003_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_6001003&nbsp;TO&nbsp;LT_6001003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6001003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TABIX&nbsp;=&nbsp;L_TABIX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_SUM_02&nbsp;INTO&nbsp;LW_NEXT&nbsp;INDEX&nbsp;L_TABIX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_NEXT-PRCTR&nbsp;=&nbsp;LW_SUM_02-PRCTR&nbsp;."&nbsp;利润中心<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;销售收入<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6001000000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6001999999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-PRCTR&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-XSSR_BN&nbsp;=&nbsp;LW_XSSR-XSSR_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-XSSR_BY&nbsp;=&nbsp;LW_XSSR-XSSR_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;销售成本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6401000000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6401999999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-XSCB_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_XSCB-XSCB_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-XSCB_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_XSCB-XSCB_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;广告费及摊销（科目6601002*-6601003*）乘以（取自VBRP中的KZWI3/6001003*）<br />
+*科目6601002*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601002000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601002999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-Z1002_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601002-Z1002_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-Z1002_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601002-Z1002_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*科目6601003*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601003000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601003999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-Z1003_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601003-Z1003_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-Z1003_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601003-Z1003_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*科目6001003*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601003000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601003999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-Z6001003_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6001003-Z6001003_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-Z6001003_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6001003-Z6001003_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&nbsp;LW_NEXT-PRCTR&nbsp;NE&nbsp;LW_SUM_02-PRCTR&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;销售收入<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6001000000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6001999999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-PRCTR&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-XSSR_BN&nbsp;=&nbsp;LW_XSSR-XSSR_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSSR-XSSR_BY&nbsp;=&nbsp;LW_XSSR-XSSR_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_XSSR&nbsp;TO&nbsp;LT_XSSR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_XSSR.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;销售成本<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6401000000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6401999999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-XSCB_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_XSCB-XSCB_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_XSCB-XSCB_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_XSCB-XSCB_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_XSCB&nbsp;TO&nbsp;LT_XSCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_XSCB.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;广告费及摊销（科目6601002*-6601003*）乘以（取自VBRP中的KZWI3/6001003*）<br />
+*科目6601002*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601002000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601002999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-Z1002_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601002-Z1002_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601002-Z1002_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601002-Z1002_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_6601002&nbsp;TO&nbsp;LT_6601002.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6601002.<br />
+   </div>
+   <div class="codeComment">
+*科目6601003*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601003000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601003999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-Z1003_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601003-Z1003_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6601003-Z1003_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6601003-Z1003_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_6601003&nbsp;TO&nbsp;LT_6601003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6601003.<br />
+   </div>
+   <div class="codeComment">
+*科目6001003*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;(&nbsp;LW_SUM_02-RACCT&nbsp;&gt;=&nbsp;6601003000&nbsp;AND&nbsp;LW_SUM_02-RACCT&nbsp;=&lt;&nbsp;6601003999&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-Z6001003_BN&nbsp;&nbsp;&nbsp;=&nbsp;LW_6001003-Z6001003_BN&nbsp;+&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_6001003-Z6001003_BY&nbsp;&nbsp;&nbsp;=&nbsp;LW_6001003-Z6001003_BY&nbsp;+&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_6001003&nbsp;TO&nbsp;LT_6001003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6001003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;水电费<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_SUM_02-RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'6601009009'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SDF-PRCTR&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SDF-SDF_BN&nbsp;=&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_SDF-SDF_BY&nbsp;=&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_SDF&nbsp;TO&nbsp;LT_SDF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;差旅费<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_SUM_02-RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'6601009029'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CLF-PRCTR&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CLF-SDF_BN&nbsp;=&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CLF-SDF_BY&nbsp;=&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_CLF&nbsp;TO&nbsp;LT_CLF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;电话费<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LW_SUM_02-RACCT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'6601009011'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_DHF-PRCTR&nbsp;&nbsp;=&nbsp;LW_SUM_02-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_DHF-DHF_BN&nbsp;=&nbsp;LW_SUM_02-VALUE1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_DHF-DHF_BY&nbsp;=&nbsp;LW_SUM_02-VALUE2."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_DHF&nbsp;TO&nbsp;LT_DHF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+FORM FULL_ALV.<br />
+&nbsp;&nbsp;TYPES:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_004,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRCTR&nbsp;TYPE&nbsp;FAGLFLEXT-PRCTR,&nbsp;"利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_004.<br />
+&nbsp;&nbsp;DATA&nbsp;LT_F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_004."<br />
+&nbsp;&nbsp;DATA&nbsp;LW_F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_004."<br />
+<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_FAG&nbsp;TO&nbsp;LT_F.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_F&nbsp;BY&nbsp;PRCTR.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_F&nbsp;COMPARING&nbsp;&nbsp;PRCTR.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_F&nbsp;INTO&nbsp;LW_F.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GW_ALV_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_ALV_TABLE-PRCTR&nbsp;=&nbsp;&nbsp;LW_F-PRCTR."利润中心<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GW_ALV_TABLE&nbsp;TO&nbsp;GT_ALV_TABLE.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;WA_ALV_TABLE&gt;&nbsp;TYPE&nbsp;STRU_001.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV_TABLE&nbsp;ASSIGNING&nbsp;&lt;WA_ALV_TABLE&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_XSSR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_XSSR&nbsp;INTO&nbsp;LW_XSSR&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR."销售收入<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BN&nbsp;=&nbsp;LW_XSSR-XSSR_BN&nbsp;*&nbsp;-1."本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BY&nbsp;=&nbsp;LW_XSSR-XSSR_BY&nbsp;*&nbsp;-1."本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_MDMJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_MDMJ&nbsp;INTO&nbsp;WA_MDMJ&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BY&nbsp;=&nbsp;WA_MDMJ-EX_MDMJ."门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BN&nbsp;=&nbsp;WA_MDMJ-EX_MDMJ."门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-SORTL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MDMJ-SORTL."门店描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-EX_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_MDMJ-EX_POS."门店性质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BY&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWMJXS_BY&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BY&nbsp;/&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BY."单位面积销售本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWMJXS_BY&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BN&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWMJXS_BN&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BN&nbsp;/&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BN."单位面积销售本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWMJXS_BN&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_XSCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_XSCB&nbsp;INTO&nbsp;LW_XSCB&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR."销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XSCB_BN&nbsp;=&nbsp;LW_XSCB-XSCB_BN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XSCB_BY&nbsp;=&nbsp;LW_XSCB-XSCB_BY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_SDF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_SDF&nbsp;INTO&nbsp;LW_SDF&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR."水电费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-SDF_BN&nbsp;=&nbsp;LW_SDF-SDF_BN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-SDF_BY&nbsp;=&nbsp;LW_SDF-SDF_BY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_CLF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CLF&nbsp;INTO&nbsp;LW_CLF&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR."差旅费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-SDF_BN&nbsp;=&nbsp;LW_CLF-SDF_BN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-SDF_BY&nbsp;=&nbsp;LW_CLF-SDF_BY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_DHF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_DHF&nbsp;INTO&nbsp;LW_DHF&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR."电话费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DHF_BN&nbsp;=&nbsp;LW_DHF-DHF_BN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DHF_BY&nbsp;=&nbsp;LW_DHF-DHF_BY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BN&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BN&nbsp;-&nbsp;&lt;WA_ALV_TABLE&gt;-XSCB_BN."毛利额本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BY&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BY&nbsp;-&nbsp;&lt;WA_ALV_TABLE&gt;-XSCB_BY."毛利额本月<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BN&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWBJML_BN&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BN&nbsp;/&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BN."单位面积毛利本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWBJML_BN&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BY&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWBJML_BY&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BY&nbsp;/&nbsp;&lt;WA_ALV_TABLE&gt;-EX_MDMJ_BY."单位面积毛利本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-DWBJML_BY&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BN&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLL_BN&nbsp;=&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BN&nbsp;/&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BN.&nbsp;&nbsp;"毛利率本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLL_BN&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BY&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLL_BY&nbsp;=&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BY&nbsp;/&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XSSR_BY.&nbsp;&nbsp;"毛利率本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-MLL_BY&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-ZZS_BN&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BN&nbsp;*&nbsp;17&nbsp;/&nbsp;100.&nbsp;&nbsp;"增值税本年累计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-ZZS_BY&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-MLE_BY&nbsp;*&nbsp;17&nbsp;/&nbsp;100.&nbsp;&nbsp;"增值税本月<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_XFS_BY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_XFS_BY&nbsp;INTO&nbsp;WA_XFS_BY&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_POS&nbsp;=&nbsp;10."10为扣点店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XFS_BY&nbsp;&nbsp;&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_POS&nbsp;=&nbsp;00."00为非扣点店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XFS_BY&nbsp;&nbsp;&nbsp;=&nbsp;WA_XFS_BY-NETWR&nbsp;*&nbsp;5&nbsp;/&nbsp;100."消费税本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-KZWI3_BY&nbsp;=&nbsp;WA_XFS_BY-KZWI3."销售金额本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_XFS_BN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_XFS_BN&nbsp;INTO&nbsp;WA_XFS_BN&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_POS&nbsp;=&nbsp;10."10为扣点店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XFS_BN&nbsp;&nbsp;&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&lt;WA_ALV_TABLE&gt;-EX_POS&nbsp;=&nbsp;00."00为非扣点店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-XFS_BN&nbsp;&nbsp;&nbsp;=&nbsp;WA_XFS_BN-NETWR&nbsp;*&nbsp;5&nbsp;/&nbsp;100."消费税本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-KZWI3_BN&nbsp;=&nbsp;WA_XFS_BN-KZWI3."销售金额本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-CJJYF_BY&nbsp;=&nbsp;(&nbsp;&lt;WA_ALV_TABLE&gt;-ZZS_BY&nbsp;+&nbsp;&lt;WA_ALV_TABLE&gt;-XFS_BY&nbsp;)&nbsp;*&nbsp;12&nbsp;/&nbsp;100.&nbsp;"城建教育费<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-CJJYF_BN&nbsp;=&nbsp;(&nbsp;&lt;WA_ALV_TABLE&gt;-ZZS_BN&nbsp;+&nbsp;&lt;WA_ALV_TABLE&gt;-XFS_BN&nbsp;)&nbsp;*&nbsp;12&nbsp;/&nbsp;100.&nbsp;"城建教育费<br />
+   </div>
+   <div class="codeComment">
+**********************广告费及摊销*******************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6601002.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_6601002&nbsp;INTO&nbsp;LW_6601002&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-Z1002_BN&nbsp;=&nbsp;LW_6601002-Z1002_BN."本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-Z1002_BY&nbsp;=&nbsp;LW_6601002-Z1002_BY."本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6601003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_6601003&nbsp;INTO&nbsp;LW_6601003&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-Z1003_BN&nbsp;=&nbsp;LW_6601003-Z1003_BN."本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-Z1003_BY&nbsp;=&nbsp;LW_6601003-Z1003_BY."本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_6001003.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_6001003&nbsp;INTO&nbsp;LW_6001003&nbsp;WITH&nbsp;KEY&nbsp;PRCTR&nbsp;=&nbsp;&lt;WA_ALV_TABLE&gt;-PRCTR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-Z6001003_BN&nbsp;=&nbsp;LW_6001003-Z6001003_BN."本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-Z6001003_BY&nbsp;=&nbsp;LW_6001003-Z6001003_BY."本年<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-Z6001003_BN&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-GGFJTX_BN&nbsp;=&nbsp;(&nbsp;&lt;WA_ALV_TABLE&gt;-Z1002_BN&nbsp;-&nbsp;&lt;WA_ALV_TABLE&gt;-Z1003_BN&nbsp;)&nbsp;*&nbsp;(&nbsp;&lt;WA_ALV_TABLE&gt;-KZWI3_BN&nbsp;/&nbsp;&lt;WA_ALV_TABLE&gt;-Z6001003_BN&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-GGFJTX_BN&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;WA_ALV_TABLE&gt;-Z6001003_BY&nbsp;&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-GGFJTX_BY&nbsp;=&nbsp;(&nbsp;&lt;WA_ALV_TABLE&gt;-Z1002_BY&nbsp;-&nbsp;&lt;WA_ALV_TABLE&gt;-Z1003_BY&nbsp;)&nbsp;*&nbsp;(&nbsp;&lt;WA_ALV_TABLE&gt;-KZWI3_BY&nbsp;/&nbsp;&lt;WA_ALV_TABLE&gt;-Z6001003_BY&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;WA_ALV_TABLE&gt;-GGFJTX_BY&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+********************广告费及摊销*********************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+FORM FM_ALVSHOW.<br />
+&nbsp;&nbsp;DATA&nbsp;ZBL1&nbsp;TYPE&nbsp;CHAR1.<br />
+&nbsp;&nbsp;DATA&nbsp;ZBL2&nbsp;TYPE&nbsp;CHAR1.<br />
+&nbsp;&nbsp;IF&nbsp;Z_BNLJ&nbsp;=&nbsp;'X'."如果本年累计打钩则不显示本月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBL1&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBL1&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;Z_BY&nbsp;=&nbsp;'X'."<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBL2&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBL2&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_CHAR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;"表名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;"中文描述字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4."FIX_COLUMN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-NO_OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5."隐藏列<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_CHAR:<br />
+'GT_ALV_TABLE'  'SORTL      '    '门店'         'X'  '',<br />
+'GT_ALV_TABLE'  'PRCTR   '       '利润中心'     ''   '',<br />
+'GT_ALV_TABLE'  'XSSR_BY    '    '销售收入'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'EX_MDMJ_BY '    '营业面积'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'DWMJXS_BY  '    '单位面积销售' ''   ZBL1,<br />
+'GT_ALV_TABLE'  'XSCB_BY    '    '销售成本'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'MLE_BY     '    '毛利额'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'DWBJML_BY  '    '单位面积毛利' ''   ZBL1,<br />
+'GT_ALV_TABLE'  'MLL_BY     '    '毛利率'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'ZJ_BY      '    '租金'         ''   ZBL1,<br />
+'GT_ALV_TABLE'  'ZZS_BY     '    '增值税'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'XFS_BY     '    '消费税'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'CJJYF_BY   '    '城建教育费'   ''   ZBL1,<br />
+'GT_ALV_TABLE'  'ZGGZ_BY    '    '职工工资'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'HZFGZ_BY   '    '合作方工资'   ''   ZBL1,<br />
+'GT_ALV_TABLE'  'GX_BY'          '各项提取'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'LPGZ_BY    '    '劳派工资'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'SDF_BY     '    '水电费'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'CLF_BY     '    '差旅费'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'DHF_BY     '    '电话费'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'ZJZYED_BY  '    '资金占用额度' ''   ZBL1,<br />
+'GT_ALV_TABLE'  'ZJZYF_BY   '    '资金占用费'   ''   ZBL1,<br />
+'GT_ALV_TABLE'  'YSFY_BY    '    '运输费用'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'GGFJ_BY'        '广告费及摊销' ''   ZBL1,<br />
+'GT_ALV_TABLE'  'ZXF_BY'         '装修费摊销'   ''   ZBL1,<br />
+'GT_ALV_TABLE'  'JCF_BY     '    '检测费'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'JLF_BY     '    '精炼费'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'SSH_BY     '    '首饰盒'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'JFHB_BY    '    '积分回报'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'WYF_BY     '    '物业费'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'OTHER_BY'       '其他'         ''   ZBL1,<br />
+'GT_ALV_TABLE'  'SKSXF_BY   '    '刷卡手续费'   ''   ZBL1,<br />
+'GT_ALV_TABLE'  'ZCHJ_BY    '    '支出合计'     ''   ZBL1,<br />
+'GT_ALV_TABLE'  'LRE_BY     '    '利润额'       ''   ZBL1,<br />
+'GT_ALV_TABLE'  'DWMJLR_BY  '    '单位面积利润' ''   ZBL1,<br />
+'GT_ALV_TABLE'  'LRL_BY     '    '利润率'       ''   ZBL1,<br />
+   </div>
+   <div class="codeComment">
+************************************************************<br />
+   </div>
+   <div class="code">
+'GT_ALV_TABLE'  'XSSR_BN    '    '销售收入'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'EX_MDMJ_BN '    '营业面积'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'DWMJXS_BN  '    '单位面积销售' ''   ZBL2,<br />
+'GT_ALV_TABLE'  'XSCB_BN    '    '销售成本'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'MLE_BN     '    '毛利额'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'DWBJML_BN  '    '单位面积毛利' ''   ZBL2,<br />
+'GT_ALV_TABLE'  'MLL_BN     '    '毛利率'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'ZJ_BN      '    '租金'         ''   ZBL2,<br />
+'GT_ALV_TABLE'  'ZZS_BN     '    '增值税'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'XFS_BN     '    '消费税'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'CJJYF_BN   '    '城建教育费'   ''   ZBL2,<br />
+'GT_ALV_TABLE'  'ZGGZ_BN    '    '职工工资'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'HZFGZ_BN   '    '合作方工资'   ''   ZBL2,<br />
+'GT_ALV_TABLE'  'GX_BN'          '各项提取'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'LPGZ_BN    '    '劳派工资'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'SDF_BN     '    '水电费'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'CLF_BN     '    '差旅费'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'DHF_BN     '    '电话费'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'ZJZYED_BN  '    '资金占用额度' ''   ZBL2,<br />
+'GT_ALV_TABLE'  'ZJZYF_BN   '    '资金占用费'   ''   ZBL2,<br />
+'GT_ALV_TABLE'  'YSFY_BN    '    '运输费用'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'GGFJ_BN'        '广告费及摊销' ''   ZBL2,<br />
+'GT_ALV_TABLE'  'ZXF_BN'         '装修费摊销'   ''   ZBL2,<br />
+'GT_ALV_TABLE'  'JCF_BN     '    '检测费'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'JLF_BN     '    '精炼费'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'SSH_BN     '    '首饰盒'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'JFHB_BN    '    '积分回报'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'WYF_BN     '    '物业费'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'OTHER_BN'       '其他'         ''   ZBL2,<br />
+'GT_ALV_TABLE'  'SKSXF_BN   '    '刷卡手续费'   ''   ZBL2,<br />
+'GT_ALV_TABLE'  'ZCHJ_BN    '    '支出合计'     ''   ZBL2,<br />
+'GT_ALV_TABLE'  'LRE_BN     '    '利润额'       ''   ZBL2,<br />
+'GT_ALV_TABLE'  'DWMJLR_BN  '    '单位面积利润' ''   ZBL2,<br />
+'GT_ALV_TABLE'  'LRL_BN     '    '利润率'       ''   ZBL2.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调整ALV显示布局<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;WA_LAYOUT.<br />
+&nbsp;&nbsp;WA_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"颜色变换<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;WA_LAYOUT-BOX_FNAME&nbsp;&nbsp;=&nbsp;'SEL_COL'."选择&nbsp;框<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_LAYOUT-STYLEFNAME&nbsp;=&nbsp;'STYTLE'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置样式<br />
+&nbsp;&nbsp;WA_LAYOUT-NO_TOOLBAR&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置样式<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"回调状态&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;回调用户命令&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'&nbsp;&nbsp;&nbsp;"To-Do：确定是否需要Top&nbsp;Page<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_HTML_HEIGHT_TOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"To-Do：确定Top&nbsp;Page的高度<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_VARIANT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LS_VARIANT<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_ALV_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"输出的数据信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM USER_COMMAND USING R_UCOMM LIKE SY-UCOMM                 "做好自定义按钮的准备<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SELTAB&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_SELTAB.<br />
+<br />
+&nbsp;&nbsp;FREE&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;REF_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;REF_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;REF_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"以下是打印关联&nbsp;表格&nbsp;用<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CASE&nbsp;R_UCOMM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'BTN_XZ'.<br />
+**&nbsp;负号前置<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_MOVE.<br />
+**&nbsp;按模板下载<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_DOWNLOAD.<br />
+<br />
+*&nbsp;&nbsp;ENDCASE.<br />
+<br />
+*设置刷新<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*保证行、列位置在自动刷新时不变<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;RS_SELFIELD-COL_STABLE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;RS_SELFIELD-ROW_STABLE&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&设置ALV的GUI状态"以下是建立小图标用的语句<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM PF_STATUS_SET USING P_EXTAB TYPE SLIS_T_EXTAB.<br />
+&nbsp;&nbsp;P_EXTAB&nbsp;=&nbsp;VALUE&nbsp;#(&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&RNT_PREV'&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"填写不显示的功能码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&AQW'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'%SL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&INFO'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&VEXCEL'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&ABC'&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;FCODE&nbsp;=&nbsp;'&GRAPH'&nbsp;)&nbsp;).<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'ZFIRP0250_PF'&nbsp;EXCLUDING&nbsp;P_EXTAB.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"设置自己的按钮<br />
+ENDFORM.<br />
+<br />
+FORM HTML_TOP_OF_PAGE USING CL_DD TYPE REF TO CL_DD_DOCUMENT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;DATA&nbsp;LV_TEXT&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;255&nbsp;.<br />
+***********************************************************************<br />
+**&nbsp;To-Do：定义Top&nbsp;Page输出的内容<br />
+***********************************************************************<br />
+*&nbsp;&nbsp;DATA(LV_LINE)&nbsp;=&nbsp;LINES(&nbsp;IT_TABLE&nbsp;)&nbsp;.<br />
+*&nbsp;&nbsp;LV_TEXT&nbsp;=&nbsp;'找到'&nbsp;&&&nbsp;LV_LINE&nbsp;&&&nbsp;'条数据！'&nbsp;.<br />
+*&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"&nbsp;定义缓冲区变量<br />
+&nbsp;&nbsp;DATA:&nbsp;M_P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I.<br />
+&nbsp;&nbsp;DATA:M_BUFFER&nbsp;TYPE&nbsp;STRING.<br />
+&nbsp;&nbsp;DATA&nbsp;ZT&nbsp;TYPE&nbsp;CHAR30.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;Z_BNLJ&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ZT&nbsp;=&nbsp;S_GJAHR-LOW&nbsp;&&&nbsp;'年'&nbsp;&&&nbsp;'01月-'&nbsp;&&&nbsp;S_MONAT-LOW&nbsp;&&&nbsp;'月'.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;IF&nbsp;Z_BY&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ZT&nbsp;=&nbsp;S_GJAHR-LOW&nbsp;&&&nbsp;'年'&nbsp;&&&nbsp;S_MONAT-LOW&nbsp;&&&nbsp;'月'.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;M_BUFFER&nbsp;=&nbsp;'&lt;HTML&gt;&lt;CENTER&gt;&lt;H3&gt;'&&&nbsp;ZT&nbsp;&&&nbsp;&nbsp;'盈亏表'&&&nbsp;'&lt;/H3&gt;&lt;/CENTER&gt;&lt;/HTML&gt;'.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;HTML_INSERT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTENTS&nbsp;=&nbsp;M_BUFFER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSITION&nbsp;=&nbsp;M_P.<br />
+<br />
+ENDFORM .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T01&nbsp;查询条件<br />
+*&nbsp;T02&nbsp;查询方式<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_BUKRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公司代码<br />
+*&nbsp;S_GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;会计年度<br />
+*&nbsp;S_MONAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;会计期间<br />
+*&nbsp;S_PRCTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;利润中心<br />
+*&nbsp;S_SNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;利润中心组<br />
+*&nbsp;Z_BNLJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本年累计<br />
+*&nbsp;Z_BY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本月<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;ZCB<br />
+*000&nbsp;&nbsp;&nbsp;&1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

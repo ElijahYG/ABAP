@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTEST_LY_02</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTEST_LY_02</h2>
+<h3> Description: ALV 动态显示列Demo</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZTEST_LY_02.<br />
+<br />
+DATA: WA_LAYO TYPE LVC_S_LAYO.<br />
+DATA: WA_FCAT TYPE LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FCAT&nbsp;TYPE&nbsp;LVC_T_FCAT.<br />
+<br />
+DATA  IT_SCOL TYPE LVC_T_SCOL.<br />
+<br />
+DATA: G_GRID TYPE REF TO CL_GUI_ALV_GRID.<br />
+<br />
+FIELD-SYMBOLS: &lt;DYN_TABLE&gt; TYPE STANDARD TABLE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;DYN_WA&gt;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;DYN_FIELD&gt;.<br />
+<br />
+DATA: DY_TABLE TYPE REF TO DATA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DY_LINE&nbsp;&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;DATA.<br />
+<br />
+DATA: COLNAME(10),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INDEX(2).<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;列数<br />
+   </div>
+   <div class="code">
+PARAMETERS: COL TYPE I.<br />
+<br />
+CLEAR: IT_FCAT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;根据条件动态生成列<br />
+   </div>
+   <div class="code">
+DO COL TIMES.<br />
+&nbsp;&nbsp;INDEX&nbsp;=&nbsp;INDEX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'COL'&nbsp;INDEX&nbsp;INTO&nbsp;COLNAME.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_FCAT&nbsp;USING:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLNAME&nbsp;'C'&nbsp;'字段名'&nbsp;'100'.<br />
+ENDDO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;根据it_fact生成动态表<br />
+   </div>
+   <div class="code">
+CALL METHOD CL_ALV_TABLE_CREATE=&gt;CREATE_DYNAMIC_TABLE<br />
+&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCATALOG&nbsp;=&nbsp;IT_FCAT<br />
+&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EP_TABLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;DY_TABLE.<br />
+<br />
+ASSIGN DY_TABLE-&gt;* TO &lt;DYN_TABLE&gt;.<br />
+<br />
+CREATE DATA DY_LINE LIKE LINE OF &lt;DYN_TABLE&gt;.<br />
+<br />
+ASSIGN DY_LINE-&gt;* TO &lt;DYN_WA&gt;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;给表字段赋值<br />
+   </div>
+   <div class="code">
+CLEAR: INDEX.<br />
+DO COL TIMES.<br />
+&nbsp;&nbsp;INDEX&nbsp;=&nbsp;INDEX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'COL'&nbsp;INDEX&nbsp;INTO&nbsp;COLNAME.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;COLNAME&nbsp;OF&nbsp;STRUCTURE&nbsp;&lt;DYN_WA&gt;&nbsp;&nbsp;TO&nbsp;&lt;DYN_FIELD&gt;.<br />
+&nbsp;&nbsp;&lt;DYN_FIELD&gt;&nbsp;=&nbsp;'放假'.<br />
+ENDDO.<br />
+APPEND &lt;DYN_WA&gt; TO &lt;DYN_TABLE&gt;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;相当于给内表放入两条数据<br />
+   </div>
+   <div class="code">
+CLEAR: INDEX.<br />
+DO COL TIMES.<br />
+&nbsp;&nbsp;INDEX&nbsp;=&nbsp;INDEX&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'COL'&nbsp;INDEX&nbsp;INTO&nbsp;COLNAME.<br />
+&nbsp;&nbsp;ASSIGN&nbsp;COMPONENT&nbsp;COLNAME&nbsp;OF&nbsp;STRUCTURE&nbsp;&lt;DYN_WA&gt;&nbsp;TO&nbsp;&lt;DYN_FIELD&gt;.<br />
+&nbsp;&nbsp;&lt;DYN_FIELD&gt;&nbsp;=&nbsp;'列数据'.<br />
+ENDDO.<br />
+APPEND &lt;DYN_WA&gt; TO &lt;DYN_TABLE&gt;.<br />
+<br />
+CLEAR: WA_LAYO.<br />
+WA_LAYO-ZEBRA = 'X'.<br />
+WA_LAYO-CWIDTH_OPT = 'X'.<br />
+<br />
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FCAT<br />
+&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&lt;DYN_TABLE&gt;<br />
+&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+IF SY-SUBRC &lt;&gt; 0.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID&nbsp;TYPE&nbsp;SY-MSGTY&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_add_fcat<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;VALUE1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;VALUE2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;VALUE3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;VALUE4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_ADD_FCAT USING VALUE1 VALUE2 VALUE3 VALUE4.<br />
+&nbsp;&nbsp;WA_FCAT-FIELDNAME&nbsp;=&nbsp;VALUE1.<br />
+&nbsp;&nbsp;WA_FCAT-INTTYPE&nbsp;=&nbsp;VALUE2.<br />
+&nbsp;&nbsp;WA_FCAT-REPTEXT&nbsp;=&nbsp;VALUE3.<br />
+&nbsp;&nbsp;WA_FCAT-INTLEN&nbsp;&nbsp;&nbsp;=&nbsp;VALUE4.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FCAT&nbsp;TO&nbsp;IT_FCAT.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FCAT.<br />
+ENDFORM.                    "frm_add_fcat<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

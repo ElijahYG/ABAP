@@ -1,0 +1,1224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP0060</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP0060</h2>
+<h3> Description: 门店业绩统计表</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP0060<br />
+*&&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;SD-RP-0060<br />
+*&&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;门店业绩统计表<br />
+*&&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;GUOYUE<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/07/23&nbsp;&nbsp;&nbsp;&nbsp;GUOYUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+REPORT ZSDRP0060.<br />
+<br />
+TYPE-POOLS:SLIS.  "ALV 显示使用到的共享池<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&引入选择屏幕表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:VBRK,ZT001W,MBEW,MBEWH,KNA1,S900,S901,ZSDRP0270_PLAN.       "通知sap我在这里需要用到的表 FAGLFLEXT FAGLFLEXA ZSDRP0210_02<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;定义ALV显示字段的内表<br />
+   </div>
+   <div class="code">
+DATA: IT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_FIELDCAT TYPE SLIS_FIELDCAT_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示格式的工作区<br />
+   </div>
+   <div class="code">
+DATA: WA_LAYOUT   TYPE SLIS_LAYOUT_ALV.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*定义ALV显示结构<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0010,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEL_COL&nbsp;TYPE&nbsp;CHAR1,"前端打勾选项所用语句<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SPMON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-SPMON,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZXSJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-ZXSJE,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"实际销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZXSCB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-ZXSCB,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSMLE(10)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售毛利额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSMLL(10)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSMLL_C(8)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DJXS(8)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"地均销售<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DJML(8)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"地均毛利<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RJLX(8)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"人均劳效<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZXSJE_BB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP0270_PLAN-ZXSJE,&nbsp;"销售计划(必保任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZXSJE_FD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP0270_PLAN-ZXSJE,&nbsp;"销售计划(奋斗任务),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSJHWCB_BB(10)&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售计划完成比(必保任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSJHWCB_BB_C(8)&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售计划完成比(必保任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSJHWCB_FD(10)&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售计划完成比(必保任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSJHWCB_FD_C(8)&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售计划完成比(必保任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KCZZL(10)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;P&nbsp;DECIMALS&nbsp;2,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存周转率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KCZZL_C(8)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"库存周转率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_MDMJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZT001W-EX_MDMJ,&nbsp;&nbsp;&nbsp;"门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_YGRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZT001W-EX_MDMJ,&nbsp;&nbsp;&nbsp;"员工人数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZDAT_BEGIN(50)&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;"起始时间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZDAT_END(50)&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;"截至时间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORTL(10)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;"描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VALUE_BEGIN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MBEW-SALK3,&nbsp;&nbsp;&nbsp;"期初库存成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VALUE_END&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MBEW-SALK3,&nbsp;&nbsp;&nbsp;"期末库存成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S901-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0010.<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0020,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_MDMJ&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZT001W-EX_MDMJ,&nbsp;&nbsp;&nbsp;"门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_YGRS&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZT001W-EX_YGRS,&nbsp;&nbsp;&nbsp;"员工人数<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0020.<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0030,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORTL(10)&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店描述<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0030.<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0040,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;S900-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VRSIO&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP0270_PLAN-VRSIO,&nbsp;"销售计划版本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZXSJE&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP0270_PLAN-ZXSJE,&nbsp;"销售计划(必保任务)(奋斗任务)<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0040.<br />
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;STRU_0060,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;TYPE&nbsp;MBEW-BWKEY,&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SALK3&nbsp;TYPE&nbsp;MBEW-SALK3,&nbsp;"总价值<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LFGJA&nbsp;TYPE&nbsp;MBEW-LFGJA,&nbsp;&nbsp;"当前期间的会计年度<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LFMON&nbsp;TYPE&nbsp;MBEW-LFMON,&nbsp;&nbsp;"当前期间&nbsp;(记帐期间)<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;END&nbsp;OF&nbsp;STRU_0060.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA IT_TABLE   TYPE STANDARD TABLE OF STRU_0010.<br />
+DATA WA_TABLE   TYPE                   STRU_0010.<br />
+DATA GT_TABLE   TYPE STANDARD TABLE OF STRU_0010.<br />
+DATA GW_TABLE   TYPE                   STRU_0010.<br />
+DATA LT_TABLE   TYPE STANDARD TABLE OF STRU_0010.<br />
+DATA LW_TABLE   TYPE                   STRU_0010.<br />
+DATA IT_TABLE2  TYPE STANDARD TABLE OF STRU_0030.<br />
+DATA WA_TABLE2  TYPE                   STRU_0030.<br />
+DATA IT_TABLE3  TYPE STANDARD TABLE OF STRU_0040.<br />
+DATA WA_TABLE3  TYPE                   STRU_0040.<br />
+DATA IT_TABLE4  TYPE STANDARD TABLE OF STRU_0040.<br />
+DATA WA_TABLE4  TYPE                   STRU_0040.<br />
+DATA IT_TABLE5  TYPE STANDARD TABLE OF STRU_0020.<br />
+DATA WA_TABLE5  TYPE                   STRU_0020.<br />
+DATA IT_TABLE8  TYPE STANDARD TABLE OF STRU_0060."期初值<br />
+DATA WA_TABLE8  TYPE                   STRU_0060.<br />
+DATA IT_TABLE10  TYPE STANDARD TABLE OF STRU_0060."期末值<br />
+DATA WA_TABLE10  TYPE                   STRU_0060.<br />
+DATA:L_BL(6) TYPE P.<br />
+   </div>
+   <div class="codeComment">
+*DATA:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_EVENTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_EVENT&nbsp;WITH&nbsp;HEADER&nbsp;LINE."加标题<br />
+*DATA:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS_LIST_TOP_OF_PAGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;SLIS_T_LISTHEADER.<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BLK01 WITH FRAME TITLE TEXT-001.<br />
+SELECT-OPTIONS:S_VKORG  FOR S901-VKORG OBLIGATORY NO-EXTENSION NO INTERVALS DEFAULT 8000."公司代码<br />
+SELECT-OPTIONS:S_WERKS  FOR S901-WERKS OBLIGATORY ."门店<br />
+SELECT-OPTIONS:S_SPMON  FOR S901-SPMON OBLIGATORY NO-EXTENSION DEFAULT SY-DATUM+0(6)."日期<br />
+   </div>
+   <div class="codeComment">
+*PARAMETERS:&nbsp;P_1&nbsp;TYPE&nbsp;C&nbsp;AS&nbsp;CHECKBOX&nbsp;DEFAULT&nbsp;ABAP_FALSE&nbsp;USER-COMMAND&nbsp;FLAG.<br />
+*PARAMETERS&nbsp;P_CITYFR&nbsp;TYPE&nbsp;SPFLI-CITYFROM.<br />
+*&nbsp;下划线<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN ULINE .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;备注文字<br />
+*SELECTION-SCREEN&nbsp;COMMENT&nbsp;/1(50)&nbsp;TEXT-T02&nbsp;.<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN COMMENT /1(50) TEXT-T03 .<br />
+SELECTION-SCREEN END OF BLOCK BLK01.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR S_SPMON-LOW.<br />
+&nbsp;&nbsp;PERFORM&nbsp;MONAT_F4_LOW.<br />
+<br />
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR S_SPMON-HIGH.<br />
+&nbsp;&nbsp;PERFORM&nbsp;MONAT_F4_HIGH.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.   "开始事件操作<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;JC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"检查输入数据<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA.&nbsp;&nbsp;&nbsp;&nbsp;"取数(除库存成本数据)<br />
+&nbsp;&nbsp;PERFORM&nbsp;GET_DATA1.&nbsp;&nbsp;&nbsp;"取数(库存成本数据)<br />
+&nbsp;&nbsp;PERFORM&nbsp;CAL_DATA.&nbsp;&nbsp;&nbsp;&nbsp;"整理数据（除库存成本）<br />
+&nbsp;&nbsp;PERFORM&nbsp;CAL_DATA2.&nbsp;&nbsp;&nbsp;"整理数据(库存成本)<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_FILL_TABLE."数据匹配到输出内表中<br />
+&nbsp;&nbsp;PERFORM&nbsp;ALV_SHOW.&nbsp;&nbsp;&nbsp;&nbsp;"调用函数显示<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;IT_TABLE[],<br />
+&nbsp;&nbsp;GT_TABLE[],<br />
+&nbsp;&nbsp;LT_TABLE[],<br />
+&nbsp;&nbsp;IT_TABLE2[],<br />
+&nbsp;&nbsp;IT_TABLE3[],<br />
+&nbsp;&nbsp;IT_TABLE4[],<br />
+&nbsp;&nbsp;IT_TABLE5[],<br />
+&nbsp;&nbsp;IT_TABLE8[],<br />
+&nbsp;&nbsp;IT_TABLE10[].<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&检查输入数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM JC.<br />
+&nbsp;&nbsp;IF&nbsp;S_SPMON-LOW+4(2)&nbsp;=&nbsp;0&nbsp;OR&nbsp;S_SPMON-LOW+4(2)&nbsp;&gt;&nbsp;12.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'输入日期不正确'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;S_SPMON-LOW&nbsp;&gt;&nbsp;SY-DATUM+0(6)&nbsp;OR&nbsp;S_SPMON-HIGH&nbsp;&gt;&nbsp;SY-DATUM+0(6).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'输入日期超过系统当前日期'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;S_SPMON-LOW&nbsp;=&nbsp;S_SPMON-HIGH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'输入的考核日期前后不能一致'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数(除库存成本)<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.           "调用函数取数<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;LT_TABLE3&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0040.<br />
+&nbsp;&nbsp;DATA&nbsp;LW_TABLE3&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0040.<br />
+&nbsp;&nbsp;DATA&nbsp;LT_TABLE4&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0040.<br />
+&nbsp;&nbsp;DATA&nbsp;LW_TABLE4&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0040.<br />
+<br />
+&nbsp;&nbsp;DATA:LT_MARA&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;LIKE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MARA.<br />
+<br />
+&nbsp;&nbsp;RANGES&nbsp;S_MATNR&nbsp;FOR&nbsp;MARA-MATNR&nbsp;OCCURS&nbsp;0&nbsp;.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;S_MATNR[].<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+*相关的移动类型<br />
+*入库&nbsp;101&nbsp;201&nbsp;301&nbsp;/&nbsp;102&nbsp;202&nbsp;302<br />
+*销售&nbsp;251<br />
+*退货&nbsp;252<br />
+*返库&nbsp;&nbsp;671&nbsp;672&nbsp;&nbsp;EKKO-ABSGR&nbsp;=&nbsp;30<br />
+*返库&nbsp;&nbsp;671&nbsp;672&nbsp;&nbsp;EKKO-ABSGR&nbsp;=&nbsp;10<br />
+*--------------------------------------------------------------------*<br />
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_BWART.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;S_MATNR-sign&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;S_MATNR-option&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;S_MATNR-low&nbsp;=&nbsp;&nbsp;&1.<br />
+&nbsp;&nbsp;&nbsp;append&nbsp;S_MATNR.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_BWART:<br />
+'Y59100000',"100元面值卡<br />
+'Y59100001',"1000元面值卡<br />
+'Y59100002',"礼金卡（使用）<br />
+'Y59100010',"1盎司（31.1g）<br />
+'Y59100011',"2盎司（62.2g）<br />
+'Y59100012',"3盎司（93.3）<br />
+'Y59100013',"5盎司（155.5g）<br />
+'Y59100014',"10盎司（311g）<br />
+'Y59100015',"50盎司（1555g）<br />
+'Y59600000',"订制费<br />
+'Y59600001',"起版费<br />
+'Y59600002',"包装费<br />
+'Y59600003',"第三方配件费<br />
+'Y59600007',"编织费<br />
+'Y59600008',"赠品费<br />
+'Y59600009',"检测费<br />
+'Y59600010',"仓储费<br />
+'Y59600011',"违约金<br />
+'Y59600012',"电商运保费<br />
+'Y59600013',"加盟费<br />
+'Y59600014',"品牌管理费<br />
+'Y59600015',"培训费<br />
+'Y59600016',"软件费<br />
+'Y59600017',"广告费<br />
+'Y59600018',"包装费<br />
+'Y59600019',"罚金<br />
+'Y59600020',"微信红包<br />
+'Y59600021',"社区卡<br />
+'Y59600022',"积分回报<br />
+'Y59600023',"押金<br />
+'Z123002211',"中金金条<br />
+'Z123002741',"红色金条<br />
+'Z123002212',"原料金条<br />
+'Z123002371',"经易金条<br />
+'Z433002341',"宝泉银条<br />
+'Z433002631',"银诺银砖<br />
+'Z433002741',"红色银条<br />
+'Z433002181',"自营银条<br />
+'Z433002371',"经易银条<br />
+'Z123002351',"自营金条<br />
+'Z123002352',"世博金条<br />
+'Z113002353',"足金饰品<br />
+'Z123002354',"999‰金<br />
+'T101',"足金旧饰<br />
+'T102',"999‰金旧饰<br />
+'T103',"999‰金摆件旧饰<br />
+'T104',"饰品金条旧饰<br />
+'T201',"铂Pt900旧饰<br />
+'T202',"铂Pt950旧饰<br />
+'T203',"铂Pt990旧饰<br />
+'T204',"999‰铂旧饰<br />
+'T205',"PK 金旧饰<br />
+'T206',"PT950K旧饰<br />
+'T303',"18K金旧饰<br />
+'Y59600028'."调整支付方式专用码<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;S~WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S~SPMON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S~ZXSJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"实际销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S~ZXSCB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售成本<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S~MATNR<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;&nbsp;S901&nbsp;AS&nbsp;S<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MARA&nbsp;AS&nbsp;M&nbsp;ON&nbsp;S~MATNR&nbsp;=&nbsp;M~MATNR<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;S~WERKS&nbsp;&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;S~SPMON&nbsp;&nbsp;&nbsp;IN&nbsp;S_SPMON<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;S~VKORG&nbsp;&nbsp;&nbsp;IN&nbsp;S_VKORG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;S~MATNR&nbsp;&nbsp;&nbsp;NOT&nbsp;IN&nbsp;&nbsp;S_MATNR.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE&nbsp;BY&nbsp;WERKS.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORTL&nbsp;&nbsp;"地点描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;KNA1<br />
+&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE2&nbsp;BY&nbsp;WERKS.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_MDMJ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_YGRS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"员工人数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZT001W<br />
+&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE5&nbsp;BY&nbsp;WERKS.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售计划(必保任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_TABLE3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZSDRP0270_PLAN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPMON&nbsp;&nbsp;IN&nbsp;S_SPMON<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PLTYP&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;VRSIO&nbsp;=&nbsp;300.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*按门店汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TABLE3&nbsp;INTO&nbsp;LW_TABLE3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LW_TABLE3&nbsp;INTO&nbsp;IT_TABLE3.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE3&nbsp;BY&nbsp;WERKS.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZXSJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"销售计划(奋斗任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;LT_TABLE4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZSDRP0270_PLAN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPMON&nbsp;&nbsp;IN&nbsp;S_SPMON<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PLTYP&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;VRSIO&nbsp;=&nbsp;301.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*按门店汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_TABLE4&nbsp;INTO&nbsp;LW_TABLE4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LW_TABLE4&nbsp;INTO&nbsp;IT_TABLE4.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE4&nbsp;BY&nbsp;WERKS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;IF&nbsp;S_EXYGRS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"如果屏幕输入人数不为空，那么店员人数等于屏幕所输入人数，更新GT表的EX_YGRS（店员人数字段）<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-EX_YGRS&nbsp;=&nbsp;S_EXYGRS-LOW.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;GT_TABLE&nbsp;FROM&nbsp;GW_TABLE&nbsp;TRANSPORTING&nbsp;EX_YGRS&nbsp;WHERE&nbsp;EX_YGRS&nbsp;&lt;&gt;&nbsp;GW_TABLE-EX_YGRS&nbsp;."GT_TABLE（上边SELECT出的）里的店员人数&nbsp;不等于&nbsp;&nbsp;GW_TABLE-EX_YGRS（屏幕所输入人数）<br />
+*&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;"那么更新GT_TABLE.防止查出的人数不是当时店内人员人数，因为ZT001W为自荐表人员人数不带有记录时间戳。<br />
+ENDFORM.<br />
+<br />
+FORM GET_DATA1."取数（库存成本）<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;IT_TABLE6&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0060."<br />
+&nbsp;&nbsp;DATA&nbsp;WA_TABLE6&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0060.<br />
+&nbsp;&nbsp;DATA&nbsp;IT_TABLE7&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0060."<br />
+&nbsp;&nbsp;DATA&nbsp;WA_TABLE7&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0060.<br />
+&nbsp;&nbsp;DATA&nbsp;IT_TABLE9&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0060.<br />
+&nbsp;&nbsp;DATA&nbsp;WA_TABLE9&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRU_0060.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;L_DATE1&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;"LOW&nbsp;月初第一天<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE2&nbsp;TYPE&nbsp;SY-DATUM,&nbsp;"LOW&nbsp;月末最后一天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE3&nbsp;TYPE&nbsp;SY-DATUM.&nbsp;"HIGH&nbsp;月初第一天<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE4&nbsp;TYPE&nbsp;SY-DATUM.&nbsp;"HIGH&nbsp;月末最后一天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;L_DATE5&nbsp;LIKE&nbsp;P0001-BEGDA."LOW&nbsp;月的前一个月<br />
+&nbsp;&nbsp;DATA:&nbsp;L_DATE6&nbsp;LIKE&nbsp;P0001-BEGDA."HIGH&nbsp;月的前一个月<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;S_SPMON-HIGH&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DATE1&nbsp;=&nbsp;S_SPMON-LOW&nbsp;&nbsp;&&&nbsp;'01'."LOW&nbsp;月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'RP_CALC_DATE_IN_INTERVAL'&nbsp;"自动计算上个月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DAYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MONTHS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SIGNUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'-'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YEARS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALC_DATE&nbsp;=&nbsp;L_DATE5.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DATE3&nbsp;=&nbsp;S_SPMON-HIGH&nbsp;&&&nbsp;'01'."&nbsp;HIGH&nbsp;月初第一天<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'RP_CALC_DATE_IN_INTERVAL'&nbsp;"自动计算上个月<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DAYS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MONTHS&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SIGNUM&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'-'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YEARS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'0'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALC_DATE&nbsp;=&nbsp;L_DATE6.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;S_SPMON-HIGH&nbsp;IS&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期初------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFGJA<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFMON<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&lt;&nbsp;L_DATE5+0(4)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&lt;&nbsp;L_DATE5+4(2)&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEWH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&lt;&nbsp;L_DATE5+0(4)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&lt;&nbsp;L_DATE5+4(2).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE6&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE7&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE6&nbsp;INTO&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE6&nbsp;TO&nbsp;IT_TABLE7.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TABLE7&nbsp;BY&nbsp;BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE7.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE7&nbsp;INTO&nbsp;WA_TABLE7.<br />
+   </div>
+   <div class="codeComment">
+*按门店汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;WA_TABLE7&nbsp;INTO&nbsp;IT_TABLE8."期初<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期初------------------*<br />
+*---------------------计算期间------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE6,IT_TABLE7.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFGJA<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFMON<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&nbsp;S_SPMON-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&nbsp;S_SPMON-LOW&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEWH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&nbsp;S_SPMON-LOW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&nbsp;S_SPMON-LOW.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE6&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE7&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE6&nbsp;INTO&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE6&nbsp;TO&nbsp;IT_TABLE7.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TABLE7&nbsp;BY&nbsp;BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE7&nbsp;INTO&nbsp;WA_TABLE7.<br />
+   </div>
+   <div class="codeComment">
+*按门店汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;WA_TABLE7&nbsp;INTO&nbsp;IT_TABLE9."期间值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期间------------------*<br />
+*---------------------计算期末值------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE9.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE8.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE9&nbsp;INTO&nbsp;WA_TABLE9.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE8&nbsp;INTO&nbsp;WA_TABLE8&nbsp;WITH&nbsp;KEY&nbsp;BWKEY&nbsp;=&nbsp;WA_TABLE9-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE10-BWKEY&nbsp;=&nbsp;WA_TABLE8-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE10-SALK3&nbsp;=&nbsp;WA_TABLE8-SALK3&nbsp;+&nbsp;WA_TABLE9-SALK3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE10&nbsp;TO&nbsp;IT_TABLE10."期末值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期末值------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;S_SPMON-HIGH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期初------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFGJA<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFMON<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&lt;&nbsp;L_DATE5+0(4)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&lt;&nbsp;L_DATE5+4(2)&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEWH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;=&lt;&nbsp;L_DATE5+0(4)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;=&lt;&nbsp;L_DATE5+4(2).<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE6&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE7&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE6&nbsp;INTO&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE6&nbsp;TO&nbsp;IT_TABLE7.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TABLE7&nbsp;BY&nbsp;BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE7&nbsp;INTO&nbsp;WA_TABLE7.<br />
+   </div>
+   <div class="codeComment">
+*按门店汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;WA_TABLE7&nbsp;INTO&nbsp;IT_TABLE8."期初<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期初------------------*<br />
+*---------------------计算期间------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE6,IT_TABLE7.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFGJA<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LFMON<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEW<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;IN&nbsp;S_SPMON<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;IN&nbsp;S_SPMON.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SALK3&nbsp;&nbsp;"总价值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BWKEY&nbsp;&nbsp;"评估范围=S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MBEWH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BWKEY&nbsp;&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFGJA&nbsp;IN&nbsp;S_SPMON<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LFMON&nbsp;IN&nbsp;S_SPMON.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE6&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;&nbsp;IT_TABLE7&nbsp;WHERE&nbsp;SALK3&nbsp;=&nbsp;'0'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE6&nbsp;INTO&nbsp;WA_TABLE6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE6&nbsp;TO&nbsp;IT_TABLE7.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TABLE7&nbsp;BY&nbsp;BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE7&nbsp;INTO&nbsp;WA_TABLE7.<br />
+   </div>
+   <div class="codeComment">
+*按门店汇总<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;WA_TABLE7&nbsp;INTO&nbsp;IT_TABLE9."期间值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期间------------------*<br />
+*---------------------计算期末值------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE9.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE8.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE9&nbsp;INTO&nbsp;WA_TABLE9.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE8&nbsp;INTO&nbsp;WA_TABLE8&nbsp;WITH&nbsp;KEY&nbsp;BWKEY&nbsp;=&nbsp;WA_TABLE9-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE10-BWKEY&nbsp;=&nbsp;WA_TABLE8-BWKEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE10-SALK3&nbsp;=&nbsp;WA_TABLE8-SALK3&nbsp;+&nbsp;WA_TABLE9-SALK3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE10&nbsp;TO&nbsp;IT_TABLE10."期末值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*---------------------计算期末值------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM CAL_DATA."整合到GT_TBLE（除库存）<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE.<br />
+&nbsp;&nbsp;CLEAR&nbsp;LW_TABLE.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GW_TABLE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE&nbsp;INTO&nbsp;WA_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_TABLE&nbsp;=&nbsp;WA_TABLE."防*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-ZXSJE&nbsp;&nbsp;=&nbsp;GW_TABLE-ZXSJE&nbsp;+&nbsp;LW_TABLE-ZXSJE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-ZXSCB&nbsp;&nbsp;=&nbsp;GW_TABLE-ZXSCB&nbsp;+&nbsp;LW_TABLE-ZXSCB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-WERKS&nbsp;&nbsp;=&nbsp;LW_TABLE-WERKS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-ZDAT_BEGIN&nbsp;=&nbsp;S_SPMON-LOW+0(4)&nbsp;&&&nbsp;'年'&nbsp;&&&nbsp;S_SPMON-LOW+4(2)&nbsp;&&&nbsp;'月'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_SPMON-HIGH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-ZDAT_END&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;—&nbsp;&nbsp;'&nbsp;&&&nbsp;S_SPMON-HIGH+0(4)&nbsp;&&&nbsp;'年'&nbsp;&&&nbsp;S_SPMON-HIGH+4(2)&nbsp;&&&nbsp;'月'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-ZDAT_END&nbsp;&nbsp;&nbsp;=&nbsp;'&nbsp;'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE2&nbsp;INTO&nbsp;WA_TABLE2&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_TABLE-WERKS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-SORTL&nbsp;=&nbsp;WA_TABLE2-SORTL.&nbsp;&nbsp;&nbsp;&nbsp;"描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE5&nbsp;INTO&nbsp;WA_TABLE5&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_TABLE-WERKS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-EX_MDMJ&nbsp;=&nbsp;WA_TABLE5-EX_MDMJ.&nbsp;&nbsp;&nbsp;"门店面积<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-EX_YGRS&nbsp;=&nbsp;WA_TABLE5-EX_YGRS.&nbsp;&nbsp;&nbsp;"员工人数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE3&nbsp;INTO&nbsp;WA_TABLE3&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_TABLE-WERKS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-ZXSJE_BB&nbsp;=&nbsp;WA_TABLE3-ZXSJE.&nbsp;&nbsp;"销售计划(必保任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE4&nbsp;INTO&nbsp;WA_TABLE4&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;LW_TABLE-WERKS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-ZXSJE_FD&nbsp;=&nbsp;WA_TABLE4-ZXSJE.&nbsp;"销售计划(奋斗任务)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GW_TABLE&nbsp;TO&nbsp;GT_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GW_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+<br />
+FORM CAL_DATA2."整合到GT_TBLE（库存）<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;按&nbsp;门店&nbsp;排序<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE8&nbsp;BY&nbsp;BWKEY."期初<br />
+&nbsp;&nbsp;SORT&nbsp;IT_TABLE10&nbsp;BY&nbsp;BWKEY."期末<br />
+&nbsp;&nbsp;CLEAR&nbsp;GW_TABLE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_TABLE&nbsp;INTO&nbsp;GW_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE8&nbsp;INTO&nbsp;WA_TABLE8&nbsp;WITH&nbsp;KEY&nbsp;BWKEY&nbsp;=&nbsp;GW_TABLE-WERKS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-VALUE_BEGIN&nbsp;=&nbsp;WA_TABLE8-SALK3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE10&nbsp;INTO&nbsp;WA_TABLE10&nbsp;WITH&nbsp;KEY&nbsp;BWKEY&nbsp;=&nbsp;GW_TABLE-WERKS&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-VALUE_END&nbsp;=&nbsp;WA_TABLE10-SALK3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_TABLE&nbsp;FROM&nbsp;GW_TABLE&nbsp;TRANSPORTING&nbsp;VALUE_BEGIN&nbsp;VALUE_END.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+FORM FM_FILL_TABLE.<br />
+   </div>
+   <div class="codeComment">
+*数据匹配到输出内表中<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;GW_TABLE.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_TABLE&nbsp;INTO&nbsp;GW_TABLE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSMLE&nbsp;=&nbsp;GW_TABLE-ZXSJE&nbsp;-&nbsp;GW_TABLE-ZXSCB.&nbsp;&nbsp;"销售毛利额<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GW_TABLE-ZXSJE&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSMLL&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSMLL&nbsp;=&nbsp;GW_TABLE-XSMLE&nbsp;/&nbsp;GW_TABLE-ZXSJE&nbsp;*&nbsp;100.&nbsp;"毛利率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GW_TABLE-EX_MDMJ&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-DJXS&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-DJXS&nbsp;=&nbsp;GW_TABLE-ZXSJE&nbsp;/&nbsp;GW_TABLE-EX_MDMJ.&nbsp;"地均销售<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GW_TABLE-EX_MDMJ&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-DJML&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-DJML&nbsp;=&nbsp;GW_TABLE-XSMLE&nbsp;/&nbsp;GW_TABLE-EX_MDMJ.&nbsp;"地均毛利<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GW_TABLE-EX_YGRS&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-RJLX&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-RJLX&nbsp;=&nbsp;GW_TABLE-ZXSJE&nbsp;/&nbsp;GW_TABLE-EX_YGRS.&nbsp;"人均劳效<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GW_TABLE-ZXSJE_BB&nbsp;&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSJHWCB_BB&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSJHWCB_BB&nbsp;=&nbsp;GW_TABLE-ZXSJE&nbsp;/&nbsp;GW_TABLE-ZXSJE_BB&nbsp;*&nbsp;100.&nbsp;"销售计划完成比（必保）<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSJHWCB_BB_C&nbsp;=&nbsp;GW_TABLE-XSJHWCB_BB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;GW_TABLE-XSJHWCB_BB_C&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;GW_TABLE-XSJHWCB_BB_C&nbsp;'%'&nbsp;INTO&nbsp;GW_TABLE-XSJHWCB_BB_C.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GW_TABLE-ZXSJE_FD&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSJHWCB_FD&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSJHWCB_FD&nbsp;=&nbsp;GW_TABLE-ZXSJE&nbsp;/&nbsp;GW_TABLE-ZXSJE_FD&nbsp;*&nbsp;100.&nbsp;"销售计划完成比(奋斗)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSJHWCB_FD_C&nbsp;=&nbsp;GW_TABLE-XSJHWCB_FD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;GW_TABLE-XSJHWCB_FD_C&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;GW_TABLE-XSJHWCB_FD_C&nbsp;'%'&nbsp;INTO&nbsp;GW_TABLE-XSJHWCB_FD_C.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GW_TABLE-VALUE_BEGIN&nbsp;+&nbsp;GW_TABLE-VALUE_END&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-KCZZL&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-KCZZL&nbsp;=&nbsp;GW_TABLE-ZXSJE&nbsp;*&nbsp;2&nbsp;/&nbsp;(&nbsp;GW_TABLE-VALUE_BEGIN&nbsp;+&nbsp;GW_TABLE-VALUE_END&nbsp;)&nbsp;*&nbsp;100.&nbsp;"库存周转率<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-XSMLL_C&nbsp;=&nbsp;GW_TABLE-XSMLL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GW_TABLE-KCZZL_C&nbsp;=&nbsp;GW_TABLE-KCZZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;GW_TABLE-XSMLL_C&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONDENSE&nbsp;GW_TABLE-KCZZL_C&nbsp;NO-GAPS."去除空格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;GW_TABLE-XSMLL_C&nbsp;'%'&nbsp;INTO&nbsp;GW_TABLE-XSMLL_C.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;GW_TABLE-KCZZL_C&nbsp;'%'&nbsp;INTO&nbsp;GW_TABLE-KCZZL_C.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;GT_TABLE&nbsp;FROM&nbsp;GW_TABLE&nbsp;&nbsp;TRANSPORTING&nbsp;XSMLE&nbsp;XSMLL&nbsp;DJXS&nbsp;DJML&nbsp;RJLX&nbsp;XSJHWCB_BB&nbsp;XSJHWCB_FD&nbsp;KCZZL&nbsp;XSMLL_C&nbsp;XSJHWCB_BB_C&nbsp;XSJHWCB_FD_C&nbsp;KCZZL_C.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;处理完毕，清空工作区<br />
+*&nbsp;&nbsp;CLEAR&nbsp;GW_TABLE.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+FORM ALV_SHOW.  "定义这个显示函数<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;TITLE&nbsp;TYPE&nbsp;LVC_TITLE."抬头标题<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;IT_FIELDCAT[].&nbsp;&nbsp;"清空内表<br />
+<br />
+   </div>
+   <div class="codeComment">
+**--------------打勾用------------------------<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"清空工作区<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'IT_TABLE'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表表名<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'SEL_COL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内表字段名，必须大写<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'&nbsp;'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"项目表题目名称<br />
+*&nbsp;&nbsp;WA_FIELDCAT-EDIT&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"界面增加一列CHECKBOX，属性已被选中<br />
+*&nbsp;&nbsp;WA_FIELDCAT-CHECKBOX&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"在设置ALV列属性的时候对这个字段赋值<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"把工作区添加到内表<br />
+*<br />
+**--------------打勾用------------------------<br />
+<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZDAT_BEGIN'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'起始时间'.<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+*<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZDAT_END'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'截至时间'.<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'WERKS'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'门店编码'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'SORTL'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'门店名称'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZXSJE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'实际销售金额'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZXSCB'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'销售成本'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'XSMLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'销售毛利额'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'XSMLL_C'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'销售毛利率'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'DJXS'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'每坪销售'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'DJML'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'每坪毛利'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'RJLX'.<br />
+*&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'人均劳效'.<br />
+*&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZXSJE_BB'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'销售必保计划'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'XSJHWCB_BB_C'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'销售必保计划完成比'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'ZXSJE_FD'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'销售奋斗计划'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'XSJHWCB_FD_C'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'销售奋斗计划完成比'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;WA_FIELDCAT.<br />
+&nbsp;&nbsp;WA_FIELDCAT-TABNAME&nbsp;&nbsp;&nbsp;=&nbsp;'GT_TABLE'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-FIELDNAME&nbsp;=&nbsp;'KCZZL_C'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-SELTEXT_L&nbsp;=&nbsp;'库存周转率'.<br />
+&nbsp;&nbsp;WA_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'C'."居中<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_FIELDCAT&nbsp;TO&nbsp;IT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;TITLE&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;统计日期:'&nbsp;&&&nbsp;GW_TABLE-ZDAT_BEGIN&nbsp;&&&nbsp;GW_TABLE-ZDAT_END&nbsp;&nbsp;."'<br />
+<br />
+&nbsp;&nbsp;WA_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.&nbsp;&nbsp;"列宽度优化（宽度自动调整）<br />
+&nbsp;&nbsp;WA_LAYOUT-ZEBRA&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"前面补零，补前导零<br />
+&nbsp;&nbsp;WA_LAYOUT-NO_INPUT&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID&nbsp;&nbsp;&nbsp;&nbsp;"传入程序ID，系统程序变量ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;"传入三个参数布局<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_FIELDCAT[]&nbsp;"内容输出<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_GRID_TITLE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;TITLE&nbsp;"抬头标题<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'PF_STATUS_SET'&nbsp;&nbsp;"回调状态&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'USER_COMMAND'&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;回调用户命令&nbsp;&nbsp;&nbsp;&nbsp;用打印时打开<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_EVENTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WS_EVENTS[]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"出口程序触发事件<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_TABLE&nbsp;&nbsp;"输出的数据信息<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM  MONAT_F4_LOW.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_SELECT_MONTH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ACTUAL_MONTH&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM+0(6)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECTED_MONTH&nbsp;=&nbsp;S_SPMON-LOW.&nbsp;&nbsp;"传入参数值<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                               "MONAT_F4<br />
+<br />
+FORM  MONAT_F4_HIGH.<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'POPUP_TO_SELECT_MONTH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ACTUAL_MONTH&nbsp;&nbsp;&nbsp;=&nbsp;SY-DATUM+0(6)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECTED_MONTH&nbsp;=&nbsp;S_SPMON-HIGH.&nbsp;&nbsp;"传入参数值<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.                               "MONAT_F4<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_eventtab_build<br />
+**&---------------------------------------------------------------------*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+**----------------------------------------------------------------------*<br />
+*FORM&nbsp;FRM_EVENTTAB_BUILD.<br />
+*<br />
+*&nbsp;&nbsp;CLEAR&nbsp;WS_EVENTS.<br />
+*&nbsp;&nbsp;MOVE&nbsp;'TOP_OF_PAGE'&nbsp;TO&nbsp;WS_EVENTS-NAME.<br />
+*&nbsp;&nbsp;MOVE&nbsp;'FRM_TOP_OF_PAGE'&nbsp;TO&nbsp;WS_EVENTS-FORM.<br />
+**<br />
+**&nbsp;&nbsp;WS_EVENTS-NAME&nbsp;=&nbsp;1.<br />
+**&nbsp;&nbsp;WS_EVENTS-FORM&nbsp;=&nbsp;'2'.<br />
+*&nbsp;&nbsp;APPEND&nbsp;WS_EVENTS.<br />
+*<br />
+*ENDFORM.<br />
+*<br />
+**&---------------------------------------------------------------------*<br />
+**&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_comment_build<br />
+**&---------------------------------------------------------------------*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+**----------------------------------------------------------------------*<br />
+*FORM&nbsp;FRM_COMMENT_BUILD.<br />
+*<br />
+*&nbsp;&nbsp;DATA:&nbsp;LW_LINE&nbsp;TYPE&nbsp;SLIS_LISTHEADER.<br />
+*&nbsp;&nbsp;DATA:&nbsp;RESULT&nbsp;TYPE&nbsp;STRING.<br />
+*&nbsp;&nbsp;CLEAR&nbsp;LW_LINE.<br />
+*&nbsp;&nbsp;LW_LINE-TYP&nbsp;&nbsp;=&nbsp;'S'.<br />
+*&nbsp;&nbsp;LW_LINE-INFO&nbsp;=&nbsp;'考核日期：'&nbsp;&&&nbsp;GW_TABLE-ZDAT_BEGIN&nbsp;&&&nbsp;GW_TABLE-ZDAT_END&nbsp;.<br />
+*&nbsp;&nbsp;APPEND&nbsp;LW_LINE&nbsp;TO&nbsp;WS_LIST_TOP_OF_PAGE.<br />
+*<br />
+*<br />
+*&nbsp;&nbsp;LW_LINE-TYP&nbsp;&nbsp;=&nbsp;'S'.<br />
+*&nbsp;&nbsp;CONCATENATE&nbsp;'报表日期:'&nbsp;SY-DATUM+0(4)&nbsp;'年'&nbsp;SY-DATUM+4(2)&nbsp;'月'&nbsp;SY-DATUM+6(2)&nbsp;'日'&nbsp;&nbsp;INTO&nbsp;RESULT.<br />
+*&nbsp;&nbsp;LW_LINE-INFO&nbsp;=&nbsp;RESULT.<br />
+*&nbsp;&nbsp;APPEND&nbsp;LW_LINE&nbsp;TO&nbsp;WS_LIST_TOP_OF_PAGE.<br />
+*<br />
+**&nbsp;&nbsp;LW_LINE-TYP&nbsp;&nbsp;=&nbsp;'S'.<br />
+**&nbsp;&nbsp;CONCATENATE&nbsp;'薪资区间:'&nbsp;INTO&nbsp;RESULT&nbsp;.<br />
+**&nbsp;&nbsp;LW_LINE-INFO&nbsp;=&nbsp;RESULT.<br />
+**&nbsp;&nbsp;APPEND&nbsp;LW_LINE&nbsp;TO&nbsp;WS_LIST_TOP_OF_PAGE.<br />
+*ENDFORM.<br />
+*<br />
+**&---------------------------------------------------------------------*<br />
+**&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;frm_top_of_page<br />
+**&---------------------------------------------------------------------*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+**----------------------------------------------------------------------*<br />
+*FORM&nbsp;FRM_TOP_OF_PAGE.<br />
+*<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_COMMENTARY_WRITE'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_LIST_COMMENTARY&nbsp;=&nbsp;WS_LIST_TOP_OF_PAGE.<br />
+*<br />
+*ENDFORM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"TOP_OF_PAGE<br />
+<br />
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;T02&nbsp;备注1：不需要统计业绩的商品:面值卡、礼金卡、微信红包、社区卡、积分回报<br />
+*&nbsp;T03&nbsp;备注：扣点店的实际销售金额为扣点后金额<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;S_SPMON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;考核年月<br />
+*&nbsp;S_VKORG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公司代码<br />
+*&nbsp;S_WERKS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

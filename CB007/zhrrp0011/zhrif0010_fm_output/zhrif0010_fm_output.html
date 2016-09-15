@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZHRIF0010_FM_OUTPUT</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZHRIF0010_FM_OUTPUT</h2>
+<h3> Description: 营业员信息下发</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZHRIF0010_FM_OUTPUT.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(IM_PERNR) TYPE  PERNR_D OPTIONAL<br />
+*"     VALUE(IS_WAIT) TYPE  CHAR1 OPTIONAL<br />
+*"----------------------------------------------------------------------<br />
+<br />
+*-----------------------------------------<br />
+*  判断接口状态<br />
+*-----------------------------------------<br />
+
+<div class="codeComment">*       <a href ="global-zhrif0010_fm_output.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;WA_SYS_CONFIG&nbsp;TYPE&nbsp;ZSYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="../zsap_get_status/zsap_get_status.html">'ZSAP_GET_STATUS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PID'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SYS_CONFIG&nbsp;=&nbsp;WA_SYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;CHECK&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'01'&nbsp;OR&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;=&nbsp;'03'.<br />
+&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  判断是否等待<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IS_WAIT&nbsp;EQ&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WAIT&nbsp;UP&nbsp;TO&nbsp;5&nbsp;SECONDS.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  段定义的结构<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO&nbsp;TYPE&nbsp;ZHRIF0010_SGM_INFO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;W_INFO&nbsp;&nbsp;TYPE&nbsp;ZHRIF0010_SGM_INFO,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_INFO&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;ZHRIF0010_SGM_INFO&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;DATA:W_HEAD&nbsp;&nbsp;TYPE&nbsp;ZHRIF0010,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_HEAD&nbsp;TYPE&nbsp;ZHRIF0010,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_HEAD&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZHRIF0010.<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  IDOC 定义的结构<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD&nbsp;&nbsp;&nbsp;TYPE&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_CONTROL&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;通讯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_CONTROL&nbsp;TYPE&nbsp;EDIDC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;控制记录<br />
+<br />
+&nbsp;&nbsp;INFOTYPES:&nbsp;0000,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0001,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0006,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0009,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0016,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0021,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0022,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0041,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0105,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0185,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0529,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0533,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0534,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0536,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3211,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3527,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3529,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9002,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9003,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9004.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  数据读取结构及内表<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0000&nbsp;TYPE&nbsp;PA0000.<br />
+&nbsp;&nbsp;DATA:&nbsp;W_PA0000&nbsp;TYPE&nbsp;PA0000.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0002&nbsp;TYPE&nbsp;PA0002.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0185&nbsp;TYPE&nbsp;PA0185.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0105&nbsp;TYPE&nbsp;PA0105.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0001&nbsp;TYPE&nbsp;PA0001.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_HRP1000&nbsp;TYPE&nbsp;HRP1000.<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_PA3211&nbsp;TYPE&nbsp;PA3211&nbsp;OCCURS&nbsp;0.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA3211&nbsp;TYPE&nbsp;PA3211.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_DD07T&nbsp;TYPE&nbsp;DD07T.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_DD07T_MD&nbsp;TYPE&nbsp;DD07T.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_DD07T_ZD&nbsp;TYPE&nbsp;DD07T.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_DD07T_FD&nbsp;TYPE&nbsp;DD07T.<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_PA0016&nbsp;TYPE&nbsp;PA0016&nbsp;OCCURS&nbsp;0.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0016&nbsp;TYPE&nbsp;PA0016.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0041&nbsp;TYPE&nbsp;PA0041.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_T527X&nbsp;TYPE&nbsp;T527X.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_HRP9101&nbsp;TYPE&nbsp;HRP9101.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_T501T&nbsp;TYPE&nbsp;T501T.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_PA0529&nbsp;TYPE&nbsp;PA0529.<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_EDIDC&nbsp;TYPE&nbsp;EDIDC.<br />
+<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;V_DARXX&nbsp;TYPE&nbsp;DATAR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V_DATXX&nbsp;TYPE&nbsp;DARDT.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*  判断数据有效性<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR:WA_PA0000.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_PA0000<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;PA0000&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR.<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_PA0002<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;PA0002&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_PA0041<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;PA0041&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR.<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_PA0185<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;PA0185&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_PA0105<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;PA0105&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_PA0529<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;PA0529&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR.<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_PA0001<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;PA0001&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T527X<br />
+FROM T527X WHERE BEGDA &lt;= SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;SPRSL&nbsp;=&nbsp;'1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ORGEH&nbsp;=&nbsp;WA_PA0001-ORGEH.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_HRP1000<br />
+&nbsp;&nbsp;FROM&nbsp;HRP1000&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;OBJID&nbsp;=&nbsp;WA_PA0001-PLANS.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;*&nbsp;&nbsp;FROM&nbsp;PA3211&nbsp;INTO&nbsp;TABLE&nbsp;IT_PA3211<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR&nbsp;&nbsp;ORDER&nbsp;BY&nbsp;BEGDA&nbsp;DESCENDING.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;*&nbsp;&nbsp;FROM&nbsp;PA0016&nbsp;INTO&nbsp;TABLE&nbsp;IT_PA0016<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;BEGDA&nbsp;&lt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ENDDA&nbsp;&gt;=&nbsp;SY-DATUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR&nbsp;&nbsp;ORDER&nbsp;BY&nbsp;BEGDA&nbsp;DESCENDING.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;WA_PA0000&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*   整理数据<br />
+*-----------------------------------------<br />
+<br />
+*   状态<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_PA0000-STAT1&nbsp;=&nbsp;'1'&nbsp;AND&nbsp;WA_PA0000-STAT2&nbsp;=&nbsp;'3'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-STATUS&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-STATUS&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*   店员代码<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_PA0000-PERNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_PA0000-PERNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_PA0000&nbsp;TO&nbsp;W_PA0000.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-PERNR&nbsp;=&nbsp;W_PA0000-PERNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-PERNR_NAME&nbsp;=&nbsp;WA_PA0002-NACHN&nbsp;&&&nbsp;WA_PA0002-VORNA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-PERSG&nbsp;=&nbsp;WA_PA0001-PERSG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_T501T&nbsp;&nbsp;FROM&nbsp;T501T&nbsp;WHERE&nbsp;&nbsp;SPRSL&nbsp;=&nbsp;'1'&nbsp;AND&nbsp;PERSG&nbsp;=&nbsp;WA_PA0001-PERSG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-PGTXT&nbsp;=&nbsp;WA_T501T-PTEXT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_PA0185-ICTYP&nbsp;='01'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-ICNUM&nbsp;=&nbsp;WA_PA0185-ICNUM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_PA0105-SUBTY&nbsp;='0002'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-USRID&nbsp;=&nbsp;WA_PA0105-USRID.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DO&nbsp;12&nbsp;TIMES&nbsp;VARYING&nbsp;V_DARXX&nbsp;FROM&nbsp;WA_PA0041-DAR01&nbsp;NEXT&nbsp;WA_PA0041-DAR02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"入职时间<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VARYING&nbsp;V_DATXX&nbsp;FROM&nbsp;WA_PA0041-DAT01&nbsp;NEXT&nbsp;WA_PA0041-DAT02.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;V_DARXX&nbsp;=&nbsp;'02'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-IN_DATE&nbsp;=&nbsp;V_DATXX.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDDO.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_PA0000-ENDDA&nbsp;&lt;&gt;&nbsp;'99991231'&nbsp;AND&nbsp;WA_PA0000-MASSN&nbsp;=&nbsp;'Z3'&nbsp;OR&nbsp;WA_PA0000-MASSN&nbsp;=&nbsp;'Z4'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-OUT_DATE&nbsp;=&nbsp;WA_PA0000-BEGDA&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-STEXT&nbsp;=&nbsp;WA_HRP1000-STEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-GBDAT&nbsp;=&nbsp;SY-DATUM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_PA0002-GESCH&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-GESCH&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;WA_PA0002-GESCH&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-GESCH&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-GBDAT&nbsp;=&nbsp;WA_PA0002-GBDAT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-ORGEH&nbsp;=&nbsp;WA_PA0001-ORGEH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-ORGEH_TEXT&nbsp;=&nbsp;WA_T527X-ORGTX.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_HRP9101<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;HRP9101&nbsp;WHERE&nbsp;&nbsp;&nbsp;OBJID&nbsp;=&nbsp;WA_PA0001-ORGEH&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_HRP9101-ZMDBM&nbsp;&lt;&gt;&nbsp;''.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-LIFNR&nbsp;=&nbsp;WA_HRP9101-ZMDBM&nbsp;&&&nbsp;WA_HRP9101-ZZDZG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_DD07T_MD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;DD07T&nbsp;&nbsp;WHERE&nbsp;&nbsp;DOMNAME&nbsp;=&nbsp;'ZMDBM'&nbsp;AND&nbsp;&nbsp;DOMVALUE_L&nbsp;=&nbsp;WA_HRP9101-ZMDBM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_DD07T_ZD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;DD07T&nbsp;&nbsp;WHERE&nbsp;&nbsp;DOMNAME&nbsp;=&nbsp;'ZZDZG'&nbsp;AND&nbsp;&nbsp;DOMVALUE_L&nbsp;=&nbsp;WA_HRP9101-ZZDZG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-LIFNR_NAME&nbsp;=&nbsp;WA_DD07T_MD-DDTEXT&nbsp;&&&nbsp;WA_DD07T_ZD-DDTEXT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_HRP9101-ZMDBM&nbsp;&lt;&gt;&nbsp;''&nbsp;AND&nbsp;WA_HRP9101-ZFDZG&nbsp;&lt;&gt;&nbsp;''.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-LIFNR&nbsp;=&nbsp;WA_HRP9101-ZMDBM&nbsp;&&&nbsp;WA_HRP9101-ZFDZG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_DD07T_MD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;DD07T&nbsp;&nbsp;WHERE&nbsp;&nbsp;DOMNAME&nbsp;=&nbsp;'ZMDBM'&nbsp;AND&nbsp;&nbsp;DOMVALUE_L&nbsp;=&nbsp;WA_HRP9101-ZMDBM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_DD07T_FD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;DD07T&nbsp;&nbsp;WHERE&nbsp;&nbsp;DOMNAME&nbsp;=&nbsp;'ZFDZG'&nbsp;AND&nbsp;&nbsp;DOMVALUE_L&nbsp;=&nbsp;WA_HRP9101-ZFDZG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-LIFNR_NAME&nbsp;=&nbsp;WA_DD07T_MD-DDTEXT&nbsp;&&&nbsp;WA_DD07T_FD-DDTEXT.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_PA3211&nbsp;INTO&nbsp;WA_PA3211&nbsp;INDEX&nbsp;1&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;WA_DD07T<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;DD07T&nbsp;WHERE&nbsp;&nbsp;DOMNAME&nbsp;=&nbsp;'ZYGLX'&nbsp;AND&nbsp;&nbsp;DOMVALUE_L&nbsp;=&nbsp;WA_PA3211-ZYGLX&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-ZYGLX&nbsp;=&nbsp;WA_DD07T-DOMVALUE_L.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-ZYGLX_TEXT&nbsp;=&nbsp;WA_DD07T-DDTEXT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_PA0016&nbsp;INTO&nbsp;WA_PA0016&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-BEGDA&nbsp;=&nbsp;WA_PA0016-BEGDA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-CTEDT&nbsp;=&nbsp;WA_PA0016-CTEDT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_PA0001-PERSG&nbsp;=&nbsp;'4'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-ZCJDM&nbsp;=&nbsp;WA_PA0001-ZCJDM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_INFO-PRIDN&nbsp;=&nbsp;WA_PA0529-PRIDN&nbsp;.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;INTO&nbsp;W_HEAD&nbsp;FROM&nbsp;ZHRIF0010&nbsp;WHERE&nbsp;PERNR&nbsp;=&nbsp;IM_PERNR&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_INFO&nbsp;TO&nbsp;W_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;W_HEAD&nbsp;TO&nbsp;I_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZHRIF0010&nbsp;FROM&nbsp;TABLE&nbsp;I_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'更新数据失败'&nbsp;&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;&nbsp;W_HEAD&nbsp;TO&nbsp;W_INFO.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_PA0000-PERNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_PA0000-PERNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;W_INFO-PERNR&nbsp;=&nbsp;W_PA0000-PERNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_PA0000&nbsp;TO&nbsp;W_PA0000.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZHRIF0010_SGM_INFO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;W_INFO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;ELSEIF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W_HEAD-STATUS&nbsp;&lt;&gt;&nbsp;WA_INFO-STATUS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-PERNR_NAME&nbsp;&lt;&gt;&nbsp;WA_INFO-PERNR_NAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-LIFNR&nbsp;&lt;&gt;&nbsp;WA_INFO-LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-LIFNR_NAME&nbsp;&lt;&gt;&nbsp;WA_INFO-LIFNR_NAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-ICNUM&nbsp;&lt;&gt;&nbsp;WA_INFO-ICNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-USRID&nbsp;&lt;&gt;&nbsp;WA_INFO-USRID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-IN_DATE&nbsp;&lt;&gt;&nbsp;WA_INFO-IN_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-OUT_DATE&nbsp;&lt;&gt;&nbsp;WA_INFO-OUT_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-STEXT&nbsp;&lt;&gt;&nbsp;WA_INFO-STEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-CRE_DATE&nbsp;&lt;&gt;&nbsp;WA_INFO-CRE_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-UPD_DATE&nbsp;&lt;&gt;&nbsp;WA_INFO-UPD_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-GESCH&nbsp;&lt;&gt;&nbsp;WA_INFO-GESCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-GBDAT&nbsp;&lt;&gt;&nbsp;WA_INFO-GBDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-ORGEH&nbsp;&lt;&gt;&nbsp;WA_INFO-ORGEH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-ORGEH_TEXT&nbsp;&lt;&gt;&nbsp;WA_INFO-ORGEH_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-ZYGLX&nbsp;&lt;&gt;&nbsp;WA_INFO-ZYGLX<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-ZYGLX_TEXT&nbsp;&lt;&gt;&nbsp;WA_INFO-ZYGLX_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-CTEDT&nbsp;&lt;&gt;&nbsp;WA_INFO-CTEDT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-ZCJDM&nbsp;&lt;&gt;&nbsp;WA_INFO-ZCJDM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-PERSG&nbsp;&lt;&gt;&nbsp;WA_INFO-PERSG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-PGTXT&nbsp;&lt;&gt;&nbsp;WA_INFO-PGTXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;W_HEAD-PRIDN&nbsp;&lt;&gt;&nbsp;WA_INFO-PRIDN.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_INFO&nbsp;TO&nbsp;W_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;W_HEAD&nbsp;TO&nbsp;I_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;&nbsp;W_HEAD&nbsp;TO&nbsp;W_INFO.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_PA0000-PERNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_PA0000-PERNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W_INFO-PERNR&nbsp;=&nbsp;W_PA0000-PERNR.<br />
+<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZHRIF0010_SGM_INFO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;&nbsp;=&nbsp;W_INFO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZHRIF0010&nbsp;FROM&nbsp;TABLE&nbsp;I_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'更新数据失败'&nbsp;&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*    WA_EDIDD-SEGNAM = 'ZHRIF0010_SGM_INFO'.<br />
+*    WA_EDIDD-SDATA  = W_INFO.<br />
+*    APPEND WA_EDIDD TO IT_EDIDD.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;WA_EDIDD-SDATA&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'无新数据下发'&nbsp;&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*   整理 IDOC 控制记录<br />
+*-----------------------------------------<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_CONTROL-RCVPRT&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRT.&nbsp;&nbsp;"接收方伙伴类型<br />
+&nbsp;&nbsp;WA_CONTROL-RCVPRN&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRN.&nbsp;&nbsp;"接收方的合作伙伴编号<br />
+&nbsp;&nbsp;WA_CONTROL-RCVPOR&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPOR.&nbsp;&nbsp;"接收者端口(SAP&nbsp;系统，EDI&nbsp;子系统)<br />
+<br />
+&nbsp;&nbsp;WA_CONTROL-MESTYP&nbsp;=&nbsp;'ZHRIF0010_MSG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"信息类型<br />
+&nbsp;&nbsp;WA_CONTROL-IDOCTP&nbsp;=&nbsp;'ZHRIF0010_IDOC'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;类型<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------------------<br />
+*    发送IDOC<br />
+*----------------------------------------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MASTER_IDOC_DISTRIBUTE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMUNICATION_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CONTROL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_WRITING_IDOC_STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDING_LOGICAL_SYSTEM_UNKNOWN&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGTY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="codeComment">
+*   发送idoc时会锁住一些系统表，此过程为等待完全操作完毕<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DB_COMMIT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DEQUEUE_ALL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+   </div>
+   <div class="codeComment">
+*   发送的IDOC<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_CONTROL-DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_IS_NOT_TO_DEQUEUE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+<br />
+ENDFUNCTION.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+* Message class: ZCB<br />
+*000   &1&2&3&4<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0270_TOP</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0270_TOP</h2>
+<h3> Description: Include ZMMRP0270_TOP</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMRP0270_TOP<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA: OK_CODE TYPE SY-UCOMM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SAVE_OK&nbsp;TYPE&nbsp;SY-UCOMM.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*定义使用图标，按钮使用<br />
+   </div>
+   <div class="code">
+INCLUDE &lt;ICON&gt;.<br />
+TABLES MEPO1229.<br />
+   </div>
+   <div class="codeComment">
+**************************************<br />
+   </div>
+   <div class="code">
+types: BEGIN OF ty_outtab.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zmmrp0270_alv_s01/dictionary-zmmrp0270_alv_s01.html">ZMMRP0270_ALV_S01</a>.<br />
+types: celltab type LVC_T_STYL.<br />
+types: end OF ty_outtab.<br />
+<br />
+FIELD-SYMBOLS &lt;FS&gt; TYPE ANY.<br />
+FIELD-SYMBOLS &lt;FS2&gt; TYPE ANY.<br />
+FIELD-SYMBOLS:&lt;DYN_TABLE&gt; TYPE STANDARD TABLE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;DYN_WA&gt;.<br />
+<br />
+data: WA_LINE type REF TO data.<br />
+data: DY_TABLE type REF TO data.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*************************************<br />
+   </div>
+   <div class="code">
+DATA:gt_outtab type TABLE OF ty_outtab WITH HEADER LINE.<br />
+<br />
+DATA:  GT_ALVTAB     TYPE lvc_t_styl,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_cellcolors&nbsp;TYPE&nbsp;lvc_t_scol,<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gt_fieldcat&nbsp;&nbsp;&nbsp;type&nbsp;lvc_t_fcat,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_layout&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type&nbsp;lvc_s_layo,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_variant&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;DISVARIANT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;ALV&nbsp;9100<br />
+   </div>
+   <div class="code">
+DATA: g_container        type scrfname value 'CONTROL01',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_grid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type&nbsp;ref&nbsp;to&nbsp;cl_gui_alv_grid,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_custom_container&nbsp;type&nbsp;ref&nbsp;to&nbsp;cl_gui_custom_container.<br />
+<br />
+class lcl_grid_event_receiver definition deferred.<br />
+data: g_event_receiver type ref to lcl_grid_event_receiver.<br />
+<br />
+<br />
+<br />
+DATA: TXT_ZSPTM TYPE STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_BUKRS&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_EKORG&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_EKGRP&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_WERKS&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_LIFNR&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_LGORT&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_ZKZ&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_ZJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TXT_ZJE&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*2016.1.24&nbsp;增加全局变量&nbsp;EXCEL下载路径<br />
+*************************************************************************<br />
+   </div>
+   <div class="code">
+DATA: TXT_ZEXCEL  TYPE STRING. "屏幕上的EXCEL路径<br />
+<br />
+DATA: L_PATH   TYPE STRING.  "EXCEL路径<br />
+<br />
+TYPES:BEGIN OF stru_0270,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSPTM&nbsp;&nbsp;TYPE&nbsp;&nbsp;ZFIRP0211-ZSPTM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;stru_0270.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;FUNCTXT&nbsp;TYPE&nbsp;SMP_DYNTXT.<br />
+<br />
+&nbsp;&nbsp;TYPES:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_EXCEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROW&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COL&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;TYPE&nbsp;STRING,&nbsp;&nbsp;&nbsp;&nbsp;"值<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_EXCEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TYT_EXCEL&nbsp;TYPE&nbsp;TY_EXCEL&nbsp;OCCURS&nbsp;0.<br />
+<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_EXCEL&nbsp;TYPE&nbsp;TYT_EXCEL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_EXCEL&nbsp;TYPE&nbsp;TY_EXCEL.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*承载导入EXCEL文件所用的变量****************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;P_FILENM&nbsp;TYPE&nbsp;CHAR128.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*定义模板&nbsp;Excel<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;GV_CLASS_NAME&nbsp;TYPE&nbsp;SEOCLSNAME&nbsp;VALUE&nbsp;'ZFI',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_CLASS_TYPE&nbsp;TYPE&nbsp;BDS_CLSTYP&nbsp;VALUE&nbsp;'OT',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GV_OBJECT_KEY&nbsp;TYPE&nbsp;BDS_TYPEID&nbsp;VALUE&nbsp;'ZMMRP0270'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;DATA:&nbsp;LT_DATA&nbsp;&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;STRU_0270.<br />
+<br />
+<br />
+***************************************************************************<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+DATA: GT_AUSP TYPE TABLE OF AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_AUSP&nbsp;TYPE&nbsp;AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_MCH1&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;MCH1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_MCH1&nbsp;TYPE&nbsp;MCH1.<br />
+<br />
+DATA: ZHXM           TYPE ZMMRP0270_ALV_S01-ZHXM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_ALV_FIELD_QC&nbsp;TYPE&nbsp;STRING,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_ALV_value_QC&nbsp;TYPE&nbsp;STRING.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;data:&nbsp;begin&nbsp;of&nbsp;t_ftaxp&nbsp;occurs&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;ftaxp.<br />
+&nbsp;&nbsp;data:&nbsp;end&nbsp;of&nbsp;t_ftaxp.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*2016.02.23&nbsp;EXCEL导入商品凭证所需要的变量和内表********************************<br />
+   </div>
+   <div class="code">
+TYPES: BEGIN OF STUD_EXCELDC_0270,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;&nbsp;STUD_EXCELDC_0270.<br />
+<br />
+<br />
+DATA: UT_TABLE TYPE STANDARD TABLE OF STUD_EXCELDC_0270,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;UA_TABLE&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STUD_EXCELDC_0270.<br />
+<br />
+DATA: LT_DATA  TYPE STANDARD TABLE OF STUD_EXCELDC_0270,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_DATA&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STUD_EXCELDC_0270.<br />
+<br />
+DATA: EXCELDR TYPE char1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+****************************************************************************<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

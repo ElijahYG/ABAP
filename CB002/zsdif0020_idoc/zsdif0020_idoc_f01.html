@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDIF0020_IDOC_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDIF0020_IDOC_F01</h2>
+<h3> Description: Include ZSDIF0020_IDOC_F01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0020_IDOC_F01<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+FORM GET_DATA .<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;IT_KSCHL&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZSDIF0020_KSCHL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_KSCHL&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_KSCHL.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;KSCHL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_KSCHL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZSDIF0020_KSCHL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;KSCHL&nbsp;IN&nbsp;S_KSCHL&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'找不到符合条件的条件类型!'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsd_get_basic_price/zsd_get_basic_price.html">'ZSD_GET_BASIC_PRICE'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_DATAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;P_DATAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RT_CONDITION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_CONDITION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_KSCHL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_KSCHL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_SITE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_SITE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_GJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_GJS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_ZXSKGFD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;S_KGFD&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Added&nbsp;by&nbsp;huxiaowei&nbsp;@2016.02.15&nbsp;Start<br />
+*&nbsp;本程序增加一个选项P_FDATE<br />
+*&nbsp;勾选该选项，则只选取条件开始日期&nbsp;=&nbsp;P_DATAB&nbsp;的条件，也就是指定日期当天变价的条件记录，导出IDoc数据量较小，减少POS变价处理的时间<br />
+*&nbsp;不勾选该选项，则选取条件开始日期&nbsp;&lt;=&nbsp;P_DATAB&nbsp;的条件，也就是指定日期当天有效的条件记录，导出IDoc数据量较大<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;P_FDATE&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_CONDITION&nbsp;WHERE&nbsp;DATAB&nbsp;&lt;&nbsp;P_DATAB&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Added&nbsp;by&nbsp;huxiaowei&nbsp;@2016.02.15&nbsp;End<br />
+*<br />
+*<br />
+*&nbsp;&nbsp;SELECT&nbsp;H~KSCHL&nbsp;H~DATAB&nbsp;H~DATBI&nbsp;H~EXTWG&nbsp;H~RAUBE&nbsp;H~EX_GJS&nbsp;H~EX_SITE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~KBETR&nbsp;P~KONWA&nbsp;P~KPEIN&nbsp;P~KMEIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_CONDITION_REF_SITE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A909&nbsp;AS&nbsp;H<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;H~KNUMH<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;H~KSCHL&nbsp;IN&nbsp;S_KSCHL<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATAB&nbsp;&lt;=&nbsp;P_DATAB<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATBI&nbsp;&gt;=&nbsp;P_DATAB&nbsp;.<br />
+*&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;A909中的地点是价格参考地点，还需要找到参考该地点的所有地点，然后<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;将价格复制到各个地点传输给POS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;WERKS&nbsp;EX_SITE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_SITE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZT001W<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_CONDITION_REF_SITE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EX_SITE&nbsp;=&nbsp;IT_CONDITION_REF_SITE-EX_SITE&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_SITE&nbsp;INTO&nbsp;WA_SITE&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_CONDITION_REF_SITE&nbsp;INTO&nbsp;WA_CONDITION_REF_SITE&nbsp;&nbsp;WHERE&nbsp;EX_SITE&nbsp;=&nbsp;WA_SITE-EX_SITE&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_CONDITION_REF_SITE&nbsp;TO&nbsp;WA_CONDITION&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_CONDITION-WERKS&nbsp;=&nbsp;WA_SITE-WERKS&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_CONDITION&nbsp;TO&nbsp;IT_CONDITION&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+**&nbsp;贵金属价格不需要A908表了<br />
+**&nbsp;&nbsp;SELECT&nbsp;H~KSCHL&nbsp;H~DATAB&nbsp;H~DATBI&nbsp;H~EXTWG&nbsp;H~RAUBE&nbsp;H~ZGJSCZ<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~KBETR&nbsp;P~KONWA&nbsp;P~KPEIN&nbsp;P~KMEIN<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_SGM_INFO<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A908&nbsp;AS&nbsp;H<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;H~KNUMH<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;H~KSCHL&nbsp;IN&nbsp;S_KSCHL<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATAB&nbsp;&lt;=&nbsp;P_DATAB<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATBI&nbsp;&gt;=&nbsp;P_DATAB&nbsp;.<br />
+**<br />
+*&nbsp;&nbsp;SELECT&nbsp;H~KSCHL&nbsp;H~DATAB&nbsp;H~DATBI&nbsp;H~ZXSKGFD<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P~KBETR&nbsp;P~KONWA&nbsp;P~KPEIN&nbsp;P~KMEIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPENDING&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_CONDITION<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;A911&nbsp;AS&nbsp;H<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;KONP&nbsp;AS&nbsp;P&nbsp;ON&nbsp;P~KNUMH&nbsp;=&nbsp;H~KNUMH<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;H~KSCHL&nbsp;IN&nbsp;S_KSCHL<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATAB&nbsp;&lt;=&nbsp;P_DATAB<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;H~DATBI&nbsp;&gt;=&nbsp;P_DATAB&nbsp;.<br />
+   </div>
+   <div class="code">
+ENDFORM .<br />
+<br />
+FORM IDOC_OUTPUT .<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------<br />
+*&nbsp;&nbsp;IDOC&nbsp;定义的结构<br />
+*-----------------------------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDD&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD&nbsp;TYPE&nbsp;EDIDD,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;数据记录<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IT_EDIDC&nbsp;TYPE&nbsp;STANDARD&nbsp;TABLE&nbsp;OF&nbsp;EDIDC,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;通讯<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDC&nbsp;TYPE&nbsp;EDIDC.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;控制记录<br />
+&nbsp;&nbsp;DATA:&nbsp;WA_SYS_CONFIG&nbsp;TYPE&nbsp;ZSYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsap_get_status/zsap_get_status.html">'ZSAP_GET_STATUS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_CODE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'PID'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_SYS_CONFIG&nbsp;=&nbsp;WA_SYS_CONFIG.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;(&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;&lt;&gt;&nbsp;'01'&nbsp;OR&nbsp;WA_SYS_CONFIG-RCVPRT_STATUS&nbsp;&lt;&gt;&nbsp;'03'&nbsp;).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E000(ZCB)&nbsp;WITH&nbsp;'在表ZSYS_CONFIG中没有找到PID的配置记录，无法产生IDoc!'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;STOP&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;IDoc控制信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_EDIDC-RCVPRT&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRT.&nbsp;&nbsp;"接收方伙伴类型<br />
+&nbsp;&nbsp;WA_EDIDC-RCVPRN&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPRN.&nbsp;&nbsp;"接收方的合作伙伴编号<br />
+&nbsp;&nbsp;WA_EDIDC-RCVPOR&nbsp;=&nbsp;WA_SYS_CONFIG-RCVPOR.&nbsp;&nbsp;"接收者端口(SAP&nbsp;系统，EDI&nbsp;子系统)<br />
+&nbsp;&nbsp;WA_EDIDC-MESTYP&nbsp;=&nbsp;'ZSDIF0020_MSG'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"信息类型<br />
+&nbsp;&nbsp;WA_EDIDC-IDOCTP&nbsp;=&nbsp;'ZSDIF0020_IDOC'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"IDOC&nbsp;类型<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;IDoc数据内容<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_CONDITION&nbsp;INTO&nbsp;WA_CONDITION&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_EDIDD&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_CONDITION&nbsp;TO&nbsp;WA_SGM_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SEGNAM&nbsp;=&nbsp;'ZSDIF0020_SGM_INFO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_EDIDD-SDATA&nbsp;=&nbsp;WA_SGM_INFO&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_EDIDD&nbsp;TO&nbsp;IT_EDIDD&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;保存并发送IDoc<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'MASTER_IDOC_DISTRIBUTE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMMUNICATION_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_EDIDC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MASTER_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_EDIDD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_CONTROL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_WRITING_IDOC_STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ERROR_IN_IDOC_DATA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDING_LOGICAL_SYSTEM_UNKNOWN&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;SY-MSGID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGTY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;SY-MSGV1&nbsp;SY-MSGV2&nbsp;SY-MSGV3&nbsp;SY-MSGV4.<br />
+&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;发送idoc时会锁住一些系统表，此过程为等待完全操作完毕<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DB_COMMIT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'DEQUEUE_ALL'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.&nbsp;"&nbsp;该Function会在标准Output&nbsp;Message处理中调用，标准程序会在更新进程执行，所以这里不需要Commit，否则会Dump<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_EDIDC&nbsp;INTO&nbsp;WA_EDIDC&nbsp;INDEX&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'EDI_DOCUMENT_DEQUEUE_LATER'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_EDIDC-DOCNUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDOC_IS_NOT_TO_DEQUEUE&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'IDOC已产生：'&nbsp;&&&nbsp;WA_EDIDC-DOCNUM&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM .<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

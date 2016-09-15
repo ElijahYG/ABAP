@@ -1,0 +1,1794 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMMRP0140_GETDATA</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMMRP0140_GETDATA</h2>
+<h3> Description: ZMMRP0140_采购收货转调拨_20150728_王岩</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMMRP0140_GETDATA<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+   </div>
+   <div class="code">
+FORM GET_DATA.<br />
+<br />
+&nbsp;&nbsp;DATA:COLNUM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;I&nbsp;VALUE&nbsp;0.<br />
+&nbsp;&nbsp;DATA:COLNUM1&nbsp;&nbsp;&nbsp;TYPE&nbsp;I&nbsp;VALUE&nbsp;0.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*------------------------------------------------------------*<br />
+*&nbsp;修改：放弃按采购单号查询，更改为按物料凭证查询<br />
+*CLEAR:&nbsp;IT_TABLE_EKKO[].<br />
+*&nbsp;&nbsp;SELECT&nbsp;&nbsp;EBELN<br />
+*&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_EKKO<br />
+*&nbsp;&nbsp;FROM&nbsp;EKKO<br />
+*&nbsp;&nbsp;WHERE&nbsp;EBELN&nbsp;IN&nbsp;S_EBELN<br />
+*&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;LIFNR&nbsp;IN&nbsp;S_LIFNR.<br />
+<br />
+<br />
+<br />
+*&nbsp;DESCRIBE&nbsp;TABLE&nbsp;IT_TABLE_EKKO&nbsp;LINES&nbsp;COLNUM.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"读取这个内表有多少行，放到COLNUM这个变量里<br />
+*IF&nbsp;COLNUM&nbsp;&lt;&gt;&nbsp;0.<br />
+*&nbsp;SELECT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MBLNR&nbsp;&nbsp;&nbsp;"凭证编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EBELN&nbsp;&nbsp;&nbsp;"采购订单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ZEILE&nbsp;&nbsp;&nbsp;"商品凭证中的项目<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;"款号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;"批号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE&nbsp;&nbsp;&nbsp;"数量<br />
+**&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TABLE_BSEG<br />
+*&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_BSEG<br />
+*&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MSEG&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~MBLNR&nbsp;=&nbsp;B~MBLNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;&nbsp;IT_TABLE_EKKO<br />
+*&nbsp;WHERE&nbsp;B~EBELN&nbsp;=&nbsp;IT_TABLE_EKKO-Z_EBELN<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;A~VGART&nbsp;=&nbsp;'WE'<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;A~BLDAT&nbsp;IN&nbsp;S_BUDAT<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;B~WERKS&nbsp;IN&nbsp;S_CGSHDD<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;B~LGORT&nbsp;IN&nbsp;S_LGORT<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;B~BWART&nbsp;=&nbsp;'101'.<br />
+*ENDIF.<br />
+*-----------------------------------------------------------*<br />
+*修改：放弃按物流凭证创建日期作为查询条件<br />
+*IF&nbsp;WA_OPT_INTO-WERKS_OUT&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;&nbsp;WA_OPT_INTO-LGORT_OUT&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;S_MBLNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+*&nbsp;CLEAR:IT_TABLE_BSEG[].<br />
+*<br />
+*&nbsp;SELECT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MBLNR&nbsp;&nbsp;&nbsp;"凭证编号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EBELN&nbsp;&nbsp;&nbsp;"采购订单号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ZEILE&nbsp;&nbsp;&nbsp;"商品凭证中的项目<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;"款号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;"批号<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE&nbsp;&nbsp;&nbsp;"数量<br />
+*&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_BSEG<br />
+*&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MSEG&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~MBLNR&nbsp;=&nbsp;B~MBLNR<br />
+*&nbsp;WHERE<br />
+**&nbsp;&nbsp;&nbsp;A~VGART&nbsp;=&nbsp;'WE'<br />
+*&nbsp;&nbsp;A~BLDAT&nbsp;IN&nbsp;S_BUDAT<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;B~WERKS&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;B~LGORT&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-LGORT_OUT<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;B~BWART&nbsp;&lt;&gt;&nbsp;'543'<br />
+*&nbsp;AND&nbsp;&nbsp;&nbsp;B~MBLNR&nbsp;IN&nbsp;S_MBLNR.<br />
+<br />
+*-----------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-WERKS_OUT&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;&nbsp;WA_OPT_INTO-LGORT_OUT&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;S_MBLNR&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:IT_TABLE_BSEG[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MBLNR&nbsp;&nbsp;&nbsp;"凭证编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EBELN&nbsp;&nbsp;&nbsp;"采购订单号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ZEILE&nbsp;&nbsp;&nbsp;"商品凭证中的项目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR&nbsp;&nbsp;&nbsp;"款号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG&nbsp;&nbsp;&nbsp;"批号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE&nbsp;&nbsp;&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_BSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MSEG&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;B~LGORT&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-LGORT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;B~BWART&nbsp;&lt;&gt;&nbsp;'543'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;B~MBLNR&nbsp;IN&nbsp;S_MBLNR.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TABLE_BSEG&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_BSEG_TEMP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TABLE_BSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;IT_TABLE_BSEG-Z_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;IT_TABLE_BSEG-Z_CHARG<br />
+   </div>
+   <div class="codeComment">
+*AND&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;IN&nbsp;S_CGSHDD<br />
+*AND&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;IN&nbsp;S_LGORT<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;=&nbsp;WA_OPT_INTO-LGORT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;CLABS&nbsp;&lt;=&nbsp;0&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG_TEMP&nbsp;INTO&nbsp;WA_TABLE_BSEG_TEMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WHERE&nbsp;&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_BSEG_TEMP-Z_MATNR&nbsp;AND&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_BSEG_TEMP-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_MENGE&nbsp;=&nbsp;WA_TABLE_BSEG_TEMP-Z_CLABS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_BSEG&nbsp;FROM&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*删除库存为0的批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;IT_TABLE_BSEG&nbsp;WHERE&nbsp;Z_MENGE&nbsp;&lt;=&nbsp;0.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_ALV[].<br />
+   </div>
+   <div class="codeComment">
+*将IT_TABLE_BSEG的值转到IT_TABLE_AVL中，IT_TABLE_AVL为最终ALV显示用。<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_MATNR&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_CHARG&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_EBELN&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_EBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-BZSL&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE_ALV&nbsp;TO&nbsp;IT_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_PC[].<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将IT_TABLE_BSEG的值转到IT_TABLE_PC中，用于批次函数读取<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC-Z_MATNR&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC-Z_CHARG&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE_PC&nbsp;TO&nbsp;IT_TABLE_PC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TABLE_PC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+**将IT_TABLE_PC&nbsp;的MATNR付给查询物料主数据描述和基本单位用<br />
+*&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC&nbsp;INTO&nbsp;WA_TABLE_PC.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_PC_TEXT-Z_MATNR&nbsp;=&nbsp;WA_TABLE_PC-Z_MATNR.<br />
+*&nbsp;&nbsp;&nbsp;APPEND&nbsp;&nbsp;&nbsp;WA_TABLE_PC_TEXT&nbsp;TO&nbsp;&nbsp;&nbsp;IT_TABLE_PC_TEXT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;&nbsp;WA_TABLE_PC_TEXT.<br />
+*<br />
+*&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;DESCRIBE&nbsp;TABLE&nbsp;&nbsp;IT_TABLE_PC&nbsp;LINES&nbsp;COLNUM1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"读取这个内表有多少行，放到COLNUM这个变量里<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;COLNUM1&nbsp;&lt;&gt;&nbsp;0.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;SELECT&nbsp;A~MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MEINS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MAKTX<br />
+*&nbsp;FROM&nbsp;MARA&nbsp;&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKT&nbsp;&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;&nbsp;TABLE&nbsp;IT_TABLE_mar_text<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TABLE_PC_TEXT<br />
+*&nbsp;WHERE&nbsp;&nbsp;A~MATNR&nbsp;=&nbsp;IT_TABLE_PC_TEXT-Z_MATNR.<br />
+**&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;B~SPRAS&nbsp;=&nbsp;'1'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:IT_TABLE_MAR_TEXT[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEMPB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_MAR_TEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TABLE_PC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;IT_TABLE_PC-Z_MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_ZMMEX0010_MARA[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_SPDL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_ZMMEX0010_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TABLE_PC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;IT_TABLE_PC-Z_MATNR.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*ZMM_GET_CHARG_CHARACTERS：根据批次取特性<br />
+*ZMM_GET_BARCODE_INFO&nbsp;：根据条码/包码取批次<br />
+<br />
+*&nbsp;CLEAR:&nbsp;IT_TABLE_PC[].<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_TABLE_PC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;=&nbsp;IT_TABLE_PC_SEL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TABLE_PC_SEL&nbsp;&nbsp;BY&nbsp;Z_MATNR&nbsp;Z_CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_PC_ZL[].<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将查询出来的批次特性进行整理<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_SEL&nbsp;INTO&nbsp;WA_TABLE_PC_SEL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_MATNR&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_CHARG&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZFPH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZFPH&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZXSJGJLDW'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZXSJGJLDW&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZZQH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZZQH&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZGG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZGG&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZGJSCZ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZGJSCZ&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZCKLSJ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZCKLSJ&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZSCMDDH'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_YHD&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'WERKS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_WERKS&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZLYJSFS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZBQMC'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZBQMC&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZJZ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZJZ&nbsp;=&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZSPBM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZSPBM&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'WERKS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_WERKS&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE_PC_ZL&nbsp;TO&nbsp;IT_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV&nbsp;WHERE&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_MATNR&nbsp;AND&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_CHARG.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZBQMC&nbsp;=&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZBQMC.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZFPH&nbsp;&nbsp;=&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZFPH.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZXSJGJLDW&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZXSJGJLDW.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZZQH&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZZQH.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZGG&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZGG.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZGJSCZ&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZGJSCZ.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZCKLSJ&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZCKLSJ.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_YHD&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_YHD.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_WERKS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_WERKS.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZLYJSFS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZJZ&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZJZ.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZSPBM&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZSPBM.<br />
+*&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_ALV&nbsp;&nbsp;FROM&nbsp;WA_TABLE_ALV.<br />
+*ENDLOOP.<br />
+*ENDLOOP.<br />
+*<br />
+*FIELD-SYMBOLS&nbsp;&lt;WA_TABLE_ALV&gt;&nbsp;LIKE&nbsp;WA_TABLE_ALV&nbsp;.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL&nbsp;WITH&nbsp;KEY&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_ALV-Z_MATNR&nbsp;&nbsp;&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_ALV-Z_CHARG&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZBQMC&nbsp;=&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZBQMC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZFPH&nbsp;&nbsp;=&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZFPH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZXSJGJLDW&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZXSJGJLDW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZZQH&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZZQH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZGG&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZGG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZGJSCZ&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZGJSCZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZCKLSJ&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_YHD&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_YHD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_WERKS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZLYJSFS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZJZ&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZSPBM&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZSPBM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_ALV&nbsp;&nbsp;FROM&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_ALV.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;&nbsp;IT_TABLE_ALV&nbsp;BY&nbsp;Z_MATNR&nbsp;Z_CHARG.<br />
+   </div>
+   <div class="codeComment">
+*-------------------------------------------------------------------*<br />
+*把多个表和到一个表<br />
+*LOOP&nbsp;AT&nbsp;&nbsp;IT_TABLE_mar_text&nbsp;INTO&nbsp;WA_TABLE_mar_text.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV&nbsp;WHERE&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_mar_text-Z_MATNR.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_EXTWG&nbsp;=&nbsp;WA_TABLE_MAR_TEXT-Z_EXTWG.<br />
+*&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_MEINS&nbsp;=&nbsp;WA_TABLE_mar_text-Z_MEINS.<br />
+*&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_ALV&nbsp;FROM&nbsp;WA_TABLE_ALV.<br />
+*&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_ALV.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_MAR_TEXT&nbsp;INTO&nbsp;WA_TABLE_MAR_TEXT&nbsp;WITH&nbsp;KEY&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_ALV-Z_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_EXTWG&nbsp;=&nbsp;WA_TABLE_MAR_TEXT-Z_EXTWG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_MEINS&nbsp;=&nbsp;WA_TABLE_MAR_TEXT-Z_MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_ALV&nbsp;FROM&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;IT_TABLE_ALV&nbsp;&nbsp;INTO&nbsp;&nbsp;WA_TABLE_ALV&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WITH&nbsp;KEY&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_ALV-Z_MATNR&nbsp;&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_ALV-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_ZJE&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MENGE&nbsp;*&nbsp;WA_TABLE_ALV-Z_ZCKLSJ.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_ALV-Z_MEINS&nbsp;&lt;&gt;&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_SL&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_MENGE&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-SUMZJZ&nbsp;&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MENGE&nbsp;*&nbsp;WA_TABLE_ALV-Z_ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果商品单位不为PC，例如是G<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;WA_TABLE_ALV-Z_ZJZ&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;发货件数是发货重量除以单位克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_SL&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_MENGE&nbsp;/&nbsp;WA_TABLE_ALV-Z_ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-SUMZJZ&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果单位克重为0，则发货件数为1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_SL&nbsp;=&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-SUMZJZ&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_ALV&nbsp;FROM&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_ALV-Z_ZJZ&nbsp;&lt;&gt;&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-SUMZJZ&nbsp;=&nbsp;WA_TABLE_ALV-Z_ZJZ&nbsp;*&nbsp;WA_TABLE_ALV-Z_SL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_ALV&nbsp;FROM&nbsp;WA_TABLE_ALV.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_MAR_TEXT&nbsp;INTO&nbsp;WA_TABLE_MAR_TEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WHERE&nbsp;Z_MATNR&nbsp;EQ&nbsp;WA_TABLE_MAR_TEXT-Z_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_MEINS&nbsp;=&nbsp;WA_TABLE_MAR_TEXT-Z_MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_TEMPB&nbsp;=&nbsp;WA_TABLE_MAR_TEXT-Z_TEMPB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_BSEG&nbsp;FROM&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WHERE&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_ZLYJSFS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_ZCKLSJ&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_WERKS&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_BSEG&nbsp;FROM&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*LOOP&nbsp;AT&nbsp;&nbsp;IT_TABLE_ZMMEX0010_MARA&nbsp;INTO&nbsp;WA_TABLE_ZMMEX0010_MARA.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV&nbsp;WHERE&nbsp;Z_MATNR&nbsp;=&nbsp;&nbsp;WA_TABLE_ZMMEX0010_MARA-Z_MATNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-EX_PZ&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-EX_PZ01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ01.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-EX_ZT01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_ZT01.<br />
+*&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;&nbsp;IT_TABLE_ALV&nbsp;FROM&nbsp;&nbsp;WA_TABLE_ALV.<br />
+*&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&nbsp;WA_TABLE_ALV.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TABLE_ALV&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_ZMMEX0010_MARA&nbsp;INTO&nbsp;WA_TABLE_ZMMEX0010_MARA&nbsp;WITH&nbsp;KEY&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_ALV-Z_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-EX_PZ&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-EX_PZ01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-EX_ZT01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_ZT01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;&nbsp;IT_TABLE_ALV&nbsp;FROM&nbsp;&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*获取商品的税码<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_SM.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WITH&nbsp;&nbsp;KEY&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_ALV-Z_MATNR&nbsp;&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_ALV-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV-Z_SM&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_SM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_ALV&nbsp;FROM&nbsp;WA_TABLE_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_TABLE_ALV.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*检查商品大类是否一致<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;CHECK_SPDL.<br />
+<br />
+&nbsp;&nbsp;ELSE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'请先输入必输项，再进行查询！'&nbsp;&nbsp;TYPE&nbsp;'S'.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM GET_DATA_ZFPH.<br />
+<br />
+&nbsp;&nbsp;TYPES:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MCHB-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;MCHB-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT&nbsp;TYPE&nbsp;MCHB-LGORT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MCHB-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS&nbsp;TYPE&nbsp;MCHB-CLABS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;TYPE&nbsp;MARA-MEINS,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKTX&nbsp;&nbsp;&nbsp;TYPE&nbsp;MAKT-MAKTX,<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;TYPE&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEMPB&nbsp;TYPE&nbsp;MARA-TEMPB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_CABN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATINN&nbsp;TYPE&nbsp;CABN-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;TYPE&nbsp;CABN-ATNAM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_CABN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATINN&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;AUSP-ATINN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATWRT&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;AUSP-ATWRT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJEK&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;AUSP-OBJEK,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CUOBJ_BM&nbsp;TYPE&nbsp;MCH1-CUOBJ_BM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MCH1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCH1-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MCH1-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CUOBJ_BM&nbsp;TYPE&nbsp;MCH1-CUOBJ_BM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MCH1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TYT_MCH1&nbsp;TYPE&nbsp;TY_MCH1&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TYT_MARA&nbsp;TYPE&nbsp;TY_MARA&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TYT_MCHB&nbsp;TYPE&nbsp;TY_MCHB&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TYT_AUSP&nbsp;TYPE&nbsp;TY_AUSP&nbsp;OCCURS&nbsp;0.<br />
+<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_ATNAM&nbsp;&nbsp;&nbsp;TYPE&nbsp;ATNAM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCH1&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MCH1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCH1&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCH1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CABN&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_CABN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MARA&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MCHB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_AUSP&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_AUSP&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_AUSP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;I_BARCODE&nbsp;TYPE&nbsp;CHAR13.<br />
+<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-LGORT_OUT&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;AND&nbsp;WA_OPT_INTO-WERKS_OUT&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;CLEAR:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;T_INFO.<br />
+<br />
+*&nbsp;&nbsp;STEP1：根据位数判断是批次号还是其他<br />
+*&nbsp;&nbsp;10位表示批次号<br />
+*&nbsp;&nbsp;IF&nbsp;STRLEN(&nbsp;I_BARCODE&nbsp;)&nbsp;=&nbsp;10.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG-CHARG&nbsp;=&nbsp;S_BAR-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_CHARG&nbsp;TO&nbsp;LT_CHARG.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;其他表示包码/条码<br />
+*&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;商品标签<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;I_BARCODE+0(1)&nbsp;=&nbsp;'6'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;L_ATNAM&nbsp;=&nbsp;'ZFPH'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;I_BARCODE+0(1)&nbsp;=&nbsp;'5'&nbsp;OR&nbsp;I_BARCODE+0(1)&nbsp;=&nbsp;'7'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_ATNAM&nbsp;=&nbsp;'ZSPBM'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;取特性内部编码<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;ATINN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;CABN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LW_CABN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ATNAM&nbsp;=&nbsp;L_ATNAM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;根据特性值取对象号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;ATINN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATWRT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJEK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;AUSP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_AUSP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ATINN&nbsp;=&nbsp;LW_CABN-ATINN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ATWRT&nbsp;=&nbsp;S_BAR-LOW.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;取批次<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_AUSP&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_AUSP&nbsp;INTO&nbsp;LW_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_AUSP-CUOBJ_BM&nbsp;=&nbsp;LW_AUSP-OBJEK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_AUSP&nbsp;FROM&nbsp;LW_AUSP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CUOBJ_BM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCH1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MCH1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_AUSP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;CUOBJ_BM&nbsp;=&nbsp;LT_AUSP-CUOBJ_BM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_MCH1&nbsp;TO&nbsp;LT_CHARG[]&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;取批次相关信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_CHARG&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LGORT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLABS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;CHARG&nbsp;=&nbsp;LT_CHARG-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;WERKS&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;LGORT&nbsp;=&nbsp;WA_OPT_INTO-LGORT_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;CLABS&nbsp;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取物料单位<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_MCHB&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;A~MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MEINS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MAKTX<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MARA<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKT&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~MATNR&nbsp;=&nbsp;B~MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_MCHB<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;=&nbsp;LT_MCHB-MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;B~SPRAS&nbsp;=&nbsp;'1'.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;A~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~TEMPB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~MATNR&nbsp;=&nbsp;LT_MCHB-MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_ZMMEX0010_MARA[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_SPDL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_PZ01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EX_ZT01<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMEX0010_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_ZMMEX0010_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;LT_MCHB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;&nbsp;LT_MCHB-MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_MARA&nbsp;BY&nbsp;MATNR.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;LT_MCHB_ALV[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_BSEG[].<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将查询出来的批次特性进行整理<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MCHB&nbsp;INTO&nbsp;LW_MCHB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB_ALV-CHARG&nbsp;=&nbsp;&nbsp;LW_MCHB-CHARG.<br />
+   </div>
+   <div class="codeComment">
+*将查询出来的批次放到IT_TABLE_BSEG.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_CHARG&nbsp;=&nbsp;LW_MCHB-CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB_ALV-MATNR&nbsp;=&nbsp;&nbsp;LW_MCHB-MATNR.<br />
+   </div>
+   <div class="codeComment">
+*将查询出来的物料号放到IT_TABLE_BSEG.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_MATNR&nbsp;=&nbsp;LW_MCHB-MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB_ALV-CLABS&nbsp;=&nbsp;&nbsp;LW_MCHB-CLABS.<br />
+   </div>
+   <div class="codeComment">
+*将查询出来的数量放到IT_TABLE_BSEG<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_MENGE&nbsp;=&nbsp;LW_MCHB-CLABS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB_ALV-WERKS&nbsp;=&nbsp;&nbsp;LW_MCHB-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_MCHB_ALV-LGORT&nbsp;=&nbsp;&nbsp;LW_MCHB-LGORT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_MCHB_ALV&nbsp;TO&nbsp;LT_MCHB_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE_BSEG&nbsp;TO&nbsp;IT_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:LW_MCHB_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_TABLE_BSEG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*----------------------------------------------------------<br />
+*确定批次后，取批次属性。<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_MCHB&nbsp;BY&nbsp;MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_PC[].<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MCHB&nbsp;INTO&nbsp;LW_MCHB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC-Z_MATNR&nbsp;=&nbsp;LW_MCHB-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC-Z_CHARG&nbsp;=&nbsp;LW_MCHB-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TABLE_PC&nbsp;TO&nbsp;IT_TABLE_PC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_TABLE_PC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;IT_TABLE_PC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;=&nbsp;IT_TABLE_PC_SEL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TABLE_PC_SEL&nbsp;&nbsp;BY&nbsp;Z_MATNR&nbsp;Z_CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;IT_TABLE_PC_ZL[].<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将查询出来的批次特性进行整理<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_SEL&nbsp;INTO&nbsp;WA_TABLE_PC_SEL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_MATNR&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_MATNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_CHARG&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_CHARG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZFPH'."分配号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZFPH&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZXSJGJLDW'.&nbsp;&nbsp;"销售价格计算单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZXSJGJLDW&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZGJSCZ'.&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;贵金属材质<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZGJSCZ&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZCKLSJ'.&nbsp;&nbsp;"参考零售价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZCKLSJ&nbsp;=&nbsp;&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZGG'.&nbsp;&nbsp;"规格<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZGG&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;EQ&nbsp;'ZZQH&nbsp;'.&nbsp;&nbsp;"指圈号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZZQH&nbsp;&nbsp;=&nbsp;&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'WERKS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_WERKS&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZLYJSFS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZBQMC'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZBQMC&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZSPBM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZSPBM&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'ZJZ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZJZ&nbsp;=&nbsp;&nbsp;L_P.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'WERKS'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_WERKS&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_SEL-Z_ATNAM&nbsp;&nbsp;EQ&nbsp;'MBLNR'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_MBLNR&nbsp;=&nbsp;WA_TABLE_PC_SEL-Z_ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;END&nbsp;OF&nbsp;Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&nbsp;WA_TABLE_PC_ZL&nbsp;TO&nbsp;IT_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-----------------------------------------------------------------------------------<br />
+*LOOP&nbsp;AT&nbsp;&nbsp;LT_MCHB&nbsp;INTO&nbsp;LW_MCHB.<br />
+*&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL&nbsp;WHERE&nbsp;&nbsp;Z_MATNR&nbsp;=&nbsp;LW_MCHB-MATNR&nbsp;AND&nbsp;Z_CHARG&nbsp;=&nbsp;LW_MCHB-CHARG.<br />
+*&nbsp;&nbsp;&nbsp;TY_MCHB_ALV<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_CLABS&nbsp;=&nbsp;LW_MCHB-CLABS.<br />
+*&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_PC_ZL&nbsp;FROM&nbsp;WA_TABLE_PC_ZL.<br />
+*&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_PC_ZL.<br />
+*&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;LT_MARA&nbsp;INTO&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL&nbsp;WHERE&nbsp;Z_MATNR&nbsp;EQ&nbsp;&nbsp;LW_MARA-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_EXTWG&nbsp;=&nbsp;&nbsp;LW_MARA-EXTWG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_MEINS&nbsp;=&nbsp;LW_MARA-MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;&nbsp;IT_TABLE_PC_ZL&nbsp;FROM&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;&nbsp;LT_MARA&nbsp;INTO&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WHERE&nbsp;Z_MATNR&nbsp;EQ&nbsp;&nbsp;LW_MARA-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_MEINS&nbsp;=&nbsp;&nbsp;LW_MARA-MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_TEMPB&nbsp;=&nbsp;&nbsp;LW_MARA-TEMPB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_TABLE_BSEG&nbsp;FROM&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MCHB_ALV&nbsp;INTO&nbsp;LW_MCHB_ALV&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_MATNR&nbsp;&nbsp;CHARG&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-BZSL&nbsp;&nbsp;=&nbsp;LW_MCHB_ALV-CLABS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_ZJE&nbsp;=&nbsp;LW_MCHB_ALV-CLABS&nbsp;*&nbsp;WA_TABLE_PC_ZL-Z_ZCKLSJ.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_ZL-Z_MEINS&nbsp;&lt;&gt;&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_CLABS&nbsp;=&nbsp;LW_MCHB_ALV-CLABS&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-SUMZJZ&nbsp;&nbsp;=&nbsp;&nbsp;LW_MCHB_ALV-CLABS&nbsp;*&nbsp;WA_TABLE_PC_ZL-Z_ZJZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果商品单位不为PC，例如是G<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_MEINS&nbsp;=&nbsp;'G'&nbsp;AND&nbsp;WA_TABLE_PC_ZL-Z_ZJZ&nbsp;&lt;&gt;&nbsp;0&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;发货件数是发货重量除以单位克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_CLABS&nbsp;=&nbsp;&nbsp;LW_MCHB_ALV-CLABS&nbsp;/&nbsp;WA_TABLE_PC_ZL-Z_ZJZ&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-SUMZJZ&nbsp;=&nbsp;LW_MCHB_ALV-CLABS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;如果单位克重为0，则发货件数为1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_CLABS&nbsp;=&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-SUMZJZ&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_CLABS&nbsp;=&nbsp;LW_MCHB_ALV-CLABS.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_PC_ZL&nbsp;FROM&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_ZL-Z_ZJZ&nbsp;&lt;&gt;&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-SUMZJZ&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_CLABS&nbsp;*&nbsp;WA_TABLE_PC_ZL-Z_ZJZ.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_PC_ZL&nbsp;FROM&nbsp;WA_TABLE_PC_ZL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WHERE&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_ZLYJSFS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_ZCKLSJ&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_WERKS&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_EBELN&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_MBLNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_BSEG&nbsp;FROM&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*LOOP&nbsp;AT&nbsp;&nbsp;IT_TABLE_ZMMEX0010_MARA&nbsp;INTO&nbsp;WA_TABLE_ZMMEX0010_MARA.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL&nbsp;WHERE&nbsp;Z_MATNR&nbsp;=&nbsp;&nbsp;WA_TABLE_ZMMEX0010_MARA-Z_MATNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_SPDL&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_SPDL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_PZ&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_PZ01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ01.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_ZT01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_ZT01.<br />
+*&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;&nbsp;IT_TABLE_PC_ZL&nbsp;FROM&nbsp;&nbsp;WA_TABLE_PC_ZL.<br />
+*&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&nbsp;WA_TABLE_PC_ZL.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*ENDLOOP.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TABLE_ZMMEX0010_MARA&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_ZMMEX0010_MARA&nbsp;INTO&nbsp;WA_TABLE_ZMMEX0010_MARA&nbsp;WITH&nbsp;KEY&nbsp;Z_MATNR&nbsp;=&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_MATNR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_SPDL&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_SPDL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_PZ&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_PZ01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_PZ01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-EX_ZT01&nbsp;=&nbsp;WA_TABLE_ZMMEX0010_MARA-EX_ZT01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;&nbsp;IT_TABLE_PC_ZL&nbsp;FROM&nbsp;&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*获取商品的税码<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;GET_SM.<br />
+<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG&nbsp;WITH&nbsp;&nbsp;KEY&nbsp;Z_MATNR&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_MATNR&nbsp;&nbsp;Z_CHARG&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL-Z_SM&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_SM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_PC_ZL&nbsp;FROM&nbsp;WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:WA_TABLE_PC_ZL.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*检查商品大类是否一致。<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;CHECK_SPDL_BARCODE.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*获取要货单<br />
+   </div>
+   <div class="code">
+FORM GET_YHD.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;&nbsp;A~DOC_NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ITEM_NO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~ORD_TYP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A~ERDAT<br />
+&nbsp;&nbsp;FROM&nbsp;&nbsp;ZSDIF0050_HEAD&nbsp;AS&nbsp;A&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDIF0050_ITEM&nbsp;AS&nbsp;B&nbsp;ON&nbsp;A~DOC_NUMBER&nbsp;=&nbsp;B~DOC_NUMBER&nbsp;INNER&nbsp;JOIN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAKT&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~MATNR&nbsp;=&nbsp;B~MATNR<br />
+&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;IT_TABLE_YHDCX<br />
+&nbsp;&nbsp;WHERE&nbsp;A~WERKS&nbsp;IN&nbsp;S_YHBM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~DOC_NUMBER&nbsp;IN&nbsp;S_YHDH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;A~ERDAT&nbsp;IN&nbsp;S_CJRQ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~MATNR&nbsp;IN&nbsp;S_MATNRY.<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*过账处理<br />
+   </div>
+   <div class="code">
+FORM  CREATE_PZ.<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_SELTAB&nbsp;&nbsp;&nbsp;TYPE&nbsp;RSPARAMS&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB&nbsp;&nbsp;&nbsp;TYPE&nbsp;RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_POSNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;POSNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_OUT_TAB2&nbsp;TYPE&nbsp;TY_OUT_TAB2,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_HEAD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_HEAD,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ITEM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMMRP0050_ITEM&nbsp;OCCURS&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*检查联营商品是否被公司间进行调拨，如果是则错误提示且退出<br />
+**********START&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.10.29**************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;G_ERROR.<br />
+&nbsp;&nbsp;PERFORM&nbsp;CHECK_LYSP.<br />
+&nbsp;&nbsp;CHECK&nbsp;G_ERROR&nbsp;IS&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+**********START&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.10.29**************************<br />
+*&nbsp;关闭要货单<br />
+<br />
+<br />
+**********START&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.17**************************<br />
+**&nbsp;PO拆分<br />
+**&nbsp;生成无配货发货单号<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'NUMBER_GET_NEXT'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NR_RANGE_NR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'01'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJECT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMMFH'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_HEAD-ZFHNO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERVAL_NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER_RANGE_NOT_INTERN&nbsp;=&nbsp;2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJECT_NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QUANTITY_IS_0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QUANTITY_IS_NOT_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERVAL_OVERFLOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUFFER_OVERFLOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;8.<br />
+*&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'生成凭证号时出错'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+**&nbsp;编辑抬头<br />
+*&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;ZMMRP0050_SCREEN&nbsp;TO&nbsp;LW_HEAD.<br />
+*&nbsp;&nbsp;LW_HEAD-REPID&nbsp;=&nbsp;SY-REPID.<br />
+*&nbsp;&nbsp;LW_HEAD-ADNAM&nbsp;=&nbsp;SY-UNAME.&nbsp;"用户名<br />
+*&nbsp;&nbsp;LW_HEAD-ADDAT&nbsp;=&nbsp;SY-DATUM.&nbsp;"日期<br />
+*&nbsp;&nbsp;LW_HEAD-ADTIM&nbsp;=&nbsp;SY-UZEIT.&nbsp;"时间<br />
+*&nbsp;&nbsp;LW_HEAD-UPNAM&nbsp;=&nbsp;SY-UNAME.&nbsp;"更新用户名<br />
+*&nbsp;&nbsp;LW_HEAD-UPDAT&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;"更新日期<br />
+*&nbsp;&nbsp;LW_HEAD-UPTIM&nbsp;=&nbsp;SY-UZEIT.&nbsp;"时间<br />
+*&nbsp;&nbsp;LW_HEAD-WERKS&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT.<br />
+*&nbsp;&nbsp;LW_HEAD-LGORT&nbsp;=&nbsp;WA_OPT_INTO-LGORT_OUT.<br />
+*&nbsp;&nbsp;LW_HEAD-WERKST&nbsp;=&nbsp;WA_OPT_INTO-WERKS_IN.<br />
+*&nbsp;&nbsp;LW_HEAD-LGORTT&nbsp;=&nbsp;WA_OPT_INTO-LGORT_IN.<br />
+*&nbsp;&nbsp;LW_HEAD-FHZG&nbsp;&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-FHZG_IN.<br />
+*&nbsp;&nbsp;LW_HEAD-PERNR&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-PERNR_IN.<br />
+*&nbsp;&nbsp;LW_HEAD-SUBMI&nbsp;&nbsp;=&nbsp;WA_TABLE_BSEG-Z_EBELN.<br />
+*&nbsp;&nbsp;LW_HEAD-BLDAT&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-BLDAT.<br />
+*&nbsp;&nbsp;LW_HEAD-BUDAT&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-BUDAT.<br />
+*&nbsp;&nbsp;LW_HEAD-EKGRP&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-EKGRP.<br />
+*<br />
+*<br />
+**检查联营商品是否被公司间进行调拨，如果是则错误提示且退出<br />
+***********START&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.10.29**************************<br />
+**&nbsp;&nbsp;PERFORM&nbsp;CHECK_LYSP.<br />
+***********START&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.10.29**************************<br />
+**更新行项目<br />
+*<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;L_POSNR&nbsp;=&nbsp;L_POSNR&nbsp;+&nbsp;10.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ZPOSN&nbsp;=&nbsp;L_POSNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ZFHNO&nbsp;=&nbsp;LW_HEAD-ZFHNO.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MATNR&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MATNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-CHARG&nbsp;=&nbsp;WA_TABLE_BSEG-Z_CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MENGE&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MENGE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MEINS&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MEINS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-JSFS&nbsp;&nbsp;=&nbsp;WA_TABLE_BSEG-Z_ZLYJSFS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-TEMPB&nbsp;=&nbsp;WA_TABLE_BSEG-Z_TEMPB.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-SM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MWSKZ&nbsp;=&nbsp;WA_OPT_INTO-SM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MWSKZ&nbsp;=&nbsp;ZLYJSFS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MWSKZ&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_SM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-LSJ&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_BSEG-Z_ZCKLSJ.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-FWERK&nbsp;=&nbsp;WA_TABLE_BSEG-Z_WERKS.<br />
+*<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-FWERK&nbsp;=&nbsp;WA_TABLE_BSEG-FWERK.&nbsp;&nbsp;*首次入库地点，批次中判断是否为跨公司间交易的的属性<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;LW-ITEM-MWSKZ&nbsp;=&nbsp;WA_TABLE_BSEG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;&nbsp;LW_ITEM&nbsp;TO&nbsp;LT_ITEM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_ITEM.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+*<br />
+*<br />
+**&nbsp;更新抬头表<br />
+*&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0050_HEAD&nbsp;FROM&nbsp;LW_HEAD.<br />
+*&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'保存失败'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+**&nbsp;更新行项目表<br />
+*&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0050_ITEM&nbsp;FROM&nbsp;TABLE&nbsp;LT_ITEM.<br />
+*&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'保存失败'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+**&nbsp;调用过账函数过账<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ZMMRP0050_POST'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_ZFHNO&nbsp;=&nbsp;LW_HEAD-ZFHNO.<br />
+*&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'订单已保存'.<br />
+*<br />
+**&nbsp;日志显示<br />
+*&nbsp;&nbsp;LW_SELTAB-SELNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'S_ZFHNO'.<br />
+*&nbsp;&nbsp;LW_SELTAB-KIND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'S'.<br />
+*&nbsp;&nbsp;LW_SELTAB-SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+*&nbsp;&nbsp;LW_SELTAB-OPTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'EQ'.<br />
+*&nbsp;&nbsp;LW_SELTAB-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_HEAD-ZFHNO.<br />
+*&nbsp;&nbsp;APPEND&nbsp;LW_SELTAB&nbsp;TO&nbsp;LT_SELTAB.<br />
+*&nbsp;编辑抬头<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;ZMMRP0050_SCREEN&nbsp;TO&nbsp;LW_HEAD.<br />
+&nbsp;&nbsp;LW_HEAD-REPID&nbsp;=&nbsp;SY-REPID.<br />
+&nbsp;&nbsp;LW_HEAD-ADNAM&nbsp;=&nbsp;SY-UNAME.&nbsp;"用户名<br />
+&nbsp;&nbsp;LW_HEAD-ADDAT&nbsp;=&nbsp;SY-DATUM.&nbsp;"日期<br />
+&nbsp;&nbsp;LW_HEAD-ADTIM&nbsp;=&nbsp;SY-UZEIT.&nbsp;"时间<br />
+&nbsp;&nbsp;LW_HEAD-UPNAM&nbsp;=&nbsp;SY-UNAME.&nbsp;"更新用户名<br />
+&nbsp;&nbsp;LW_HEAD-UPDAT&nbsp;=&nbsp;SY-DATUM.&nbsp;&nbsp;"更新日期<br />
+&nbsp;&nbsp;LW_HEAD-UPTIM&nbsp;=&nbsp;SY-UZEIT.&nbsp;"时间<br />
+&nbsp;&nbsp;LW_HEAD-WERKS&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT.<br />
+&nbsp;&nbsp;LW_HEAD-LGORT&nbsp;=&nbsp;WA_OPT_INTO-LGORT_OUT.<br />
+&nbsp;&nbsp;LW_HEAD-WERKST&nbsp;=&nbsp;WA_OPT_INTO-WERKS_IN.<br />
+&nbsp;&nbsp;LW_HEAD-LGORTT&nbsp;=&nbsp;WA_OPT_INTO-LGORT_IN.<br />
+&nbsp;&nbsp;LW_HEAD-FHZG&nbsp;&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-FHZG_IN.<br />
+&nbsp;&nbsp;LW_HEAD-PERNR&nbsp;&nbsp;=&nbsp;WA_OPT_INTO-PERNR_IN.<br />
+&nbsp;&nbsp;LW_HEAD-SUBMI&nbsp;&nbsp;=&nbsp;WA_TABLE_BSEG-Z_EBELN.<br />
+&nbsp;&nbsp;LW_HEAD-BLDAT&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-BLDAT.<br />
+&nbsp;&nbsp;LW_HEAD-BUDAT&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-BUDAT.<br />
+&nbsp;&nbsp;LW_HEAD-EKGRP&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-EKGRP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;确定行项目对应的专柜<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;LW_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MARA-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATKL&nbsp;TYPE&nbsp;MARA-MATKL,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;TYPE&nbsp;MARA-EXTWG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LW_MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_MARA&nbsp;&nbsp;&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSDEX0020&nbsp;TYPE&nbsp;ZSDEX0020&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ZSDEX0020&nbsp;TYPE&nbsp;ZSDEX0020&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取配置<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_ZSDEX0020<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZSDEX0020<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取主数据信息<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_TABLE_BSEG&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATKL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;IT_TABLE_BSEG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;IT_TABLE_BSEG-Z_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;匹配专柜号,拆分<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;L_POSNR.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MARA&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_ITEM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;WA_TABLE_BSEG&nbsp;TO&nbsp;LW_ITEM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ZFHNO&nbsp;=&nbsp;LW_HEAD-ZFHNO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MATNR&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-CHARG&nbsp;=&nbsp;WA_TABLE_BSEG-Z_CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MENGE&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MEINS&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-JSFS&nbsp;&nbsp;=&nbsp;WA_TABLE_BSEG-Z_ZLYJSFS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-TEMPB&nbsp;=&nbsp;WA_TABLE_BSEG-Z_TEMPB.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-SM&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MWSKZ&nbsp;=&nbsp;WA_OPT_INTO-SM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MWSKZ&nbsp;=&nbsp;ZLYJSFS.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-MWSKZ&nbsp;=&nbsp;&nbsp;WA_TABLE_BSEG-Z_SM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-LSJ&nbsp;&nbsp;&nbsp;=&nbsp;WA_TABLE_BSEG-Z_ZCKLSJ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-FWERK&nbsp;=&nbsp;WA_TABLE_BSEG-Z_WERKS.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;读商品数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-FHZG_IN&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_MARA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_MARA&nbsp;INTO&nbsp;LW_MARA<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MARA-MATKL&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_ZSDEX0020.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZSDEX0020&nbsp;INTO&nbsp;LW_ZSDEX0020<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATKL&nbsp;=&nbsp;LW_MARA-MATKL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ABLAD&nbsp;=&nbsp;LW_ZSDEX0020-ABLAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_MARA-EXTWG&nbsp;IS&nbsp;NOT&nbsp;INITIAL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;LW_ITEM-ABLAD&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_ZSDEX0020.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_ZSDEX0020&nbsp;INTO&nbsp;LW_ZSDEX0020<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;LW_MARA-EXTWG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ABLAD&nbsp;=&nbsp;LW_ZSDEX0020-ABLAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LW_ITEM-ABLAD&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ABLAD&nbsp;=&nbsp;'101'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_ITEM&nbsp;TO&nbsp;LT_ITEM.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;确定拆分<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_HEAD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_HEAD&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_NEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM_TMP&nbsp;&nbsp;&nbsp;LIKE&nbsp;LW_ITEM.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_ITEM&nbsp;STABLE&nbsp;BY&nbsp;ABLAD.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_ITEM&nbsp;INTO&nbsp;LW_ITEM_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_NEW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-TABIX&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NEW&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM&nbsp;=&nbsp;LW_ITEM_TMP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;CHANGE&nbsp;OF&nbsp;LW_ITEM-ABLAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NEW&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDON.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_NEW&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;生成无配货发货单号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'NUMBER_GET_NEXT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NR_RANGE_NR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'01'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJECT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZMMFH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_HEAD-ZFHNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERVAL_NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NUMBER_RANGE_NOT_INTERN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJECT_NOT_FOUND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QUANTITY_IS_0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QUANTITY_IS_NOT_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTERVAL_OVERFLOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUFFER_OVERFLOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;8<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'生成凭证号时出错'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_HEAD&nbsp;TO&nbsp;LT_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_POSNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_POSNR&nbsp;=&nbsp;L_POSNR&nbsp;+&nbsp;10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ZFHNO&nbsp;=&nbsp;LW_HEAD-ZFHNO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_ITEM-ZPOSN&nbsp;=&nbsp;L_POSNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_ITEM&nbsp;FROM&nbsp;LW_ITEM&nbsp;TRANSPORTING&nbsp;ZFHNO&nbsp;ZPOSN.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;更新抬头表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0050_HEAD&nbsp;FROM&nbsp;TABLE&nbsp;LT_HEAD.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'保存失败'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;更新行项目表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;MODIFY&nbsp;ZMMRP0050_ITEM&nbsp;FROM&nbsp;TABLE&nbsp;LT_ITEM.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'保存失败'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;AND&nbsp;WAIT.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_HEAD&nbsp;INTO&nbsp;LW_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmmrp0050_post/zmmrp0050_post.html">'ZMMRP0050_POST'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_ZFHNO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_HEAD-ZFHNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'订单已保存'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;日志显示<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_HEAD&nbsp;INTO&nbsp;LW_HEAD.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB-SELNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'S_ZFHNO'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB-KIND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB-SIGN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB-OPTION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_SELTAB-LOW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_HEAD-ZFHNO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_SELTAB&nbsp;TO&nbsp;LT_SELTAB.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+**********END&nbsp;&nbsp;&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.17**************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SUBMIT&nbsp;ZMMRP0050_LOG&nbsp;WITH&nbsp;SELECTION-TABLE&nbsp;LT_SELTAB&nbsp;AND&nbsp;RETURN.<br />
+<br />
+&nbsp;&nbsp;LEAVE&nbsp;TO&nbsp;SCREEN&nbsp;0.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*-------------------------------------------------------------<br />
+*关闭要货单<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-FLAT&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;SELECT&nbsp;COUNT(*)<br />
+*&nbsp;&nbsp;FROM&nbsp;ZMMRP0050_HEAD<br />
+*&nbsp;&nbsp;WHERE&nbsp;STATUS&nbsp;=&nbsp;'S'<br />
+*&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;ZFHNO&nbsp;=&nbsp;LW_HEAD-ZFHNO.<br />
+*<br />
+*<br />
+*&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;UPDATE&nbsp;ZSDIF0050_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;DOC_IND&nbsp;=&nbsp;'9'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;DOC_NUMBER&nbsp;=&nbsp;WA_OPT_INTO-YHDH.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UPDATE&nbsp;ZSDIF0050_ITEM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;ITEM_IND&nbsp;=&nbsp;'9'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;DOC_NUMBER&nbsp;=&nbsp;WA_OPT_INTO-YHDH.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'关闭要货单成功！'&nbsp;TYPE&nbsp;S&nbsp;.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+<br />
+FORM CHECK_LYSP.<br />
+   </div>
+   <div class="codeComment">
+**********modify&nbsp;by&nbsp;李权&nbsp;2015.11.18&nbsp;start*************<br />
+*&nbsp;&nbsp;DATA:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;L_BUKRS1&nbsp;TYPE&nbsp;BUKRS,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;L_BUKRS2&nbsp;TYPE&nbsp;BUKRS.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z04'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z05'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z06'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z07'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z10'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z11'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z12'&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_ERROR&nbsp;=&nbsp;''.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;=&nbsp;'J0'.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_ZL-Z_WERKS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_BUKRS1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K&nbsp;AS&nbsp;A<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;T001W&nbsp;AS&nbsp;B<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~BWKEY&nbsp;=&nbsp;B~BWKEY<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_BUKRS2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K&nbsp;AS&nbsp;A<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;T001W&nbsp;AS&nbsp;B<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~BWKEY&nbsp;=&nbsp;B~BWKEY<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_WERKS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_BUKRS1&nbsp;&lt;&gt;&nbsp;L_BUKRS2.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S007(ZCB)&nbsp;WITH&nbsp;L_BUKRS2&nbsp;L_BUKRS2&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_ERROR&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;=&nbsp;'J1'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BUKRS1&nbsp;&nbsp;&nbsp;TYPE&nbsp;BUKRS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BUKRS2&nbsp;&nbsp;&nbsp;TYPE&nbsp;BUKRS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BUKRS3&nbsp;&nbsp;&nbsp;TYPE&nbsp;BUKRS.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z04'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z05'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z06'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z07'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z10'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z11'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;WA_TABLE_PC_ZL-Z_ZLYJSFS&nbsp;=&nbsp;'Z12'&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;=&nbsp;'J0'.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_ZL-Z_WERKS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发货点点<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_BUKRS1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;T001W&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~BWKEY&nbsp;=&nbsp;B~BWKEY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;=&nbsp;ZMMRP0140_SCREEN-WERKS_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;收货地点<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_BUKRS2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;T001W&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~BWKEY&nbsp;=&nbsp;B~BWKEY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;=&nbsp;ZMMRP0140_SCREEN-WERKS_IN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;首次入库地点<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_BUKRS3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;T001W&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~BWKEY&nbsp;=&nbsp;B~BWKEY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;=&nbsp;WA_TABLE_PC_ZL-Z_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;判断<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;收货地点和首次入库地点对应的公司不相等才检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_BUKRS2&nbsp;&lt;&gt;&nbsp;L_BUKRS3.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发货地点和收货地点对应的公司不相等才检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_BUKRS1&nbsp;&lt;&gt;&nbsp;L_BUKRS2.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发货地点和首次入库地点对应的公司必须相等<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_BUKRS1&nbsp;&lt;&gt;&nbsp;L_BUKRS3.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S007(ZCB)&nbsp;WITH&nbsp;L_BUKRS3&nbsp;L_BUKRS3&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_ERROR&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+**********modify&nbsp;by&nbsp;李权&nbsp;2015.11.18&nbsp;end*************<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+<br />
+FORM SET_SM. "更改税码<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+FORM CHECK_YHD.<br />
+<br />
+&nbsp;&nbsp;G_CHECK_YHD&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-YHDH&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_OPT_INTO-FLAT&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;COUNT(*)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;&nbsp;ZSDIF0050_HEAD<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;DOC_NUMBER&nbsp;=&nbsp;WA_OPT_INTO-YHDH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;&nbsp;&nbsp;DOC_IND&nbsp;=&nbsp;2.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_CHECK_YHD&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G_CHECK_YHD&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM GET_SM.<br />
+&nbsp;&nbsp;DATA:&nbsp;&nbsp;L_BUKRS1&nbsp;TYPE&nbsp;BUKRS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_BUKRS2&nbsp;TYPE&nbsp;BUKRS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_EKORG&nbsp;&nbsp;TYPE&nbsp;EKORG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_MWSKZ&nbsp;&nbsp;TYPE&nbsp;MWSKZ,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_BSART&nbsp;&nbsp;TYPE&nbsp;BSART.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;&nbsp;LIFNR&nbsp;TYPE&nbsp;ELIFN.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;1：判断发货类型<br />
+*&nbsp;取发货地点对应的公司<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_BUKRS1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;T001W&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~BWKEY&nbsp;=&nbsp;B~BWKEY<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-WERKS_OUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;取收货地点对应的公司<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_BUKRS2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001K&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;T001W&nbsp;AS&nbsp;B<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON&nbsp;A~BWKEY&nbsp;=&nbsp;B~BWKEY<br />
+&nbsp;&nbsp;&nbsp;WHERE&nbsp;B~WERKS&nbsp;=&nbsp;&nbsp;WA_OPT_INTO-WERKS_IN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;2：发货过账<br />
+*&nbsp;根据公司代码判断发货类型<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;L_BUKRS1&nbsp;=&nbsp;L_BUKRS2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BSART&nbsp;=&nbsp;'ZSUB'.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_BSART&nbsp;=&nbsp;'ZSTO'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;&nbsp;SINGLE&nbsp;EKORG<br />
+&nbsp;&nbsp;INTO&nbsp;L_EKORG<br />
+&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;LIFNR&nbsp;=&nbsp;WA_OPT_INTO-WERKS_OUT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LIFNR.<br />
+<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_BSEG&nbsp;INTO&nbsp;WA_TABLE_BSEG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_po_tax/zmm_get_po_tax.html">'ZMM_GET_PO_TAX'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_BSART&nbsp;=&nbsp;L_BSART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_MATNR&nbsp;=&nbsp;WA_TABLE_BSEG-Z_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_LIFNR&nbsp;=&nbsp;LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_EKORG&nbsp;=&nbsp;L_EKORG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_WERKS&nbsp;=&nbsp;WA_OPT_INTO-WERKS_IN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_BUDAT&nbsp;=&nbsp;WA_OPT_INTO-BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EM_MWSKZ&nbsp;=&nbsp;L_MWSKZ.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_BSEG-Z_SM&nbsp;=&nbsp;&nbsp;L_MWSKZ.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TABLE_BSEG&nbsp;FROM&nbsp;WA_TABLE_BSEG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;WA_TABLE_BSEG.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM CHECK_SPDL.<br />
+DATA: IT_TABLE_PC_ZL_CHECK TYPE STANDARD TABLE OF stru_pc_zl,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_PC_ZL_CHECK&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stru_pc_zl.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TABLE_PC_ZL_CHECK&nbsp;=&nbsp;IT_TABLE_PC_ZL.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_EXTWG&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_PC_ZL&nbsp;INTO&nbsp;WA_TABLE_PC_ZL&nbsp;INDEX&nbsp;1.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_PC_ZL_CHECK&nbsp;INTO&nbsp;WA_TABLE_PC_ZL_CHECK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_PC_ZL_CHECK-Z_EXTWG&nbsp;&lt;&gt;&nbsp;WA_TABLE_PC_ZL-Z_EXTWG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_EXTWG&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'商品配货清单中大类不一致！'&nbsp;&nbsp;TYPE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+ENDFORM.<br />
+<br />
+FORM CHECK_SPDL_BARCODE.<br />
+DATA: IT_TABLE_ALV_CHECK TYPE STANDARD TABLE OF stru_alv,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TABLE_ALV_CHECK&nbsp;TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stru_alv.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_TABLE_ALV_CHECK&nbsp;=&nbsp;IT_TABLE_ALV.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_EXTWG&nbsp;=&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TABLE_ALV&nbsp;INTO&nbsp;WA_TABLE_ALV&nbsp;INDEX&nbsp;1&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TABLE_ALV_CHECK&nbsp;INTO&nbsp;WA_TABLE_ALV_CHECK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TABLE_ALV_CHECK-Z_EXTWG&nbsp;&lt;&gt;&nbsp;WA_TABLE_ALV-Z_EXTWG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_EXTWG&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;'商品配货清单中大类不一致！'&nbsp;&nbsp;TYPE&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

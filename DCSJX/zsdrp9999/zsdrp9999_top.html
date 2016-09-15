@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP9999_TOP</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP9999_TOP</h2>
+<h3> Description: Include ZSDRP9999_TOP</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSDRP9999_TOP<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;I_LAYOUT&nbsp;TYPE&nbsp;SLIS_LAYOUT_ALV,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"alv&nbsp;表格布局<br />
+&nbsp;&nbsp;I_FIELD&nbsp;&nbsp;TYPE&nbsp;SLIS_FIELDCAT_ALV,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"alv&nbsp;单列字段<br />
+&nbsp;&nbsp;I_FIELDS&nbsp;TYPE&nbsp;SLIS_T_FIELDCAT_ALV,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"alv&nbsp;字段显示集合<br />
+&nbsp;&nbsp;I_EVENTS&nbsp;TYPE&nbsp;SLIS_T_EVENT,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"alv&nbsp;事件<br />
+&nbsp;&nbsp;I_SORT&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_SORTINFO_ALV&nbsp;WITH&nbsp;HEADER&nbsp;LINE.&nbsp;&nbsp;"alv&nbsp;排序<br />
+<br />
+DATA: SELTAB    TYPE TABLE OF RSPARAMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELTAB_WA&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;SELTAB.<br />
+<br />
+DATA: I_GRID_SETTINGS TYPE LVC_S_GLAY.<br />
+<br />
+DATA IDOC_STATUS LIKE TABLE OF BDIDOCSTAT WITH HEADER LINE.<br />
+DATA T_EDIDC LIKE TABLE OF EDIDC WITH HEADER LINE.<br />
+DATA:GT_SEGMENT LIKE TABLE OF E1WPU01 WITH HEADER LINE.<br />
+<br />
+<br />
+DATA SALES_ORDER_ITEMS LIKE TABLE OF BAPIDLVREFTOSALESORDER WITH HEADER LINE.<br />
+DATA RETURN LIKE TABLE OF BAPIRET2 WITH HEADER LINE.<br />
+DATA NUM_DELIVERIES LIKE BAPIDLVCREATEHEADER-NUM_DELIVERIES.<br />
+<br />
+DATA:VBKOK_WA LIKE  VBKOK.<br />
+DATA DELIVERY LIKE VBKOK-VBELN_VL.<br />
+DATA L_DATE LIKE VBKOK-WADAT_IST.<br />
+DATA MBLNR LIKE MKPF-MBLNR.<br />
+DATA L_FLAG(1) TYPE C.<br />
+DATA L_INDEX TYPE I.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*SAP接口名称&nbsp;&nbsp;IDOC&nbsp;消息类型&nbsp;POS单号&nbsp;凭证日期&nbsp;&nbsp;支付方式&nbsp;&nbsp;支付金额<br />
+*&nbsp;商品&nbsp;&nbsp;批次&nbsp;&nbsp;商品数量&nbsp;&nbsp;商品销售金额&nbsp;&nbsp;后续商品凭证&nbsp;&nbsp;SD开票凭证号<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+DATA:BEGIN OF ROW,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FLAG(1),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TAKST(20)&nbsp;TYPE&nbsp;C,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"处理状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DOCNUM&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDC-DOCNUM,&nbsp;&nbsp;&nbsp;"IDOC号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEGNUM&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDID4-SEGNUM,&nbsp;&nbsp;&nbsp;"项目计数器<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STATUS&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDC-STATUS,&nbsp;&nbsp;&nbsp;"状态<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESTYP&nbsp;&nbsp;&nbsp;&nbsp;like&nbsp;EDIDC-MESTYP,&nbsp;"&nbsp;消息类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRP&nbsp;&nbsp;&nbsp;&nbsp;like&nbsp;EDIMSGT-DESCRP,&nbsp;"&nbsp;描述<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEGNAM&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDID4-SEGNAM,&nbsp;&nbsp;&nbsp;"数据段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CREDAT&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDC-CREDAT,&nbsp;&nbsp;&nbsp;"IDOC创建日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;&nbsp;&nbsp;"门店编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNUM&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;&nbsp;&nbsp;"POS&nbsp;NUM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATUM&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDC-CREDAT,&nbsp;&nbsp;&nbsp;"单据日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type&nbsp;string,&nbsp;"支付方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;"支付金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matnr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;"物料<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;charg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;"批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;menge&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xsje&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;"销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mblnr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;"后续商品凭证<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vbeln&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type&nbsp;STRING,&nbsp;"SD开票凭证号<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STAMID&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMID,&nbsp;&nbsp;&nbsp;"状态消息ID&nbsp;=&nbsp;ZMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNTR&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-COUNTR,&nbsp;&nbsp;&nbsp;"状态计数器<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CURSNO&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;"最后消息号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SNO4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息号4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SNO5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息号5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SNO6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息号6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SNO8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息号8<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SNO9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息号9<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SNO7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息号7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SNO0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAMNO,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息号0<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STP4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STATYP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息类型4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STP5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STATYP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息类型5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STP6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STATYP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息类型6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STP8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STATYP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息类型8<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STP9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STATYP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息类型9<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STP7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STATYP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"消息类型7<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPA4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAPA1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证数据4<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPA5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAPA1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证数据5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPA6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAPA1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证数据6<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPA8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAPA1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证数据8<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPA9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAPA1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证数据9<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SPA7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;EDIDS-STAPA1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"凭证数据7<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLTAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_SPECIALCOL_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;ROW.<br />
+DATA GT_ALV LIKE TABLE OF ROW WITH HEADER LINE.<br />
+<br />
+DATA:BEGIN OF TMP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;LIKE&nbsp;T001W-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;TMP.<br />
+DATA T_WERKS LIKE TABLE OF TMP WITH HEADER LINE.<br />
+RANGES: R_WERKS FOR EDIDC-RCVPRN.<br />
+<br />
+DATA: GT_EDIDC TYPE TABLE OF EDIDC,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_EDIDC&nbsp;TYPE&nbsp;EDIDC.<br />
+   </div>
+   <div class="codeComment">
+*IDOC&nbsp;段定义<br />
+   </div>
+   <div class="code">
+typeS: BEGIN OF TY_E1WPB01.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;&nbsp;TYPE&nbsp;E1WPB01.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_E1WPB01.<br />
+<br />
+typeS: BEGIN OF TY_ZMMIF0020.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zmmif0020_sgm_info/dictionary-zmmif0020_sgm_info.html">ZMMIF0020_SGM_INFO</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZMMIF0020.<br />
+<br />
+<br />
+typeS: BEGIN OF TY_ZSDIF0030_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0030_sgm_head/dictionary-zsdif0030_sgm_head.html">ZSDIF0030_SGM_HEAD</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0030_H.<br />
+<br />
+typeS: BEGIN OF TY_ZSDIF0030_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0030_sgm_item/dictionary-zsdif0030_sgm_item.html">ZSDIF0030_SGM_ITEM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0030_I.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF0040.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0040_sgm_info/dictionary-zsdif0040_sgm_info.html">ZSDIF0040_SGM_INFO</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0040.<br />
+<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF050_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0050_sgm_head/dictionary-zsdif0050_sgm_head.html">ZSDIF0050_SGM_HEAD</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF050_H.<br />
+<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF050_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0050_sgm_item/dictionary-zsdif0050_sgm_item.html">ZSDIF0050_SGM_ITEM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF050_I.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF060_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0060_sgm_head/dictionary-zsdif0060_sgm_head.html">ZSDIF0060_SGM_HEAD</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF060_H.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF060_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0060_sgm_item/dictionary-zsdif0060_sgm_item.html">ZSDIF0060_SGM_ITEM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF060_I.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF060_DE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0060_deliv_sgm/dictionary-zsdif0060_deliv_sgm.html">ZSDIF0060_DELIV_SGM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF060_DE.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF060_DN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0060_dn_sgm/dictionary-zsdif0060_dn_sgm.html">ZSDIF0060_DN_SGM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF060_DN.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF080_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0080_sgm_head/dictionary-zsdif0080_sgm_head.html">ZSDIF0080_SGM_HEAD</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF080_H.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF080_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0080_sgm_item/dictionary-zsdif0080_sgm_item.html">ZSDIF0080_SGM_ITEM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF080_I.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF080_GI.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0080_gi_sgm_item/dictionary-zsdif0080_gi_sgm_item.html">ZSDIF0080_GI_SGM_ITEM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF080_GI.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF0101_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0101_sgm_head/dictionary-zsdif0101_sgm_head.html">ZSDIF0101_SGM_HEAD</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0101_H.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF0101_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0101_sgm_item/dictionary-zsdif0101_sgm_item.html">ZSDIF0101_SGM_ITEM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0101_I.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF0101_SP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0101_sgm_sp/dictionary-zsdif0101_sgm_sp.html">ZSDIF0101_SGM_SP</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0101_SP.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF0160_H.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0160_sgm_head/dictionary-zsdif0160_sgm_head.html">ZSDIF0160_SGM_HEAD</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0160_H.<br />
+<br />
+TYPES: BEGIN OF TY_ZSDIF0160_I.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;<a&nbsp;href&nbsp;="zsdif0160_sgm_item/dictionary-zsdif0160_sgm_item.html">ZSDIF0160_SGM_ITEM</a>.<br />
+TYPES  DOCNUM    LIKE EDIDC-DOCNUM.   "IDOC号<br />
+TYPES  SEGNUM    LIKE EDID4-SEGNUM.   "项目计数器<br />
+TYPES  HLEVEL    LIKE EDID4-HLEVEL.   "层级<br />
+TYPES: END OF TY_ZSDIF0160_I.<br />
+<br />
+DATA:<br />
+&nbsp;&nbsp;GS_SEG_E1WPB01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_E1WPB01,<br />
+&nbsp;&nbsp;GS_SEG_ZMMIF0020&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_ZMMIF0020,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0030_H&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF0030_H,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0030_I&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF0030_I,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0040&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF0040,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0050_H&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF050_H,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0050_I&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF050_I,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0060_H&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF060_H,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0060_I&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF060_I,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0060_DE&nbsp;TYPE&nbsp;TY_ZSDIF060_DE,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0060_DN&nbsp;TYPE&nbsp;TY_ZSDIF060_DN,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0080_H&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF080_H,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0080_I&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF080_I,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0080_GI&nbsp;TYPE&nbsp;TY_ZSDIF080_GI,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0101_H&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF0101_H,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0101_I&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF0101_I,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0101_SP&nbsp;TYPE&nbsp;TY_ZSDIF0101_SP,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0160_H&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF0160_H,<br />
+&nbsp;&nbsp;GS_SEG_ZSDIF0160_I&nbsp;&nbsp;TYPE&nbsp;TY_ZSDIF0160_I,<br />
+&nbsp;&nbsp;Gt_SEG_E1WPB01&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_E1WPB01,<br />
+&nbsp;&nbsp;Gt_SEG_ZMMIF0020&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZMMIF0020,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0030_H&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0030_H,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0030_I&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0030_I,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0040&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0040,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0050_H&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF050_H,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0050_I&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF050_I,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0060_H&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF060_H,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0060_I&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF060_I,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0060_DE&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF060_DE,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0060_DN&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF060_DN,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0080_H&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF080_H,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0080_I&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF080_I,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0080_GI&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF080_GI,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0101_H&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0101_H,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0101_I&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0101_I,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0101_SP&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0101_SP,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0160_H&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0160_H,<br />
+&nbsp;&nbsp;Gt_SEG_ZSDIF0160_I&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ZSDIF0160_I.<br />
+<br />
+DATA:  Gt_tab TYPE  VRM_VALUES,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_TAB&nbsp;TYPE&nbsp;&nbsp;VRM_VALUE&nbsp;.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

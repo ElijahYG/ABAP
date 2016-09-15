@@ -1,0 +1,558 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZFIRP0140_CYCLE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZFIRP0140_CYCLE</h2>
+<h3> Description: Include 生成未清结算表表头</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZFIRP0140_CYCLE<br />
+*&---------------------------------------------------------------------*<br />
+*获取结算单号<br />
+   </div>
+   <div class="code">
+FORM FM_GET_HEADER.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_DATE&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-DATUM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_JSD_NO&nbsp;TYPE&nbsp;ZFIRP0140_HEADER-ZJSD_NO,<br />
+   </div>
+   <div class="codeComment">
+*---------20160808&nbsp;增加排除YD单类单据的逻辑----------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_CHAR&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR4,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_TEXT&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZFIRP0140_HEADER-ZJSD_NO.<br />
+<br />
+&nbsp;&nbsp;L_CHAR&nbsp;=&nbsp;'YD'.<br />
+&nbsp;&nbsp;CONCATENATE&nbsp;'%'&nbsp;L_CHAR&nbsp;'%'&nbsp;INTO&nbsp;L_TEXT.<br />
+   </div>
+   <div class="codeComment">
+*------------------end&nbsp;by&nbsp;linan---------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'01'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*读取已有结算单表头<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;MAX(&nbsp;ZJSD_NO&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;L_JSD_NO<br />
+   </div>
+   <div class="codeComment">
+*------------新增条件----------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;NOT&nbsp;LIKE&nbsp;L_TEXT<br />
+   </div>
+   <div class="codeComment">
+*----------------end----------------------<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*计算结算单号<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_HEADER.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;L_JSD_NO+0(6)&nbsp;=&nbsp;SY-DATUM+0(6).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;=&nbsp;L_JSD_NO&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;L_JSD_NO+0(4)&nbsp;=&nbsp;SY-DATUM+0(4)&nbsp;AND&nbsp;L_JSD_NO+4(2)&nbsp;NE&nbsp;SY-DATUM+4(2).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'0001'.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;L_JSD_NO+0(4)&nbsp;NE&nbsp;SY-DATUM+0(4).<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;=&nbsp;SY-DATUM+0(6)&nbsp;&&&nbsp;'0001'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*为结算单表头赋值<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_TAB_HEADER-LIFNR&nbsp;&nbsp;&nbsp;=&nbsp;S_LIFNR-LOW.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZPO_BUKRS&nbsp;=&nbsp;S_BUKRS-LOW.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-EXTWG&nbsp;&nbsp;&nbsp;=&nbsp;S_EXTWG-LOW.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-RAUBE&nbsp;&nbsp;&nbsp;=&nbsp;S_RAUBE-LOW.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*计算起始日期,终止日期,天数<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;P_1&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;"自由结算<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZDAYS&nbsp;&nbsp;&nbsp;=&nbsp;S_DATE-HIGH&nbsp;-&nbsp;S_DATE-LOW&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZSTART_DATE&nbsp;=&nbsp;S_DATE-LOW.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZEND_DATE&nbsp;&nbsp;=&nbsp;S_DATE-HIGH.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;P_2&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;"自然月结算<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;P_GJAHR&nbsp;&&&nbsp;S_MONTH-LOW&nbsp;&&&nbsp;'01'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZSTART_DATE&nbsp;=&nbsp;L_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;S_MONTH-HIGH&nbsp;IS&nbsp;INITIAL.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;取当月最后一天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SET_LAST_DAY_OF_MONTH&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZEND_DATE&nbsp;=&nbsp;L_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZDAYS&nbsp;=&nbsp;WA_TAB_HEADER-ZEND_DATE&nbsp;-&nbsp;WA_TAB_HEADER-ZSTART_DATE&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_DATE&nbsp;=&nbsp;P_GJAHR&nbsp;&&&nbsp;S_MONTH-HIGH&nbsp;&&&nbsp;'01'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;取当月最后一天<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'FIMA_DATE_CREATE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_SET_LAST_DAY_OF_MONTH&nbsp;=&nbsp;'X'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;L_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZEND_DATE&nbsp;=&nbsp;L_DATE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZDAYS&nbsp;=&nbsp;WA_TAB_HEADER-ZEND_DATE&nbsp;-&nbsp;WA_TAB_HEADER-ZSTART_DATE&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZFAPIAO&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"发票状态&nbsp;1未收到&nbsp;&nbsp;3已收到<br />
+&nbsp;&nbsp;WA_TAB_HEADER-GJAHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;WA_TAB_HEADER-ZSTART_DATE+0(4).<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-BELNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZWAIBU_NO&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-BVORG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;WA_TAB_HEADER-ZFK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZFKJE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZJSZT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZLIGHT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZSH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SPACE.<br />
+<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ADNAM&nbsp;=&nbsp;SY-UNAME.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ADDAT&nbsp;=&nbsp;SY-DATUM.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ADTIM&nbsp;=&nbsp;SY-UZEIT.<br />
+&nbsp;&nbsp;WA_TAB_HEADER-ZFYZT&nbsp;=&nbsp;'未添加'.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;P_1&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSMS&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;P_2&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-ZJSMS&nbsp;=&nbsp;'2'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_TAB_HEADER&nbsp;TO&nbsp;IT_TAB_HEADER.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*编码转描述<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_BMZH&nbsp;USING&nbsp;'H'.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*将结算单时间区间赋值给rang表<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;CLEAR&nbsp;WA_DATE.<br />
+&nbsp;&nbsp;WA_DATE-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;WA_DATE-OPTION&nbsp;=&nbsp;'BT'.<br />
+&nbsp;&nbsp;WA_DATE-LOW&nbsp;=&nbsp;WA_TAB_HEADER-ZSTART_DATE.<br />
+&nbsp;&nbsp;WA_DATE-HIGH&nbsp;=&nbsp;WA_TAB_HEADER-ZEND_DATE.<br />
+&nbsp;&nbsp;APPEND&nbsp;WA_DATE&nbsp;TO&nbsp;RT_DATE.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*检查表头信息<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_HEADER USING I_CHECK TYPE C.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;IT_TMP_HEADER.<br />
+   </div>
+   <div class="codeComment">
+*取相似表头数据<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_HEADER&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TMP_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;LIFNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_LIFNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ZPO_BUKRS&nbsp;IN&nbsp;S_BUKRS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;EXTWG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;RAUBE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;S_RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+   </div>
+   <div class="codeComment">
+*检查时间是否有重叠<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CASE&nbsp;I_CHECK.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'1'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;IT_TMP_HEADER&nbsp;BY&nbsp;ZSTART_DATE&nbsp;DESCENDING.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TMP_HEADER&nbsp;INTO&nbsp;WA_TMP_HEADER&nbsp;INDEX&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;WA_TMP_HEADER-LIFNR&nbsp;EQ&nbsp;WA_TAB_HEADER-LIFNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WA_TMP_HEADER-ZPO_BUKRS&nbsp;EQ&nbsp;WA_TAB_HEADER-ZPO_BUKRS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WA_TMP_HEADER-EXTWG&nbsp;EQ&nbsp;WA_TAB_HEADER-EXTWG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WA_TMP_HEADER-RAUBE&nbsp;EQ&nbsp;WA_TAB_HEADER-RAUBE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;WA_TMP_HEADER-ZSTART_DATE&nbsp;&gt;=&nbsp;WA_TAB_HEADER-ZEND_DATE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_TRUE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'根据您输入的信息,检查到已有单号为'&nbsp;&&&nbsp;WA_TMP_HEADER-ZJSD_NO&nbsp;&&&nbsp;'的结算单生成'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TMP_HEADER&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*************************************************************************<br />
+*获取行项目<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;NUM1&nbsp;=&nbsp;700.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_SDDATA&nbsp;TABLES&nbsp;IT_ALV_TAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_ALV_TAB&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'未找到相关未结算商品'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_MOVE.<br />
+   </div>
+   <div class="codeComment">
+*行项目检查<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_CHECK_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TAB_ITEM1&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'未找到相关未结算商品'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*保存结算单<br />
+   </div>
+   <div class="code">
+FORM FM_SAVE.<br />
+<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;INDEX&nbsp;1.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;COUNT(*)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZFIRP0140_HEADER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;EQ&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_HEADER&nbsp;TO&nbsp;IT_TAB_HEADER1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_ITEM1&nbsp;TO&nbsp;IT_TAB_ITEM11.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZFIRP0140_HEADER&nbsp;FROM&nbsp;TABLE&nbsp;IT_TAB_HEADER1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZFIRP0140_ITEM1&nbsp;FROM&nbsp;TABLE&nbsp;IT_TAB_ITEM11.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_ADD_DEL_FY&nbsp;USING&nbsp;ABAP_TRUE.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'结算单'&nbsp;&&&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;&&&nbsp;'保存成功'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'S'&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'结算单'&nbsp;&&&nbsp;WA_TAB_HEADER-ZJSD_NO&nbsp;&&&nbsp;'已经存在,请联系相关人员确认.'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*输入数据检测<br />
+   </div>
+   <div class="code">
+FORM FM_ITEM2_PBO USING I_CHECK TYPE C.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;L_NUM2,GL_CHECK.<br />
+&nbsp;&nbsp;CASE&nbsp;I_CHECK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'H'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;WHERE&nbsp;FLAG&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM2&nbsp;=&nbsp;L_NUM2&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1&nbsp;WHERE&nbsp;FLAG&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM2&nbsp;=&nbsp;L_NUM2&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;IF&nbsp;L_NUM2&nbsp;&gt;&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;L_NUM2&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXIT.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*检查费用<br />
+   </div>
+   <div class="code">
+FORM FM_CHECK_COST.<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;WITH&nbsp;KEY&nbsp;FLAG&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;WA_TAB_HEADER-ZFYZT&nbsp;=&nbsp;'已添加'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;IT_TAB_ITEM2[].<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_ITEM2&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_ITEM2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;EQ&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;IT_TAB_ITEM2&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;'1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*添加费用明细<br />
+   </div>
+   <div class="code">
+FORM FM_GET_ITEM2.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;GL_CHECK,IT_TAB_ITEM2,WA_TAB_HEADER.<br />
+&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;WITH&nbsp;KEY&nbsp;FLAG&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;L_NUM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_C4&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_C4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_C4&nbsp;INTO&nbsp;WA_TAB_C4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_NUM2&nbsp;=&nbsp;L_NUM2&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM2-ZITEM_NO&nbsp;=&nbsp;L_NUM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM2-ZFYXM&nbsp;=&nbsp;WA_TAB_C4-ZFYXM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM2-ZFYMC&nbsp;=&nbsp;WA_TAB_C4-ZFYMC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM2-ZHKBZ&nbsp;=&nbsp;WA_TAB_C4-ZHKBZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM2-ZJSD_NO&nbsp;=&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;WA_TAB_ITEM2&nbsp;TO&nbsp;IT_TAB_ITEM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GL_CHECK&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*修改费用明细<br />
+   </div>
+   <div class="code">
+FORM FM_MODIFY_ITEM2.<br />
+&nbsp;&nbsp;IF&nbsp;NUM1&nbsp;=&nbsp;600&nbsp;OR&nbsp;IT_TAB_ITEM2&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER&nbsp;WITH&nbsp;KEY&nbsp;FLAG&nbsp;=&nbsp;ABAP_TRUE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;ZFIRP0140_ITEM2&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;IT_TAB_ITEM2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ZJSD_NO&nbsp;EQ&nbsp;WA_TAB_HEADER-ZJSD_NO.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM2&nbsp;&nbsp;INTO&nbsp;WA_TAB_ITEM2.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;ZFYMC&nbsp;FROM&nbsp;ZFIRP0140_C4&nbsp;INTO&nbsp;WA_TAB_ITEM2-ZFYMC&nbsp;WHERE&nbsp;ZFYXM&nbsp;=&nbsp;WA_TAB_ITEM2-ZFYXM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM2&nbsp;FROM&nbsp;WA_TAB_ITEM2&nbsp;TRANSPORTING&nbsp;ZFYMC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*字段编码转描述<br />
+   </div>
+   <div class="code">
+FORM FM_BMZH USING I_BM.<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;IT_BM.<br />
+&nbsp;&nbsp;CASE&nbsp;I_BM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'H'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_HEADER_BM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_HEADER&nbsp;TO&nbsp;IT_BM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zfirp0140_fg_modify/zfirp0140_fg_modify.html">'ZFIRP0140_FG_MODIFY'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BM&nbsp;=&nbsp;IT_BM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_HEADER&nbsp;INTO&nbsp;WA_TAB_HEADER.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;WA_TAB_HEADER-EXTWG<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;WA_TAB_HEADER-RAUBE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;=&nbsp;WA_TAB_HEADER-ZLYJSFS<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;WA_TAB_HEADER-RAUBE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-EWBEZ&nbsp;=&nbsp;WA_BM-EWBEZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-RBTXT&nbsp;=&nbsp;WA_BM-RBTXT.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-BMTXT&nbsp;=&nbsp;WA_BM-BMTXT.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_HEADER-WGBEZ&nbsp;=&nbsp;WA_BM-WGBEZ.<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_USRNAME&nbsp;CHANGING&nbsp;WA_TAB_HEADER-ADNAM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_USRNAME&nbsp;CHANGING&nbsp;WA_TAB_HEADER-UPNAM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_USRNAME&nbsp;CHANGING&nbsp;WA_TAB_HEADER-SHNAM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_HEADER&nbsp;FROM&nbsp;WA_TAB_HEADER&nbsp;TRANSPORTING&nbsp;RBTXT&nbsp;EWBEZ&nbsp;ADNAM&nbsp;UPNAM&nbsp;SHNAM."BMTXT&nbsp;WGBEZ<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'I'.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;NUM1&nbsp;NE&nbsp;700.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_ITEM1&nbsp;TO&nbsp;IT_BM.<br />
+   </div>
+   <div class="codeComment">
+*******************START&nbsp;BY&nbsp;LIQUAN&nbsp;2015.10.26******************************<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_BM-KUNAG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_BM-KUNAG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_BM&nbsp;FROM&nbsp;&nbsp;WA_BM&nbsp;TRANSPORTING&nbsp;KUNAG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*******************END&nbsp;&nbsp;&nbsp;BY&nbsp;LIQUAN&nbsp;2015.10.26******************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zfirp0140_fg_modify/zfirp0140_fg_modify.html">'ZFIRP0140_FG_MODIFY'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BM&nbsp;=&nbsp;IT_BM.<br />
+   </div>
+   <div class="codeComment">
+*******************START&nbsp;BY&nbsp;LIQUAN&nbsp;2015.10.26******************************<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;WA_BM-KUNAG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;WA_BM-KUNAG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;&nbsp;IT_BM&nbsp;FROM&nbsp;&nbsp;WA_BM&nbsp;TRANSPORTING&nbsp;KUNAG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*******************END&nbsp;&nbsp;&nbsp;BY&nbsp;LIQUAN&nbsp;2015.10.26******************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;WITH&nbsp;KEY&nbsp;EXTWG&nbsp;=&nbsp;WA_TAB_ITEM1-EXTWG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZGJSCZ&nbsp;=&nbsp;WA_TAB_ITEM1-ZGJSCZ<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;=&nbsp;WA_TAB_ITEM1-ZLYJSFS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;=&nbsp;WA_TAB_ITEM1-RAUBE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;=&nbsp;WA_TAB_ITEM1-KUNAG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-EWBEZ&nbsp;=&nbsp;WA_BM-EWBEZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-GJSCZ_TEXT&nbsp;=&nbsp;WA_BM-GJSCZ_TEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-BMTXT&nbsp;=&nbsp;WA_BM-BMTXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-WGBEZ&nbsp;=&nbsp;WA_BM-WGBEZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-SORTL&nbsp;=&nbsp;WA_BM-SORTL.<br />
+   </div>
+   <div class="codeComment">
+*******************START&nbsp;BY&nbsp;LIQUAN&nbsp;2015.10.26******************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-RBTXT&nbsp;=&nbsp;WA_BM-RBTXT.<br />
+   </div>
+   <div class="codeComment">
+*******************END&nbsp;&nbsp;&nbsp;BY&nbsp;LIQUAN&nbsp;2015.10.26******************************<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;BMTXT&nbsp;WGBEZ&nbsp;EWBEZ&nbsp;SORTL&nbsp;GJSCZ_TEXT&nbsp;RBTXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;NUM1&nbsp;=&nbsp;700.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;IT_TAB_ITEM1&nbsp;TO&nbsp;IT_BM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zfirp0140_fg_modify/zfirp0140_fg_modify.html">'ZFIRP0140_FG_MODIFY'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BM&nbsp;=&nbsp;IT_BM.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_TAB_ITEM1&nbsp;INTO&nbsp;WA_TAB_ITEM1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;WA_BM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;IT_BM&nbsp;INTO&nbsp;WA_BM&nbsp;WITH&nbsp;KEY&nbsp;ZGJSCZ&nbsp;=&nbsp;WA_TAB_ITEM1-ZGJSCZ.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WA_TAB_ITEM1-GJSCZ_TEXT&nbsp;=&nbsp;WA_BM-GJSCZ_TEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;IT_TAB_ITEM1&nbsp;FROM&nbsp;WA_TAB_ITEM1&nbsp;TRANSPORTING&nbsp;GJSCZ_TEXT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+ENDFORM.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

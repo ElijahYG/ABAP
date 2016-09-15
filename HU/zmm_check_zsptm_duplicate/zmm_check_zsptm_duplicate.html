@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_CHECK_ZSPTM_DUPLICATE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMM_CHECK_ZSPTM_DUPLICATE</h2>
+<h3> Description: 查询重复的商品条码</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZMM_CHECK_ZSPTM_DUPLICATE.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;数据结构定义<br />
+**********************************************************************<br />
+   </div>
+   <div class="code">
+TABLES: MCH1 .<br />
+<br />
+DATA: BEGIN OF GS_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MCH1-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MCH1-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSPTM&nbsp;TYPE&nbsp;ZQC_BATCH-ZSPTM,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;GS_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_ALV&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;GS_ALV&nbsp;.<br />
+<br />
+DATA: GV_ATINN_ZSPTM TYPE AUSP-ATINN .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV显示字段属性内表和工作区<br />
+   </div>
+   <div class="code">
+DATA: GT_FIELDCAT TYPE SLIS_T_FIELDCAT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT&nbsp;TYPE&nbsp;SLIS_FIELDCAT_ALV,<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;定义ALV屏幕布局工作区<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_LAYOUT_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT_EVENTS&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_T_EVENT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_EVENTS&nbsp;&nbsp;&nbsp;TYPE&nbsp;SLIS_ALV_EVENT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;查询屏幕<br />
+***********************************************************************<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK B1 WITH FRAME TITLE TEXT-T01 .<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PARAMETERS:&nbsp;P_Z&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1&nbsp;AS&nbsp;CHECKBOX&nbsp;DEFAULT&nbsp;'X'&nbsp;.<br />
+SELECTION-SCREEN END OF BLOCK B1 .<br />
+<br />
+   </div>
+   <div class="codeComment">
+**********************************************************************<br />
+*&nbsp;处理逻辑<br />
+***********************************************************************<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION .<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ATINN_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZSPTM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GV_ATINN_ZSPTM&nbsp;.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;C~MATNR&nbsp;AS&nbsp;MATNR,&nbsp;C~CHARG&nbsp;AS&nbsp;CHARG,&nbsp;P~ATWRT&nbsp;AS&nbsp;ZSPTM,&nbsp;1&nbsp;AS&nbsp;ZCOUNT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;@DATA(LT_ZSPTM)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;AUSP&nbsp;AS&nbsp;P<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MCH1&nbsp;AS&nbsp;C&nbsp;ON&nbsp;C~CUOBJ_BM&nbsp;=&nbsp;P~OBJEK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ATINN&nbsp;=&nbsp;@GV_ATINN_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;ATWRT&nbsp;IN&nbsp;(&nbsp;SELECT&nbsp;ATWRT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;AUSP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;ATINN&nbsp;=&nbsp;@GV_ATINN_ZSPTM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;ATWRT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HAVING&nbsp;COUNT(*)&nbsp;&gt;&nbsp;1&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GROUP&nbsp;BY&nbsp;C~MATNR,&nbsp;C~CHARG,&nbsp;P~ATWRT&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;P_Z&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_ZSPTM&nbsp;WHERE&nbsp;ZSPTM&nbsp;CP&nbsp;'Z*'&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_ZSPTM_COUNT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZSPTM&nbsp;TYPE&nbsp;AUSP-ATWRT&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZCOUNT&nbsp;TYPE&nbsp;I&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_ZSPTM_COUNT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSPTM_COUNT_1&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ZSPTM_COUNT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZSPTM_COUNT_2&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_ZSPTM_COUNT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSPTM&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;"&nbsp;因为有些条形码在AUSP重复了两次，有两个OBJEK，但其中只有一个在MCH1中有批次数据，<br />
+&nbsp;&nbsp;"&nbsp;这种情况该条形码只有一条数据在上面的SQL查询返回结果中，因此要进行相应处理<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_ZSPTM&nbsp;TO&nbsp;LT_ZSPTM_COUNT_1&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_ZSPTM_COUNT_1&nbsp;INTO&nbsp;LS_ZSPTM_COUNT&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LS_ZSPTM_COUNT&nbsp;INTO&nbsp;LT_ZSPTM_COUNT_2&nbsp;.&nbsp;"&nbsp;汇总条形码重复的次数<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_ZSPTM_COUNT_2&nbsp;INTO&nbsp;LS_ZSPTM_COUNT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LS_ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSPTM-ZSPTM&nbsp;=&nbsp;LS_ZSPTM_COUNT-ZSPTM&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_ZSPTM-ZCOUNT&nbsp;=&nbsp;LS_ZSPTM_COUNT-ZCOUNT&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;LT_ZSPTM&nbsp;FROM&nbsp;LS_ZSPTM&nbsp;TRANSPORTING&nbsp;ZCOUNT&nbsp;WHERE&nbsp;ZSPTM&nbsp;=&nbsp;LS_ZSPTM-ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_ZSPTM&nbsp;WHERE&nbsp;ZCOUNT&nbsp;=&nbsp;1&nbsp;.&nbsp;"&nbsp;删除条形码重复次数为1的<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_ZSPTM[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;'没有发现重复的条形码！'&nbsp;.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_ZSPTM&nbsp;BY&nbsp;ZSPTM&nbsp;MATNR&nbsp;CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DATA(LV_LINES)&nbsp;=&nbsp;LINES(&nbsp;LT_ZSPTM[]&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;'发现重复的条形码',&nbsp;LV_LINES,&nbsp;'条!'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;'商品款号',&nbsp;'批次号',&nbsp;'条形码'&nbsp;,&nbsp;'重复次数'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_ZSPTM&nbsp;INTO&nbsp;LS_ZSPTM&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;/&nbsp;&nbsp;LS_ZSPTM-MATNR,&nbsp;LS_ZSPTM-CHARG,&nbsp;LS_ZSPTM-ZSPTM,&nbsp;LS_ZSPTM-ZCOUNT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;P_Z&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;不考虑以Z开头的商品条形码<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

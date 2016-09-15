@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_BOM_CHANGE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMM_BOM_CHANGE</h2>
+<h3> Description: 批量采购入库委外BOM更改</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMM_BOM_CHANGE.<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  EXPORTING<br />
+*"     REFERENCE(O_RETURN) TYPE  BAPIRET2<br />
+*"  TABLES<br />
+*"      T_DATA STRUCTURE  ZSMM_BOM_CHANGE<br />
+*"      T_OUT STRUCTURE  BAPIRET2<br />
+*"----------------------------------------------------------------------<br />
+<br />
+
+<div class="codeComment">*       <a href ="global-zmm_bom_change.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA&nbsp;WA_MDLB&nbsp;TYPE&nbsp;MDLB.<br />
+&nbsp;&nbsp;data&nbsp;begin&nbsp;of&nbsp;LT_resb&nbsp;occurs&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;structure&nbsp;resb.<br />
+&nbsp;&nbsp;data&nbsp;end&nbsp;of&nbsp;LT_resb.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;mdpmy&nbsp;OCCURS&nbsp;50.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;STRUCTURE&nbsp;mdpm.<br />
+&nbsp;&nbsp;DATA:&nbsp;END&nbsp;OF&nbsp;mdpmy.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;mdsby&nbsp;OCCURS&nbsp;50.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCLUDE&nbsp;STRUCTURE&nbsp;mdsb.<br />
+&nbsp;&nbsp;DATA:&nbsp;END&nbsp;OF&nbsp;mdsby.<br />
+<br />
+<br />
+&nbsp;&nbsp;TABLES:&nbsp;EKPO,EKET,RESB.<br />
+&nbsp;&nbsp;DATA:&nbsp;RSPOS&nbsp;TYPE&nbsp;RESB-RSPOS.<br />
+&nbsp;&nbsp;DATA:&nbsp;POSNR&nbsp;TYPE&nbsp;RESB-POSNR.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_RESB&nbsp;TYPE&nbsp;RESB.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_DATA&nbsp;TYPE&nbsp;ZSMM_BOM_CHANGE.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_RESB2&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;RESB.<br />
+<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;&nbsp;&nbsp;T_DATA&nbsp;BY&nbsp;EBELN&nbsp;EBELP&nbsp;ASCENDING&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;T_DATA&nbsp;INTO&nbsp;LS_DATA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;AT&nbsp;NEW&nbsp;EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;single&nbsp;*&nbsp;from&nbsp;ekpo&nbsp;into&nbsp;corresponding&nbsp;fields&nbsp;of&nbsp;ekpo&nbsp;&nbsp;where&nbsp;ebeln&nbsp;=&nbsp;LS_DATA-EBELN&nbsp;and&nbsp;EBELP&nbsp;=&nbsp;LS_DATA-EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;single&nbsp;*&nbsp;from&nbsp;eket&nbsp;into&nbsp;corresponding&nbsp;fields&nbsp;of&nbsp;eket&nbsp;where&nbsp;&nbsp;ebeln&nbsp;=&nbsp;LS_DATA-EBELN&nbsp;and&nbsp;EBELP&nbsp;=&nbsp;LS_DATA-EBELP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;select&nbsp;&nbsp;*&nbsp;from&nbsp;resb&nbsp;into&nbsp;corresponding&nbsp;fields&nbsp;of&nbsp;TABLE&nbsp;LT_resb&nbsp;where&nbsp;rsnum&nbsp;=&nbsp;eket-rsnum.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SORT&nbsp;LT_resb&nbsp;BY&nbsp;RSPOS&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_RESB&nbsp;INTO&nbsp;LS_RESB&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LT_RESB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RSPOS&nbsp;=&nbsp;LS_RESB-RSPOS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;=&nbsp;LS_RESB-POSNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDAT.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;&nbsp;=&nbsp;POSNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;=&nbsp;POSNR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-RSNUM&nbsp;=&nbsp;eket-rsnum.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-RSPOS&nbsp;=&nbsp;RSPOS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-MATNR&nbsp;=&nbsp;LS_DATA-IDNRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-ERFMG&nbsp;=&nbsp;LS_DATA-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-BDMNG&nbsp;=&nbsp;LS_DATA-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-NOMNG&nbsp;=&nbsp;LS_DATA-MENGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-MEINS&nbsp;=&nbsp;LS_DATA-MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-ERFME&nbsp;=&nbsp;LS_DATA-MEINS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_RESB-POSNR&nbsp;=&nbsp;POSNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RSPOS&nbsp;&nbsp;=&nbsp;&nbsp;RSPOS&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;&nbsp;=&nbsp;&nbsp;POSNR&nbsp;+&nbsp;10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_RESB&nbsp;TO&nbsp;LT_resb2.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;MODIFY&nbsp;RESB&nbsp;FROM&nbsp;TABLE&nbsp;LT_RESB2&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;COMMIT&nbsp;WORK.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

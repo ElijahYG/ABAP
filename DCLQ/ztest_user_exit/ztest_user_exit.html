@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZTEST_USER_EXIT</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZTEST_USER_EXIT</h2>
+<h3> Description: TEST</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT ZTEST_USER_EXIT  .<br />
+<br />
+TABLES : TSTC,     "SAP Transaction Codes<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TADIR,&nbsp;&nbsp;&nbsp;&nbsp;"Directory&nbsp;of&nbsp;Repository&nbsp;Objects<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODSAPT,&nbsp;&nbsp;"SAP&nbsp;Enhancements&nbsp;-&nbsp;Short&nbsp;Texts<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MODACT,&nbsp;&nbsp;&nbsp;"Modifications<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRDIR,&nbsp;&nbsp;&nbsp;&nbsp;"System&nbsp;table&nbsp;TRDIR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TFDIR,&nbsp;&nbsp;&nbsp;&nbsp;"Function&nbsp;Module<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENLFDIR,&nbsp;&nbsp;"Additional&nbsp;Attributes&nbsp;for&nbsp;Function&nbsp;Modules<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TSTCT.&nbsp;&nbsp;&nbsp;&nbsp;"Transaction&nbsp;Code&nbsp;Texts<br />
+<br />
+DATA : JTAB LIKE TADIR OCCURS 0 WITH HEADER LINE.<br />
+DATA : FIELD1(30).<br />
+DATA : V_DEVCLASS LIKE TADIR-DEVCLASS.<br />
+PARAMETERS : P_TCODE LIKE TSTC-TCODE OBLIGATORY.<br />
+<br />
+SELECT SINGLE * FROM TSTC WHERE TCODE EQ P_TCODE.<br />
+IF SY-SUBRC EQ 0.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;TADIR&nbsp;WHERE&nbsp;PGMID&nbsp;=&nbsp;'R3TR'<br />
+&nbsp;&nbsp;AND&nbsp;OBJECT&nbsp;=&nbsp;'PROG'<br />
+&nbsp;&nbsp;AND&nbsp;OBJ_NAME&nbsp;=&nbsp;TSTC-PGMNA.<br />
+&nbsp;&nbsp;MOVE&nbsp;:&nbsp;TADIR-DEVCLASS&nbsp;TO&nbsp;V_DEVCLASS.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;NE&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;TRDIR&nbsp;WHERE&nbsp;NAME&nbsp;=&nbsp;TSTC-PGMNA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;TRDIR-SUBC&nbsp;EQ&nbsp;'F'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;TFDIR&nbsp;WHERE&nbsp;PNAME&nbsp;=&nbsp;TSTC-PGMNA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;ENLFDIR&nbsp;WHERE&nbsp;FUNCNAME&nbsp;=<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TFDIR-FUNCNAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;TADIR&nbsp;WHERE&nbsp;PGMID&nbsp;=&nbsp;'R3TR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;OBJECT&nbsp;=&nbsp;'FUGR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;OBJ_NAME&nbsp;EQ&nbsp;ENLFDIR-AREA.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE&nbsp;:&nbsp;TADIR-DEVCLASS&nbsp;TO&nbsp;V_DEVCLASS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;FROM&nbsp;TADIR&nbsp;INTO&nbsp;TABLE&nbsp;JTAB<br />
+&nbsp;&nbsp;WHERE&nbsp;PGMID&nbsp;=&nbsp;'R3TR'<br />
+&nbsp;&nbsp;AND&nbsp;OBJECT&nbsp;=&nbsp;'SMOD'<br />
+&nbsp;&nbsp;AND&nbsp;DEVCLASS&nbsp;=&nbsp;V_DEVCLASS.<br />
+&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;TSTCT&nbsp;WHERE&nbsp;SPRSL&nbsp;EQ&nbsp;SY-LANGU&nbsp;AND<br />
+&nbsp;&nbsp;TCODE&nbsp;EQ&nbsp;P_TCODE.<br />
+&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_POSITIVE&nbsp;INTENSIFIED&nbsp;OFF.<br />
+&nbsp;&nbsp;WRITE:/(19)&nbsp;'Transaction&nbsp;Code&nbsp;-&nbsp;',<br />
+&nbsp;&nbsp;20(20)&nbsp;P_TCODE,<br />
+&nbsp;&nbsp;45(50)&nbsp;TSTCT-TTEXT.<br />
+&nbsp;&nbsp;SKIP.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;JTAB[]&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/(95)&nbsp;SY-ULINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_HEADING&nbsp;INTENSIFIED&nbsp;ON.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/1&nbsp;SY-VLINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;'Exit&nbsp;Name',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;21&nbsp;SY-VLINE&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;22&nbsp;'Description',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;95&nbsp;SY-VLINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/(95)&nbsp;SY-ULINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;JTAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;*&nbsp;FROM&nbsp;MODSAPT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;SPRSL&nbsp;=&nbsp;SY-LANGU&nbsp;AND<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAME&nbsp;=&nbsp;JTAB-OBJ_NAME.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_NORMAL&nbsp;INTENSIFIED&nbsp;OFF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/1&nbsp;SY-VLINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;JTAB-OBJ_NAME&nbsp;HOTSPOT&nbsp;ON,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;21&nbsp;SY-VLINE&nbsp;,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;22&nbsp;MODSAPT-MODTEXT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;95&nbsp;SY-VLINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/(95)&nbsp;SY-ULINE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DESCRIBE&nbsp;TABLE&nbsp;JTAB.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SKIP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_TOTAL&nbsp;INTENSIFIED&nbsp;ON.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/&nbsp;'No&nbsp;of&nbsp;Exits:'&nbsp;,&nbsp;SY-TFILL.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_NEGATIVE&nbsp;INTENSIFIED&nbsp;ON.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:/(95)&nbsp;'No&nbsp;User&nbsp;Exit&nbsp;exists'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ELSE.<br />
+&nbsp;&nbsp;FORMAT&nbsp;COLOR&nbsp;COL_NEGATIVE&nbsp;INTENSIFIED&nbsp;ON.<br />
+&nbsp;&nbsp;WRITE:/(95)&nbsp;'Transaction&nbsp;Code&nbsp;Does&nbsp;Not&nbsp;Exist'.<br />
+ENDIF.<br />
+<br />
+AT LINE-SELECTION.<br />
+&nbsp;&nbsp;GET&nbsp;CURSOR&nbsp;FIELD&nbsp;FIELD1.<br />
+&nbsp;&nbsp;CHECK&nbsp;FIELD1(4)&nbsp;EQ&nbsp;'JTAB'.<br />
+&nbsp;&nbsp;SET&nbsp;PARAMETER&nbsp;ID&nbsp;'MON'&nbsp;FIELD&nbsp;SY-LISEL+1(10).<br />
+&nbsp;&nbsp;CALL&nbsp;TRANSACTION&nbsp;'SMOD'&nbsp;AND&nbsp;SKIP&nbsp;FIRST&nbsp;SCREEN.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

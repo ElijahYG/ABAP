@@ -1,0 +1,1155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZSDRP0120</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZSDRP0120</h2>
+<h3> Description: 门店进销存</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+REPORT   ZSDRP0120.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;REPORT&nbsp;&nbsp;ZSDRP0120<br />
+*&nbsp;Application&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;SD-RP-0110<br />
+*&nbsp;Subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;门店进销存报表<br />
+*&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;sujingxiang<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AUTHOR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DESCRIPTION<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;----------&nbsp;&nbsp;&nbsp;&nbsp;-----------------<br />
+*&&nbsp;2015/10/08&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sujingxiang&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial<br />
+*&---------------------------------------------------------------------*<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&引入表<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TABLES:<br />
+&nbsp;&nbsp;MSEG,<br />
+&nbsp;&nbsp;MKPF.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义类型<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+TYPES:<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;&nbsp;&nbsp;TYPE&nbsp;MKPF-BUDAT,&nbsp;"日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;&nbsp;&nbsp;TYPE&nbsp;WERKS,&nbsp;"工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;NAME1&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR30,&nbsp;"名称<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;EXTWG&nbsp;&nbsp;&nbsp;TYPE&nbsp;EXTWG,&nbsp;"大类<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;RAUBE&nbsp;&nbsp;&nbsp;TYPE&nbsp;RAUBE,&nbsp;"品种<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ZLYJSFS&nbsp;TYPE&nbsp;ZDE_JSFSBM,&nbsp;"结算方式<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;RKJE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;DMBTR,&nbsp;"入库金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RKKG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"入库克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RKJS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"入库件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSJE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;DMBTR,&nbsp;"销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSKG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;XSJS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"销售件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;THJE&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;DMBTR,&nbsp;"退货金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;THKG&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"退货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;THJS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"退货件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BHGFKJE&nbsp;TYPE&nbsp;DMBTR,&nbsp;"不合格返库金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BHGFKKG&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"不合格返库克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BHGFKJS&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"不合格返库件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZCFKJE&nbsp;&nbsp;TYPE&nbsp;DMBTR,&nbsp;"正常返库金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZCFKKG&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"正常格返库克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZCFKJS&nbsp;&nbsp;TYPE&nbsp;MENGE_D,&nbsp;"正常格返库件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_OUT_TAB,<br />
+&nbsp;&nbsp;TYT_OUT_TAB&nbsp;TYPE&nbsp;TY_OUT_TAB&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_ALV,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KUNAG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-KUNAG,&nbsp;"地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FKDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-FKDAT,&nbsp;"日期<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_POSTYP&nbsp;TYPE&nbsp;VBRK-EX_POSTYP,&nbsp;"&nbsp;业务类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VBELN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-VBELN,&nbsp;"&nbsp;发票<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EX_POSNUM&nbsp;TYPE&nbsp;VBRK-EX_POSNUM,&nbsp;"POS&nbsp;单据<br />
+&nbsp;&nbsp;&nbsp;&nbsp;POSNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-POSNR,&nbsp;"POS&nbsp;行项目<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MATNR,&nbsp;"商品号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-CHARG,&nbsp;"批次<br />
+   </div>
+   <div class="codeComment">
+*********MODIFY&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.09&nbsp;START&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;ZSPTM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR13,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"商品条码<br />
+   </div>
+   <div class="codeComment">
+*********MODIFY&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.09&nbsp;&nbsp;&nbsp;END&nbsp;*********<br />
+*********2016.04.05&nbsp;郭悦更新&nbsp;START&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;KUNRG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK-KUNRG,&nbsp;"平台<br />
+   </div>
+   <div class="codeComment">
+*********2016.04.05&nbsp;郭悦更新&nbsp;END&nbsp;&nbsp;&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;FKLMG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-FKLMG,&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-MEINS,&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZSXJS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-ZXSJS,&nbsp;"数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VRKME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-VRKME,&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZXSKZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-ZXSKZ,&nbsp;"重量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;VRKME2&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-VRKME,&nbsp;"单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI1,&nbsp;"收款金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI2,&nbsp;"成本金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI3,&nbsp;"商场回款<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI4,&nbsp;"优惠合计<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI5,&nbsp;"小计5<br />
+&nbsp;&nbsp;&nbsp;&nbsp;KZWI6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP-KZWI6,&nbsp;"标签价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DNUM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;STRING,&nbsp;"IDOC<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;STRING,&nbsp;"IDOC&nbsp;type<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;CHAR1,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;&nbsp;TY_ALV,<br />
+<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_KEY,&nbsp;&nbsp;&nbsp;"KEY表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;WERKS,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_KEY,<br />
+<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_EKKO,&nbsp;&nbsp;&nbsp;"KEY表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;TYPE&nbsp;EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ABSGR&nbsp;TYPE&nbsp;ABSGR,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_EKKO,<br />
+<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_COLLECT,&nbsp;&nbsp;&nbsp;"<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DMBTR&nbsp;TYPE&nbsp;MSEG-DMBTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_COLLECT,<br />
+<br />
+&nbsp;&nbsp;BEGIN&nbsp;OF&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BUDAT&nbsp;TYPE&nbsp;MKPF-BUDAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MBLNR&nbsp;TYPE&nbsp;MSEG-MBLNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MJAHR&nbsp;TYPE&nbsp;MSEG-MJAHR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZEILE&nbsp;TYPE&nbsp;MSEG-ZEILE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MSEG-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WERKS&nbsp;TYPE&nbsp;MSEG-WERKS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;BWART&nbsp;TYPE&nbsp;MSEG-BWART,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SHKZG&nbsp;TYPE&nbsp;MSEG-SHKZG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DMBTR&nbsp;TYPE&nbsp;MSEG-DMBTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MENGE&nbsp;TYPE&nbsp;MSEG-MENGE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MEINS&nbsp;TYPE&nbsp;MSEG-MEINS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MSEG-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EBELN&nbsp;TYPE&nbsp;MSEG-EBELN,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EBELP&nbsp;TYPE&nbsp;MSEG-EBELP,<br />
+&nbsp;&nbsp;END&nbsp;OF&nbsp;TY_MSEGPF.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&定义全局数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+DATA:<br />
+&nbsp;&nbsp;GT_ALV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;TY_ALV,<br />
+&nbsp;&nbsp;GS_ALV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_ALV,<br />
+&nbsp;&nbsp;GT_VBRK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBRK,<br />
+&nbsp;&nbsp;GS_VBRK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRK,<br />
+&nbsp;&nbsp;GT_VBRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;VBRP,<br />
+&nbsp;&nbsp;GS_VBRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;VBRP,<br />
+&nbsp;&nbsp;GT_MBEWH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;MBEWH,<br />
+&nbsp;&nbsp;GT_T001W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;T001W,<br />
+&nbsp;&nbsp;GS_T001W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;T001W,<br />
+&nbsp;&nbsp;GS_MBEWH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MBEWH,<br />
+&nbsp;&nbsp;GS_MSEGPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;GT_MSEGPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;GT_KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_KEY,<br />
+&nbsp;&nbsp;GS_KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_KEY,<br />
+&nbsp;&nbsp;GT_EKKO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_EKKO,<br />
+&nbsp;&nbsp;GS_EKKO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_EKKO,<br />
+&nbsp;&nbsp;GT_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TYT_OUT_TAB,<br />
+&nbsp;&nbsp;GS_OUT_TAB&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_OUT_TAB,<br />
+&nbsp;&nbsp;GT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;ZMM_CHARG&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;GT_CHARACTERS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG_CHARACTERS&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+RANGES S_BWART FOR MSEG-BWART OCCURS 0 .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&选择屏幕<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+SELECTION-SCREEN BEGIN OF BLOCK BK1 WITH FRAME TITLE TEXT-001.<br />
+SELECT-OPTIONS:<br />
+&nbsp;&nbsp;S_WERKS&nbsp;&nbsp;&nbsp;FOR&nbsp;MSEG-WERKS,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"门店<br />
+&nbsp;&nbsp;S_BUDAT&nbsp;&nbsp;&nbsp;FOR&nbsp;&nbsp;MKPF-BUDAT.<br />
+<br />
+SELECTION-SCREEN  SKIP 1 .<br />
+PARAMETERS:<br />
+&nbsp;&nbsp;R_1&nbsp;TYPE&nbsp;CHAR1&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;G1&nbsp;DEFAULT&nbsp;'X',<br />
+&nbsp;&nbsp;R_2&nbsp;TYPE&nbsp;CHAR1&nbsp;RADIOBUTTON&nbsp;GROUP&nbsp;G1.<br />
+SELECTION-SCREEN END OF BLOCK BK1.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+INITIALIZATION.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FM_INIT.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&F8<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+START-OF-SELECTION.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据查询<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;JC.<br />
+&nbsp;&nbsp;IF&nbsp;R_1&nbsp;EQ&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_DATA.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_SHOW_ALV.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_GET_POS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FM_SHOW__DATA.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&初始化：清空全局变量<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_INIT.<br />
+&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_OUT_TAB.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&检查输入数据<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM JC.<br />
+&nbsp;&nbsp;DATA&nbsp;ZBL&nbsp;TYPE&nbsp;C1.<br />
+&nbsp;&nbsp;IF&nbsp;&nbsp;S_WERKS&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBL&nbsp;=&nbsp;ZBL&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;S_BUDAT&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ZBL&nbsp;=&nbsp;ZBL&nbsp;+&nbsp;1.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;ZBL&nbsp;&lt;&gt;&nbsp;2&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S001(00)&nbsp;WITH&nbsp;'必须输入全部搜索条件'&nbsp;DISPLAY&nbsp;LIKE&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LEAVE&nbsp;LIST-PROCESSING.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&取数<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_DATA.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MSEGPF,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_FK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BHG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;ZMM_CHARG&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG_CHARACTERS&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_DMBTR&nbsp;TYPE&nbsp;DMBTR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D.&nbsp;"件数汇总<br />
+<br />
+&nbsp;&nbsp;CLEAR&nbsp;S_BWART[].<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+*相关的移动类型<br />
+*入库&nbsp;101&nbsp;201&nbsp;301&nbsp;/&nbsp;102&nbsp;202&nbsp;302<br />
+*销售&nbsp;251<br />
+*退货&nbsp;252<br />
+*返库&nbsp;&nbsp;671&nbsp;672&nbsp;&nbsp;EKKO-ABSGR&nbsp;=&nbsp;30<br />
+*返库&nbsp;&nbsp;671&nbsp;672&nbsp;&nbsp;EKKO-ABSGR&nbsp;=&nbsp;10<br />
+*--------------------------------------------------------------------*<br />
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_BWART.<br />
+&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;&1.<br />
+&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+&nbsp;&nbsp;DF_ADD_BWART:<br />
+&nbsp;&nbsp;'101','102'<br />
+&nbsp;&nbsp;,'201','202','301',<br />
+&nbsp;&nbsp;'302','251','252','671','672'<br />
+&nbsp;&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;获取凭证<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SELECT&nbsp;A~BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MBLNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ZEILE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BWART<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~SHKZG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~DMBTR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MEINS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EBELN<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EBELP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;&nbsp;TABLE&nbsp;GT_MSEGPF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;A<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JOIN&nbsp;MSEG&nbsp;AS&nbsp;B&nbsp;ON&nbsp;&nbsp;A~MBLNR&nbsp;=&nbsp;B~MBLNR&nbsp;&nbsp;AND&nbsp;A~MJAHR&nbsp;=&nbsp;B~MJAHR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~BUDAT&nbsp;IN&nbsp;S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;IN&nbsp;S_WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~BWART&nbsp;IN&nbsp;S_BWART.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_MSEGPF&nbsp;BY&nbsp;MBLNR&nbsp;MJAHR&nbsp;ZEILE&nbsp;WERKS&nbsp;.<br />
+<br />
+&nbsp;&nbsp;DELETE&nbsp;GT_MSEGPF&nbsp;WHERE&nbsp;MATNR&nbsp;&nbsp;=&nbsp;&nbsp;''.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;GT_MSEGPF&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;EBELN&nbsp;ABSGR&nbsp;INTO&nbsp;TABLE&nbsp;GT_EKKO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKKO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_MSEGPF<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EBELN&nbsp;=&nbsp;GT_MSEGPF-EBELN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;GT_T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;过滤主键<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;=&nbsp;GT_MSEGPF.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;LT_MSEGPF&nbsp;BY&nbsp;WERKS.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MSEGPF&nbsp;COMPARING&nbsp;WERKS.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEGPF&nbsp;INTO&nbsp;LS_MSEGPF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_KEY-WERKS&nbsp;=&nbsp;LS_MSEGPF-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_KEY&nbsp;TO&nbsp;GT_KEY.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*获取批次特性&nbsp;金重<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;=&nbsp;GT_MSEGPF.<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LT_CHARG[],LT_CHARACTERS.<br />
+&nbsp;&nbsp;SORT&nbsp;LT_MSEGPF&nbsp;BY&nbsp;MATNR.<br />
+&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MSEGPF&nbsp;COMPARING&nbsp;MATNR.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEGPF&nbsp;INTO&nbsp;LS_MSEGPF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_CHARG-MATNR&nbsp;&nbsp;=&nbsp;LS_MSEGPF-MATNR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GT_CHARG-CHARG&nbsp;&nbsp;=&nbsp;LS_MSEGPF-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GT_CHARG.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;=&nbsp;GT_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;LT_CHARACTERS[]&nbsp;=&nbsp;GT_CHARACTERS[].<br />
+&nbsp;&nbsp;DELETE&nbsp;LT_CHARACTERS[]&nbsp;WHERE&nbsp;ATNAM&nbsp;&lt;&gt;&nbsp;'ZJZ'.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_EKKO&nbsp;BY&nbsp;EBELN&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_KEY&nbsp;INTO&nbsp;GS_KEY.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK[],LT_XS[],LT_TH[],LT_ZC[],LT_BHG[],<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK,LT_XS,LT_TH,LT_ZC,LT_BHG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;=&nbsp;GT_MSEGPF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_MSEGPF&nbsp;WHERE&nbsp;WERKS&nbsp;&lt;&gt;&nbsp;GS_KEY-WERKS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEGPF&nbsp;INTO&nbsp;LS_MSEGPF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LV_ZJS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;S-H&nbsp;&nbsp;&nbsp;汇总金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_MSEGPF-SHKZG&nbsp;=&nbsp;'H'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-DMBTR&nbsp;=&nbsp;&nbsp;LS_MSEGPF-DMBTR&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;=&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;=&nbsp;LV_ZJS&nbsp;*&nbsp;-1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+***&nbsp;G：&nbsp;克重&nbsp;=&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;件数&nbsp;=&nbsp;&nbsp;MENGE&nbsp;/&nbsp;单品金重<br />
+***&nbsp;PC：&nbsp;件数&nbsp;=&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;克重=&nbsp;&nbsp;MENGE&nbsp;*&nbsp;&nbsp;单品金重<br />
+***<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_MSEGPF-MEINS&nbsp;=&nbsp;'G'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;=&nbsp;LS_MSEGPF-MENGE."克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_MSEGPF-MATNR&nbsp;CHARG&nbsp;=&nbsp;LS_MSEGPF-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_CHARACTERS-ATFLV&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;LT_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;/&nbsp;L_P.&nbsp;"&nbsp;件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LS_MSEGPF-MEINS&nbsp;=&nbsp;'ST'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;=&nbsp;LS_MSEGPF-MENGE."&nbsp;&nbsp;件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_MSEGPF-MATNR&nbsp;CHARG&nbsp;=&nbsp;LS_MSEGPF-CHARG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_CHARACTERS-ATFLV&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;LT_CHARACTERS-ATFLV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;=&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;*&nbsp;L_P.&nbsp;"&nbsp;克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_MSEGPF-BWART&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'101'&nbsp;OR&nbsp;'201'&nbsp;OR&nbsp;'301'&nbsp;OR&nbsp;'102'&nbsp;OR&nbsp;'202'&nbsp;OR&nbsp;'302'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_RK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LT_RK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'251'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_XS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XS-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;&nbsp;LT_XS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'252'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_TH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TH-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LT_TH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'671'&nbsp;OR&nbsp;'672'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_EKKO&nbsp;&nbsp;INTO&nbsp;GS_EKKO&nbsp;WITH&nbsp;KEY&nbsp;EBELN&nbsp;=&nbsp;LS_MSEGPF-EBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GS_EKKO-ABSGR&nbsp;=&nbsp;'10'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_ZC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZC-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LT_ZC.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&nbsp;GS_EKKO-ABSGR&nbsp;=&nbsp;'30'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_BHG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BHG-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;&nbsp;LT_BHG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"入库<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_RK&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-RKJE&nbsp;=&nbsp;LT_RK-DMBTR.&nbsp;"入库金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-RKKG&nbsp;=&nbsp;LT_RK-MENGE.&nbsp;"入库克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-RKJS&nbsp;=&nbsp;LT_RK-ZJS.&nbsp;"入库件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"销售<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_XS&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-XSJE&nbsp;=&nbsp;LT_XS-DMBTR."销售金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-XSKG&nbsp;=&nbsp;LT_XS-MENGE.&nbsp;"销售克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-XSJS&nbsp;=&nbsp;LT_XS-ZJS.&nbsp;"销售件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"退货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_TH&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-THJE&nbsp;=&nbsp;LT_TH-DMBTR."退货金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-THKG&nbsp;=&nbsp;LT_TH-MENGE.&nbsp;"退货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-THJS&nbsp;=&nbsp;LT_TH-ZJS.&nbsp;"退货件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"不合格返库<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_BHG&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BHGFKJE&nbsp;=&nbsp;LT_BHG-DMBTR."退货金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BHGFKKG&nbsp;=&nbsp;LT_BHG-MENGE.&nbsp;"退货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BHGFKJS&nbsp;=&nbsp;LT_BHG-ZJS.&nbsp;"退货件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"正常返库<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_ZC&nbsp;INDEX&nbsp;1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-ZCFKJE&nbsp;=&nbsp;LT_ZC-DMBTR."退货金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-ZCFKKG&nbsp;=&nbsp;LT_ZC-MENGE.&nbsp;"退货克重<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-ZCFKJS&nbsp;=&nbsp;LT_ZC-ZJS.&nbsp;"退货件数<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-WERKS&nbsp;=&nbsp;GS_KEY-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_T001W.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_T001W&nbsp;INTO&nbsp;GS_T001W&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;GS_KEY-WERKS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-NAME1&nbsp;=&nbsp;GS_T001W-NAME1.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+ENDFORM.<br />
+<br />
+<br />
+   </div>
+   <div class="codeComment">
+**&---------------------------------------------------------------------*<br />
+**&取数<br />
+**&---------------------------------------------------------------------*<br />
+*FORM&nbsp;FM_GET_DATA.<br />
+*<br />
+*&nbsp;&nbsp;DATA:&nbsp;LT_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;MARA,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MARA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;MARA,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_MSEGPF,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TY_MSEGPF,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_FK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BHG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;TY_COLLECT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;ZMM_CHARG&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;ZMM_CHARG_CHARACTERS&nbsp;WITH&nbsp;HEADER&nbsp;LINE.<br />
+*&nbsp;&nbsp;DATA:&nbsp;LV_DMBTR&nbsp;TYPE&nbsp;DMBTR,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;P&nbsp;LENGTH&nbsp;10&nbsp;DECIMALS&nbsp;3,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;&nbsp;&nbsp;TYPE&nbsp;MENGE_D.&nbsp;"件数汇总<br />
+*<br />
+*&nbsp;&nbsp;CLEAR&nbsp;S_BWART[].<br />
+**--------------------------------------------------------------------*<br />
+**相关的移动类型<br />
+**入库&nbsp;101&nbsp;201&nbsp;301&nbsp;/&nbsp;102&nbsp;202&nbsp;302<br />
+**销售&nbsp;251<br />
+**退货&nbsp;252<br />
+**返库&nbsp;&nbsp;671&nbsp;672&nbsp;&nbsp;EKKO-ABSGR&nbsp;=&nbsp;30<br />
+**返库&nbsp;&nbsp;671&nbsp;672&nbsp;&nbsp;EKKO-ABSGR&nbsp;=&nbsp;10<br />
+**--------------------------------------------------------------------*<br />
+**&nbsp;宏<br />
+*&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_BWART.<br />
+*&nbsp;&nbsp;S_BWART-SIGN&nbsp;=&nbsp;'I'.<br />
+*&nbsp;&nbsp;S_BWART-OPTION&nbsp;=&nbsp;'EQ'.<br />
+*&nbsp;&nbsp;S_BWART-LOW&nbsp;=&nbsp;&nbsp;&1.<br />
+*&nbsp;&nbsp;APPEND&nbsp;S_BWART.<br />
+*&nbsp;&nbsp;END-OF-DEFINITION.<br />
+*<br />
+*&nbsp;&nbsp;DF_ADD_BWART:<br />
+*&nbsp;&nbsp;'101','102'<br />
+*&nbsp;&nbsp;,'201','202','301',<br />
+*&nbsp;&nbsp;'302','251','252','671','672'<br />
+*&nbsp;&nbsp;.<br />
+*<br />
+**&nbsp;获取凭证<br />
+*&nbsp;&nbsp;SELECT&nbsp;A~BUDAT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MBLNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MJAHR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~ZEILE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MATNR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~WERKS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~BWART<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~SHKZG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~DMBTR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MENGE<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~MEINS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EBELN<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B~EBELP<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;&nbsp;TABLE&nbsp;GT_MSEGPF<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;MKPF&nbsp;AS&nbsp;A<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JOIN&nbsp;MSEG&nbsp;AS&nbsp;B&nbsp;ON&nbsp;&nbsp;A~MBLNR&nbsp;=&nbsp;B~MBLNR&nbsp;&nbsp;AND&nbsp;A~MJAHR&nbsp;=&nbsp;B~MJAHR<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;A~BUDAT&nbsp;IN&nbsp;S_BUDAT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~WERKS&nbsp;IN&nbsp;S_WERKS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;B~BWART&nbsp;IN&nbsp;S_BWART.<br />
+*<br />
+*&nbsp;&nbsp;SORT&nbsp;GT_MSEGPF&nbsp;BY&nbsp;MBLNR&nbsp;MJAHR&nbsp;ZEILE&nbsp;WERKS&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;DELETE&nbsp;GT_MSEGPF&nbsp;WHERE&nbsp;MATNR&nbsp;&nbsp;=&nbsp;&nbsp;''.<br />
+*<br />
+*&nbsp;&nbsp;IF&nbsp;GT_MSEGPF&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;EBELN&nbsp;ABSGR&nbsp;INTO&nbsp;TABLE&nbsp;GT_EKKO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;EKKO<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_MSEGPF<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;EBELN&nbsp;=&nbsp;GT_MSEGPF-EBELN.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;GT_T001W<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS.<br />
+*<br />
+*<br />
+**&nbsp;过滤主键<br />
+*<br />
+*&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;=&nbsp;GT_MSEGPF.<br />
+**<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_MSEGPF&nbsp;BY&nbsp;WERKS.<br />
+*&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MSEGPF&nbsp;COMPARING&nbsp;WERKS.<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEGPF&nbsp;INTO&nbsp;LS_MSEGPF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;GS_KEY-WERKS&nbsp;=&nbsp;LS_MSEGPF-WERKS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_KEY&nbsp;TO&nbsp;GT_KEY.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+**获取批次特性&nbsp;金重<br />
+*&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;=&nbsp;GT_MSEGPF.<br />
+*&nbsp;&nbsp;CLEAR:&nbsp;LT_CHARG[],LT_CHARACTERS.<br />
+*&nbsp;&nbsp;SORT&nbsp;LT_MSEGPF&nbsp;BY&nbsp;MATNR.<br />
+*&nbsp;&nbsp;DELETE&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;LT_MSEGPF&nbsp;COMPARING&nbsp;MATNR.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEGPF&nbsp;INTO&nbsp;LS_MSEGPF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;GT_CHARG-MATNR&nbsp;&nbsp;=&nbsp;LS_MSEGPF-MATNR.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;GT_CHARG-CHARG&nbsp;&nbsp;=&nbsp;LS_MSEGPF-CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GT_CHARG.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ZMM_GET_CHARG_CHARACTERS'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;=&nbsp;GT_CHARACTERS.<br />
+*<br />
+*&nbsp;&nbsp;LT_CHARACTERS[]&nbsp;=&nbsp;GT_CHARACTERS[].<br />
+*&nbsp;&nbsp;DELETE&nbsp;LT_CHARACTERS[]&nbsp;WHERE&nbsp;ATNAM&nbsp;&lt;&gt;&nbsp;'ZJZ'.<br />
+*<br />
+*&nbsp;&nbsp;SORT&nbsp;GT_EKKO&nbsp;BY&nbsp;EBELN&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_KEY&nbsp;INTO&nbsp;GS_KEY.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK[],LT_XS[],LT_TH[],LT_ZC[],LT_BHG[],<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK,LT_XS,LT_TH,LT_ZC,LT_BHG.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LT_MSEGPF&nbsp;&nbsp;=&nbsp;GT_MSEGPF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;DELETE&nbsp;LT_MSEGPF&nbsp;WHERE&nbsp;WERKS&nbsp;&lt;&gt;&nbsp;GS_KEY-WERKS.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_MSEGPF&nbsp;INTO&nbsp;LS_MSEGPF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LV_ZJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;S-H&nbsp;&nbsp;&nbsp;汇总金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_MSEGPF-SHKZG&nbsp;=&nbsp;'H'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-DMBTR&nbsp;=&nbsp;&nbsp;LS_MSEGPF-DMBTR&nbsp;*&nbsp;-1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;=&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;*&nbsp;-1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;=&nbsp;LV_ZJS&nbsp;*&nbsp;-1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+****&nbsp;G：&nbsp;克重&nbsp;=&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;件数&nbsp;=&nbsp;&nbsp;MENGE&nbsp;/&nbsp;单品金重<br />
+****&nbsp;PC：&nbsp;件数&nbsp;=&nbsp;&nbsp;MENGE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;克重=&nbsp;&nbsp;MENGE&nbsp;*&nbsp;&nbsp;单品金重<br />
+****<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LS_MSEGPF-MEINS&nbsp;=&nbsp;'G'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;=&nbsp;LS_MSEGPF-MENGE."克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_MSEGPF-MATNR&nbsp;CHARG&nbsp;=&nbsp;LS_MSEGPF-CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_CHARACTERS-ATFLV&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;LT_CHARACTERS-ATFLV.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;/&nbsp;L_P.&nbsp;"&nbsp;件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;LS_MSEGPF-MEINS&nbsp;=&nbsp;'ST'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ZJS&nbsp;=&nbsp;LS_MSEGPF-MENGE."&nbsp;&nbsp;件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARACTERS&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;LS_MSEGPF-MATNR&nbsp;CHARG&nbsp;=&nbsp;LS_MSEGPF-CHARG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LT_CHARACTERS-ATFLV&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_P&nbsp;=&nbsp;LT_CHARACTERS-ATFLV.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;=&nbsp;&nbsp;&nbsp;LS_MSEGPF-MENGE&nbsp;*&nbsp;L_P.&nbsp;"&nbsp;克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;LS_MSEGPF-BWART&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;&nbsp;'101'&nbsp;OR&nbsp;'201'&nbsp;OR&nbsp;'301'&nbsp;OR&nbsp;'102'&nbsp;OR&nbsp;'202'&nbsp;OR&nbsp;'302'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_RK.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_RK-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LT_RK.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'251'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_XS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_XS-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;&nbsp;LT_XS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'252'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_TH.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_TH-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LT_TH.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'671'&nbsp;OR&nbsp;'672'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_EKKO&nbsp;&nbsp;INTO&nbsp;GS_EKKO&nbsp;WITH&nbsp;KEY&nbsp;EBELN&nbsp;=&nbsp;LS_MSEGPF-EBELN&nbsp;BINARY&nbsp;SEARCH.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;GS_EKKO-ABSGR&nbsp;=&nbsp;'10'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_ZC.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_ZC-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;LT_ZC.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSEIF&nbsp;&nbsp;GS_EKKO-ABSGR&nbsp;=&nbsp;'30'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LS_MSEGPF&nbsp;TO&nbsp;LT_BHG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BHG-ZJS&nbsp;&nbsp;=&nbsp;LV_ZJS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COLLECT&nbsp;&nbsp;LT_BHG.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"入库<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_RK&nbsp;INDEX&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-RKJE&nbsp;=&nbsp;LT_RK-DMBTR.&nbsp;"入库金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-RKKG&nbsp;=&nbsp;LT_RK-MENGE.&nbsp;"入库克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-RKJS&nbsp;=&nbsp;LT_RK-ZJS.&nbsp;"入库件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"销售<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_XS&nbsp;INDEX&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-XSJE&nbsp;=&nbsp;LT_XS-DMBTR."销售金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-XSKG&nbsp;=&nbsp;LT_XS-MENGE.&nbsp;"销售克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-XSJS&nbsp;=&nbsp;LT_XS-ZJS.&nbsp;"销售件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"退货<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_TH&nbsp;INDEX&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-THJE&nbsp;=&nbsp;LT_TH-DMBTR."退货金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-THKG&nbsp;=&nbsp;LT_TH-MENGE.&nbsp;"退货克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-THJS&nbsp;=&nbsp;LT_TH-ZJS.&nbsp;"退货件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"不合格返库<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_BHG&nbsp;INDEX&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BHGFKJE&nbsp;=&nbsp;LT_BHG-DMBTR."退货金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BHGFKKG&nbsp;=&nbsp;LT_BHG-MENGE.&nbsp;"退货克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-BHGFKJS&nbsp;=&nbsp;LT_BHG-ZJS.&nbsp;"退货件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;"正常返库<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;&nbsp;LT_ZC&nbsp;INDEX&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-ZCFKJE&nbsp;=&nbsp;LT_ZC-DMBTR."退货金额<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-ZCFKKG&nbsp;=&nbsp;LT_ZC-MENGE.&nbsp;"退货克重<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-ZCFKJS&nbsp;=&nbsp;LT_ZC-ZJS.&nbsp;"退货件数<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-WERKS&nbsp;=&nbsp;GS_KEY-WERKS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_T001W.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_T001W&nbsp;INTO&nbsp;GS_T001W&nbsp;WITH&nbsp;KEY&nbsp;WERKS&nbsp;=&nbsp;GS_KEY-WERKS.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_OUT_TAB-NAME1&nbsp;=&nbsp;GS_T001W-NAME1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_OUT_TAB&nbsp;TO&nbsp;GT_OUT_TAB.<br />
+*<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+*<br />
+*<br />
+*ENDFORM.<br />
+<br />
+<br />
+*&---------------------------------------------------------------------*<br />
+*&显示<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_SHOW_ALV.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_FIELDCAT&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&9&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_FIELDCAT&nbsp;TO&nbsp;LT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据转换（GT_IN_TAB=&gt;GT_OUT_TAB）<br />
+*&nbsp;STEP1:创建FIELDCAT<br />
+<br />
+<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DF_ADD_FIELDCAT:<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;'WERKS'&nbsp;&nbsp;'门店'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;'NAME1'&nbsp;&nbsp;'门店名称'&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;'RKJE'&nbsp;&nbsp;'入库金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;'RKKG'&nbsp;&nbsp;'入库克重'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;'RKJS'&nbsp;&nbsp;'入库件数'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;'XSJE'&nbsp;&nbsp;'销售金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;'XSKG'&nbsp;&nbsp;'销售克重'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;'XSJS'&nbsp;&nbsp;'销售件数'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;&nbsp;'THJE'&nbsp;&nbsp;'退货金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;'THKG'&nbsp;&nbsp;'退货克重'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11&nbsp;&nbsp;'THJS'&nbsp;&nbsp;'退货件数'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;&nbsp;'BHGFKJE'&nbsp;&nbsp;'不合格返库金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13&nbsp;&nbsp;'BHGFKKG'&nbsp;&nbsp;'不合格返库克重'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;14&nbsp;&nbsp;'BHGFKJS'&nbsp;&nbsp;'不合格返库件数'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;15&nbsp;&nbsp;'ZCFKJE'&nbsp;&nbsp;'正常返库金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16&nbsp;&nbsp;'ZCFKKG'&nbsp;&nbsp;'正常格返库克重'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17&nbsp;&nbsp;'ZCFKJS'&nbsp;&nbsp;'正常格返库件数'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;18&nbsp;&nbsp;'QMKC'&nbsp;&nbsp;'期末库存'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;''.<br />
+<br />
+&nbsp;&nbsp;LW_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;LW_LAYOUT-BOX_FNAME&nbsp;=&nbsp;'SEL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择&nbsp;框<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_OUT_TAB<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FM_GET_POS<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_GET_POS .<br />
+&nbsp;&nbsp;RANGES&nbsp;&nbsp;LT_KUNAG&nbsp;FOR&nbsp;VBRK-KUNAG.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_KUNAG&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;LT_KUNAG.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_T001W&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;T001W,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LS_T001W&nbsp;TYPE&nbsp;T001W.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_KUNAG&nbsp;TYPE&nbsp;T001W-KUNNR.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;LT_T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;T001W<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;WERKS&nbsp;IN&nbsp;S_WERKS.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;LT_T001W&nbsp;INTO&nbsp;LS_T001W.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LV_KUNAG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;LS_T001W-WERKS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;LV_KUNAG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_KUNAG-LOW&nbsp;=&nbsp;LV_KUNAG.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_KUNAG-OPTION&nbsp;=&nbsp;'EQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LS_KUNAG-SIGN&nbsp;=&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LS_KUNAG&nbsp;TO&nbsp;LT_KUNAG.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;GT_VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;FKART&nbsp;=&nbsp;'FP'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;FKDAT&nbsp;IN&nbsp;S_BUDAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;KUNAG&nbsp;IN&nbsp;LT_KUNAG.<br />
+&nbsp;&nbsp;IF&nbsp;GT_VBRK&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;*&nbsp;INTO&nbsp;TABLE&nbsp;GT_VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;VBRP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR&nbsp;ALL&nbsp;ENTRIES&nbsp;IN&nbsp;GT_VBRK<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;VBELN&nbsp;=&nbsp;GT_VBRK-VBELN.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;GT_VBRK&nbsp;BY&nbsp;VBELN.<br />
+&nbsp;&nbsp;SORT&nbsp;GT_VBRP&nbsp;BY&nbsp;VBELN&nbsp;POSNR.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_VBRP&nbsp;INTO&nbsp;GS_VBRP.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_VBRK.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;GT_VBRK&nbsp;INTO&nbsp;GS_VBRK&nbsp;WITH&nbsp;KEY&nbsp;VBELN&nbsp;=&nbsp;GS_VBRP-VBELN.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;&nbsp;&nbsp;GS_VBRK&nbsp;TO&nbsp;GS_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;&nbsp;&nbsp;GS_VBRP&nbsp;TO&nbsp;GS_ALV.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_OUTPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INPUT&nbsp;&nbsp;=&nbsp;GS_ALV-KUNAG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUTPUT&nbsp;=&nbsp;GS_ALV-KUNAG.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_ALV-VRKME&nbsp;=&nbsp;'PC'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GS_ALV-VRKME2&nbsp;=&nbsp;'G'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;GS_ALV&nbsp;TO&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;GS_VBRP.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*********MODIFY&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.09&nbsp;START&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;PERFORM&nbsp;FM_ADD_CHARG_CHARCTERS.<br />
+   </div>
+   <div class="codeComment">
+*********MODIFY&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.09&nbsp;&nbsp;&nbsp;END&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;SORT&nbsp;GT_ALV&nbsp;BY&nbsp;KUNAG.<br />
+ENDFORM.<br />
+<br />
+FORM FM_ADD_CHARG_CHARCTERS.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;FS&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;GT_ALV.<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;ZMM_CHARG&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARG_CHARACTERS&nbsp;OCCURS&nbsp;0.<br />
+&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;GT_ALV&nbsp;TO&nbsp;LT_CHARG.<br />
+<br />
+&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_get_charg_characters/zmm_get_charg_characters.html">'ZMM_GET_CHARG_CHARACTERS'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG_CHARACTERS&nbsp;=&nbsp;LT_CHARG_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;LT_CHARG_CHARACTERS&nbsp;BY&nbsp;MATNR&nbsp;CHARG&nbsp;ATNAM.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_ALV&nbsp;ASSIGNING&nbsp;&lt;FS&gt;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_CHARG_CHARACTERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;LT_CHARG_CHARACTERS&nbsp;INTO&nbsp;LW_CHARG_CHARACTERS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;KEY&nbsp;MATNR&nbsp;=&nbsp;&lt;FS&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;=&nbsp;&lt;FS&gt;-CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ATNAM&nbsp;=&nbsp;'ZSPTM'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BINARY&nbsp;SEARCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;=&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;FS&gt;-ZSPTM&nbsp;=&nbsp;LW_CHARG_CHARACTERS-ATWRT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FM_SHOW__DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FM_SHOW__DATA .<br />
+<br />
+&nbsp;&nbsp;DATA:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT&nbsp;TYPE&nbsp;LVC_S_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LT_FIELDCAT&nbsp;TYPE&nbsp;LVC_T_FCAT,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_LAYOUT&nbsp;&nbsp;&nbsp;TYPE&nbsp;LVC_S_LAYO.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;宏<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DEFINE&nbsp;DF_ADD_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;LW_FIELDCAT.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COL_POS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"列位置<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-FIELDNAME&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"要显示的字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-COLTEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"字段名<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-JUST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"对齐方式<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"可编辑<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_TABLE&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用表<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-REF_FIELD&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"引用字段<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_FIELDCAT-INTTYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&9&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_FIELDCAT&nbsp;TO&nbsp;LT_FIELDCAT.<br />
+&nbsp;&nbsp;END-OF-DEFINITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;数据转换（GT_IN_TAB=&gt;GT_OUT_TAB）<br />
+*&nbsp;STEP1:创建FIELDCAT<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DF_ADD_FIELDCAT:<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;'KUNAG'&nbsp;&nbsp;'地点'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;'FKDAT'&nbsp;&nbsp;'日期'&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;'EX_POSTYP'&nbsp;&nbsp;'业务类型'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;'VBELN'&nbsp;&nbsp;'发票号'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;'EX_POSNUM'&nbsp;&nbsp;'POS&nbsp;单据号'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'20'&nbsp;'',&nbsp;&nbsp;&nbsp;"郭悦修改&nbsp;LW_FIELDCAT-INTLEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"内部长度<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;'POSNR'&nbsp;&nbsp;&nbsp;'行项目'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;'MATNR'&nbsp;&nbsp;'商品号'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'18'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;'CHARG'&nbsp;&nbsp;'批次'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+   </div>
+   <div class="codeComment">
+*********MODIFY&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.09&nbsp;START&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;'ZSPTM'&nbsp;&nbsp;'商品条码'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'13'&nbsp;'',<br />
+   </div>
+   <div class="codeComment">
+*********MODIFY&nbsp;BY&nbsp;LIQUAN&nbsp;&nbsp;2015.12.09&nbsp;&nbsp;&nbsp;END&nbsp;*********<br />
+*********2016.04.05&nbsp;郭悦更新&nbsp;START&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;'KUNRG'&nbsp;&nbsp;'合作伙伴编号/平台'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'35'&nbsp;'',<br />
+   </div>
+   <div class="codeComment">
+*********2016.04.05&nbsp;郭悦更新&nbsp;END&nbsp;*********<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;'FKLMG'&nbsp;&nbsp;'开票数量'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'16'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;'MEINS'&nbsp;&nbsp;'单位'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;'ZSXJS'&nbsp;&nbsp;'数量'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;&nbsp;'VRKME'&nbsp;&nbsp;'单位'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;'ZXSKZ'&nbsp;&nbsp;'重量'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11&nbsp;&nbsp;'VRKME2'&nbsp;&nbsp;'单位'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;''&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;&nbsp;'KZWI1'&nbsp;&nbsp;'收款金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13&nbsp;&nbsp;'KZWI2'&nbsp;&nbsp;'成本金额'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;14&nbsp;&nbsp;'KZWI3'&nbsp;&nbsp;'商场回款'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;15&nbsp;&nbsp;'KZWI4'&nbsp;&nbsp;'优惠合计'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16&nbsp;&nbsp;'KZWI5'&nbsp;&nbsp;'小计5'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17&nbsp;&nbsp;'KZWI6'&nbsp;&nbsp;'标签价'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;18&nbsp;&nbsp;'DNUM'&nbsp;&nbsp;'IDOC号'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;'',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;19&nbsp;&nbsp;'DTYPE'&nbsp;&nbsp;'IDOC类型'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'L'&nbsp;''&nbsp;''&nbsp;&nbsp;''&nbsp;'15'&nbsp;''.<br />
+<br />
+&nbsp;&nbsp;LW_LAYOUT-CWIDTH_OPT&nbsp;=&nbsp;ABAP_TRUE.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"优化列宽设置<br />
+&nbsp;&nbsp;LW_LAYOUT-BOX_FNAME&nbsp;=&nbsp;'SEL'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"选择&nbsp;框<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY_LVC'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT_LVC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LW_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT_LVC&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_ALV<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;E001(00)&nbsp;WITH&nbsp;'系统错误'&nbsp;SPACE&nbsp;SPACE&nbsp;SPACE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*Text&nbsp;elements<br />
+*----------------------------------------------------------<br />
+*&nbsp;001&nbsp;选择条件<br />
+<br />
+<br />
+*Selection&nbsp;texts<br />
+*----------------------------------------------------------<br />
+*&nbsp;R_1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汇总<br />
+*&nbsp;R_2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;明细<br />
+*&nbsp;S_BUDAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日期<br />
+*&nbsp;S_WERKS&nbsp;D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+<br />
+<br />
+*Messages<br />
+*----------------------------------------------------------<br />
+*<br />
+*&nbsp;Message&nbsp;class:&nbsp;00<br />
+*001&nbsp;&nbsp;&nbsp;&1&2&3&4&5&6&7&8<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

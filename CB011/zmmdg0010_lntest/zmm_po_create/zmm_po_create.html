@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_PO_CREATE</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for function ZMM_PO_CREATE</h2>
+<h3> Description: 采购订单创建</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="code">
+FUNCTION ZMM_PO_CREATE .<br />
+   </div>
+   <div class="codeComment">
+*"----------------------------------------------------------------------<br />
+*"*"本地接口：<br />
+*"  IMPORTING<br />
+*"     VALUE(I_YWLX) TYPE  ZDE_ZYWLX OPTIONAL<br />
+*"     VALUE(I_BSART) TYPE  BSART OPTIONAL<br />
+*"  EXPORTING<br />
+*"     REFERENCE(O_PO) TYPE  EBELN<br />
+*"     REFERENCE(O_BSART) TYPE  BSART<br />
+*"     REFERENCE(O_RETURN) TYPE  BAPIRET2<br />
+*"  TABLES<br />
+*"      T_DATA STRUCTURE  ZSMM_PO_CREATE<br />
+*"      T_ITEM STRUCTURE  BAPIMEPOITEM<br />
+*"      T_OUT STRUCTURE  BAPIRET2<br />
+<br />
+*"----------------------------------------------------------------------<br />
+
+<div class="codeComment">*       <a href ="global-zmm_po_create.html">Global data declarations</a></div><br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;DATA:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poheader&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepoheader&nbsp;&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poheaderx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepoheaderx&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapiret2&nbsp;&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepoitem&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitemx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepoitemx&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poschedule&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimeposchedule&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poschedulex&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimeposchedulx&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poaccount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepoaccount&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poaccountx&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepoaccountx&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pocond&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepocond&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pocondx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepocondx&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;potextitem&nbsp;&nbsp;&nbsp;&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;bapimepotext&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POCOMPONENTS&nbsp;&nbsp;like&nbsp;TABLE&nbsp;OF&nbsp;BAPIMEPOCOMPONENT&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POCOMPONENTSX&nbsp;like&nbsp;table&nbsp;of&nbsp;BAPIMEPOCOMPONENTX&nbsp;WITH&nbsp;HEADER&nbsp;LINE,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOCOND,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CONDITION&nbsp;&nbsp;TYPE&nbsp;BAPIMEPOCOND&nbsp;OCCURS&nbsp;0,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONX&nbsp;TYPE&nbsp;BAPIMEPOCONDX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件确认<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CONDITIONX&nbsp;TYPE&nbsp;BAPIMEPOCONDX&nbsp;OCCURS&nbsp;0.&nbsp;&nbsp;&nbsp;&nbsp;"行项目定价条件确认<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;epo&nbsp;LIKE&nbsp;bapimepoheader-po_number.<br />
+&nbsp;&nbsp;DATA:&nbsp;l_return&nbsp;LIKE&nbsp;return.<br />
+&nbsp;&nbsp;DATA:&nbsp;lv_message(255).<br />
+&nbsp;&nbsp;DATA:&nbsp;L_OUT&nbsp;TYPE&nbsp;bapiret2.<br />
+&nbsp;&nbsp;CONSTANTS:&nbsp;con&nbsp;VALUE&nbsp;'X'.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;lifnr&nbsp;TYPE&nbsp;elifn.<br />
+&nbsp;&nbsp;DATA:&nbsp;netpr&nbsp;TYPE&nbsp;bprei.<br />
+&nbsp;&nbsp;DATA:&nbsp;bstae&nbsp;TYPE&nbsp;bstae.<br />
+&nbsp;&nbsp;DATA:&nbsp;matnr&nbsp;TYPE&nbsp;matnr.<br />
+&nbsp;&nbsp;DATA:&nbsp;waers&nbsp;TYPE&nbsp;waers.<br />
+&nbsp;&nbsp;DATA:&nbsp;L_PSTYP&nbsp;TYPE&nbsp;PSTYP,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FREE&nbsp;&nbsp;TYPE&nbsp;C,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_RET&nbsp;&nbsp;&nbsp;type&nbsp;c,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;TYPE&nbsp;bsart,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_KNTTP&nbsp;TYPE&nbsp;KNTTP.<br />
+<br />
+&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;gt_out&nbsp;OCCURS&nbsp;0,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text(255),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;gt_out.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*--------------------------------------------------------------------*<br />
+* 根据业务类型确定采购订单类型<br />
+*--------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;i_ywlx&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;I_BSART.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;I_BSART&nbsp;=&nbsp;'Z005'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FREE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CASE&nbsp;i_ywlx.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T001'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_PSTYP&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T004'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_PSTYP&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T007'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z001'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_PSTYP&nbsp;=&nbsp;'L'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T002'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z002'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T005'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z002'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T008'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z002'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T003'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z003'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FREE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T006'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z003'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FREE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'T009'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_bsart&nbsp;=&nbsp;'Z003'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;L_FREE&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;OTHERS.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDCASE.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;IF&nbsp;I_BSART&nbsp;=&nbsp;'Z004'&nbsp;OR&nbsp;I_BSART&nbsp;=&nbsp;'Z005'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_RET&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;O_BSART&nbsp;=&nbsp;L_bsart.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;t_data.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;waers.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;waers&nbsp;=&nbsp;t_data-waers.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;lifnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;lifnr&nbsp;=&nbsp;t_data-ZGYSDM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;&nbsp;=&nbsp;lifnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;=&nbsp;lifnr.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-doc_type&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;l_bsart.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-vendor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lifnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-purch_org&nbsp;&nbsp;=&nbsp;t_data-ekorg.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-pur_group&nbsp;&nbsp;=&nbsp;t_data-ekgrp.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-comp_code&nbsp;=&nbsp;t_data-bukrs.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-REASON_CANCEL&nbsp;=&nbsp;t_data-ABSGR.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-doc_date&nbsp;&nbsp;&nbsp;=&nbsp;sy-datum.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-langu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;sy-langu.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheader-currency&nbsp;=&nbsp;waers."货币<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-doc_type&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-vendor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-purch_org&nbsp;&nbsp;=&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-pur_group&nbsp;&nbsp;=&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-comp_code&nbsp;=&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-REASON_CANCEL&nbsp;=&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-doc_date&nbsp;&nbsp;&nbsp;=&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-langu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;con.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poheaderx-currency&nbsp;=&nbsp;con."货币<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;netpr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;netpr&nbsp;=&nbsp;t_data-netpr.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;matnr.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;matnr&nbsp;=&nbsp;t_data-matnr.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'CONVERSION_EXIT_ALPHA_INPUT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input&nbsp;&nbsp;=&nbsp;matnr<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&nbsp;=&nbsp;matnr.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-po_item&nbsp;=&nbsp;&nbsp;t_data-ebelp.&nbsp;"采购凭证的项目编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-acctasscat&nbsp;=&nbsp;t_data-knttp."科目分配类别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-material&nbsp;=&nbsp;matnr."商品代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-quantity&nbsp;=&nbsp;t_data-menge."采购订单数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-po_unit&nbsp;=&nbsp;t_data-meins&nbsp;."采购订单的计量单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-net_price&nbsp;=&nbsp;netpr."净价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-plant&nbsp;=&nbsp;t_data-werks.&nbsp;"工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-STGE_LOC&nbsp;=&nbsp;t_data-lgort.&nbsp;"库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitem-tax_code&nbsp;=&nbsp;t_data-mwskz."销售税代码<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_PSTYP&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitem-ITEM_CAT&nbsp;=&nbsp;L_PSTYP."行项目类别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_FREE&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitem-FREE_ITEM&nbsp;=&nbsp;L_FREE."免费交货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;t_data-batch&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitem-BATCH&nbsp;&nbsp;=&nbsp;T_DATA-BATCH.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;L_RET&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitem-RET_ITEM&nbsp;=&nbsp;L_RET."退货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;poitem.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;poitem.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-po_item&nbsp;=&nbsp;&nbsp;t_data-ebelp.&nbsp;"采购凭证的项目编号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-acctasscat&nbsp;=&nbsp;con."科目分配类别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-material&nbsp;=&nbsp;con."商品代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-quantity&nbsp;=&nbsp;con."采购订单数量<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-po_unit&nbsp;=&nbsp;con&nbsp;."采购订单的计量单位<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-net_price&nbsp;=&nbsp;con."净价<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-plant&nbsp;=&nbsp;con.&nbsp;"工厂<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-STGE_LOC&nbsp;=&nbsp;con.&nbsp;"库存地点<br />
+&nbsp;&nbsp;&nbsp;&nbsp;poitemX-tax_code&nbsp;=&nbsp;con."销售税代码<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_PSTYP&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitemx-ITEM_CAT&nbsp;=&nbsp;con."行项目类别<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_FREE&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitemx-FREE_ITEM&nbsp;=&nbsp;con."免费交货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;L_RET&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitemx-RET_ITEM&nbsp;=&nbsp;con."退货<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&nbsp;t_data-batch&nbsp;IS&nbsp;NOT&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitemX-BATCH&nbsp;&nbsp;=&nbsp;con."批次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;poitemx.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;poitemx.<br />
+<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION-ITM_NUMBER&nbsp;&nbsp;=&nbsp;t_data-ebelp.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION-COND_TYPE&nbsp;&nbsp;&nbsp;=&nbsp;'PBXX'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"条件类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION-COND_VALUE&nbsp;&nbsp;=&nbsp;netpr.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION-CURRENCY&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'CNY'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"货币<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION-CHANGE_ID&nbsp;&nbsp;&nbsp;=&nbsp;'U'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITION-COND_UPDAT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_CONDITION&nbsp;TO&nbsp;LT_CONDITION.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*      ————确认————<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONx-ITM_NUMBER&nbsp;&nbsp;=&nbsp;t_data-ebelp.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"行项目号<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONx-COND_TYPE&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"条件类型<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONx-COND_VALUE&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"金额<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONx-CURRENCY&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"货币<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONx-CHANGE_ID&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"货币<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LW_CONDITIONx-COND_UPDAT&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LW_CONDITIONX&nbsp;TO&nbsp;LT_CONDITIONX.<br />
+<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*  pocomponents-po_item = poschedule-po_item .<br />
+*  pocomponents-sched_line =  poschedule-sched_line.<br />
+*  pocomponents-change_id = 'I'.<br />
+*pocomponents-material = '000000000000000007'.<br />
+*  POCOMPONENTS-ENTRY_QUANTITY = 90 ."数量<br />
+*  POCOMPONENTS-ENTRY_UOM = 'G'."单位<br />
+*  POCOMPONENTS-PLANT = 'DC80'.<br />
+*  APPEND pocomponents .<br />
+*<br />
+*  pocomponentsx-po_item = poschedule-po_item .<br />
+*  pocomponentsx-sched_line = poschedule-sched_line.<br />
+*  pocomponentsx-po_itemX = 'X' .<br />
+*  pocomponentsx-MATERIAL = 'X'.<br />
+*  pocomponentsx-ENTRY_QUANTITY = 'X'.<br />
+*  pocomponentsx-ENTRY_UOM = 'X'.<br />
+*  pocomponentsx-change_id = 'X'.<br />
+*  POCOMPONENTSX-PLANT = 'X'.<br />
+*  APPEND pocomponentsx.<br />
+<br />
+<br />
+*--------------------------------------------------------------------*<br />
+*BAPI调用 创建PO<br />
+*--------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_PO_CREATE1'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poheader&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poheader<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poheaderx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poheaderx<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exppurchaseorder&nbsp;=&nbsp;epo<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;return<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poitem<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poitemx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poitemx<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poschedule&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poschedule<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poschedulex&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poschedulex<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poaccount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poaccount<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;poaccountx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;poaccountx<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;potextitem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;potextitem<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POCOND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CONDITION<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POCONDX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CONDITIONX.<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;return&nbsp;WHERE&nbsp;type&nbsp;=&nbsp;'E'&nbsp;OR&nbsp;type&nbsp;=&nbsp;'A'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;o_return-TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;exit.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;&nbsp;o_return-TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;lv_message.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_ROLLBACK'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'采购订单创建失败'&nbsp;'&nbsp;'&nbsp;INTO&nbsp;l_out-message.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_OUT-TYPE&nbsp;=&nbsp;'E'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_OUT&nbsp;TO&nbsp;t_out.<br />
+&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'BAPI_TRANSACTION_COMMIT'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;epo&nbsp;'创建成功'&nbsp;INTO&nbsp;&nbsp;&nbsp;L_OUT-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_OUT-TYPE&nbsp;=&nbsp;'S'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_OUT&nbsp;TO&nbsp;t_out.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;T_ITEM[]&nbsp;&nbsp;=&nbsp;poitem[].<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+<br />
+&nbsp;&nbsp;SORT&nbsp;return&nbsp;by&nbsp;id&nbsp;number&nbsp;message&nbsp;ASCENDING.<br />
+&nbsp;&nbsp;delete&nbsp;ADJACENT&nbsp;DUPLICATES&nbsp;FROM&nbsp;return.<br />
+<br />
+<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;return&nbsp;WHERE&nbsp;TYPE&nbsp;&lt;&gt;&nbsp;'I'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_OUT-TYPE&nbsp;=&nbsp;return-TYPE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;L_OUT-message&nbsp;=&nbsp;return-MESSAGE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;L_OUT&nbsp;TO&nbsp;t_out.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+<br />
+<br />
+&nbsp;&nbsp;O_PO&nbsp;=&nbsp;epo.<br />
+<br />
+<br />
+<br />
+<br />
+ENDFUNCTION.<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>

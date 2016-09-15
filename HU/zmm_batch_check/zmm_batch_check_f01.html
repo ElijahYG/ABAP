@@ -1,0 +1,910 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=GBK" />
+<title>ZMM_BATCH_CHECK_F01</title>
+<style type="text/css">
+.code{ font-family:"Courier New", Courier, monospace; color:#000; font-size:14px; background-color:#F2F4F7 }
+  .codeComment {font-family:"Courier New", Courier, monospace; color:#0000F0; font-size:14px; background-color:#F2F4F7 }
+  .normalBold{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; font-weight:800 }
+  .normalBoldLarge{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+</style>
+<style type="text/css">
+  .normal{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px }
+  .footer{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:12px; text-align: center }
+  h2{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:16px; font-weight:800 }
+  h3{ font-family:Arial, Helvetica, sans-serif; color:#000; font-size:14px; font-weight:800 }
+  .outerTable{
+   background-color:#E0E7ED;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-right-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+  .innerTable{
+   background-color:#F2F4F7;
+   width:100%;
+   border-top-width: thin;
+   border-right-width: thin;
+   border-bottom-width: thin;
+   border-left-width: thin;
+   border-top-style: solid;
+   border-right-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+  }
+</style>
+</head>
+<body>
+<table class="outerTable">
+  <tr class="normalBoldLarge">
+     <td><h2>Code listing for: ZMM_BATCH_CHECK_F01</h2>
+<h3> Description: Include ZMM_BATCH_CHECK_F01</h3></td>
+   </tr>
+  <tr>
+     <td>
+     <table class="innerTable">
+       <tr>
+          <td>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;包含&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZMM_BATCH_CHECK_F01<br />
+*&---------------------------------------------------------------------*<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CHECK_BATCH<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_CHECK_BATCH .<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_LINES_ALL&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINES_TMP&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_TIMES&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MAX&nbsp;&nbsp;&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_BEGIN&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;TYPE&nbsp;I,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINES_ERROR&nbsp;TYPE&nbsp;I&nbsp;.<br />
+&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MCH1-MATNR,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MCH1-CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_CHARG&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_CHARG_ALL&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_CHARG,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARG_TMP&nbsp;LIKE&nbsp;LT_CHARG_ALL&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARACTERS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_CHARACTERS.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_MSG&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGV1&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LT_BATCH&nbsp;TYPE&nbsp;TY_T_BATCH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BATCH_RIGHT&nbsp;LIKE&nbsp;LT_BATCH,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_BATCH_ERROR&nbsp;LIKE&nbsp;LT_BATCH&nbsp;.<br />
+<br />
+<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;R2_1&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'开始查询需要检查的批次:&nbsp;没有检查过和上次检查有错误的'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_CHARG_ALL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;CHK_PCTX&nbsp;IN&nbsp;(&nbsp;''&nbsp;,&nbsp;'E'&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;ELSEIF&nbsp;R2_2&nbsp;=&nbsp;'X'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'开始查询需要检查的批次:&nbsp;所有批次'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;CHARG<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_CHARG_ALL<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;LT_CHARG_ALL[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'没有需要检查的批次！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_WRITE_LOG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;从ZMM_BATCH_CHECK中删除之前的错误批次信息<br />
+&nbsp;&nbsp;DELETE&nbsp;FROM&nbsp;ZMM_BATCH_CHECK&nbsp;.<br />
+<br />
+&nbsp;&nbsp;"&nbsp;由于批次条数太多，一次全部检查可能导致系统内存不足，所以按每10万条作为一个批次进行检查<br />
+&nbsp;&nbsp;LV_MAX&nbsp;&nbsp;&nbsp;=&nbsp;100000&nbsp;.<br />
+&nbsp;&nbsp;LV_LINES_ALL&nbsp;=&nbsp;LINES(&nbsp;LT_CHARG_ALL&nbsp;).<br />
+&nbsp;&nbsp;LV_TIMES&nbsp;=&nbsp;LV_LINES_ALL&nbsp;DIV&nbsp;LV_MAX&nbsp;+&nbsp;1&nbsp;.&nbsp;"&nbsp;总共需要检查多少次<br />
+&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'本次需要检查'&nbsp;&&&nbsp;LV_LINES_ALL&nbsp;&&&nbsp;'条批次信息!'&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;LV_LINES_ERROR&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;DO&nbsp;LV_TIMES&nbsp;TIMES.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;LT_CHARG_TMP,LT_CHARACTERS,LT_BATCH,LT_BATCH_RIGHT,LT_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_BEGIN&nbsp;=&nbsp;LV_MAX&nbsp;*&nbsp;(&nbsp;SY-INDEX&nbsp;-&nbsp;1&nbsp;)&nbsp;+&nbsp;1&nbsp;.&nbsp;"&nbsp;本次循环从内表LT_CHARG_ALL的哪一行开始<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-INDEX&nbsp;=&nbsp;LV_TIMES&nbsp;.&nbsp;"&nbsp;最后一次<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;=&nbsp;LV_LINES_ALL&nbsp;.&nbsp;"&nbsp;本次循环从内表LT_CHARG_ALL的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_END&nbsp;=&nbsp;LV_MAX&nbsp;*&nbsp;SY-INDEX&nbsp;.&nbsp;"&nbsp;本次循环从内表LT_CHARG_ALL的哪一行结束<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'开始检查第'&nbsp;&&&nbsp;LV_BEGIN&nbsp;&&&nbsp;'到第'&nbsp;&&&nbsp;LV_END&nbsp;&&&nbsp;'条批次信息！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始提取批次特性'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;取得批次特性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;LINES&nbsp;OF&nbsp;LT_CHARG_ALL&nbsp;FROM&nbsp;LV_BEGIN&nbsp;TO&nbsp;LV_END&nbsp;TO&nbsp;LT_CHARG_TMP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zsdrp0020_fm_01/zsdrp0020_fm_01.html">'ZSDRP0020_FM_01'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG_TMP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;LT_CHARACTERS.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;检查批次特性<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始检查批次特性'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_CHARACTERS&nbsp;TO&nbsp;LT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;function&nbsp;<a&nbsp;href&nbsp;="zmm_batch_check/zmm_batch_check.html">'ZMM_BATCH_CHECK'</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_IS_QC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_BATCH_RIGHT&nbsp;=&nbsp;LT_BATCH_RIGHT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_BATCH_ERROR&nbsp;=&nbsp;LT_BATCH_ERROR.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_LINES_TMP&nbsp;=&nbsp;LINES(&nbsp;LT_BATCH_ERROR&nbsp;)&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;LV_LINES_TMP&nbsp;=&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;所有批次特性都正确！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;特性错误的批次条数：'&nbsp;&&&nbsp;LV_LINES_TMP&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;保存本次检查的结果<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_SAVE_DATA&nbsp;TABLES&nbsp;LT_BATCH&nbsp;LT_BATCH_RIGHT&nbsp;LT_BATCH_ERROR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;LV_LINES_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;"输出检查日志<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_WRITE_LOG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;REFRESH:&nbsp;GT_LOG&nbsp;.<br />
+&nbsp;&nbsp;ENDDO.<br />
+ENDFORM.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_GET_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*FORM&nbsp;FRM_GET_DATA&nbsp;.<br />
+*&nbsp;&nbsp;DATA:&nbsp;BEGIN&nbsp;OF&nbsp;LS_CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MATNR&nbsp;TYPE&nbsp;MCH1-MATNR,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHARG&nbsp;TYPE&nbsp;MCH1-CHARG,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END&nbsp;OF&nbsp;LS_CHARG&nbsp;.<br />
+*&nbsp;&nbsp;DATA:&nbsp;LT_CHARG&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_CHARG&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;DATA:&nbsp;LS_CHARACTERS&nbsp;TYPE&nbsp;ZMM_CHARACTERS,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LT_CHARACTERS&nbsp;LIKE&nbsp;TABLE&nbsp;OF&nbsp;LS_CHARACTERS.<br />
+*&nbsp;&nbsp;DATA:&nbsp;LV_MSG&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGV1,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_LINES&nbsp;TYPE&nbsp;I.<br />
+*<br />
+*&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'开始查询需要检查的批次'&nbsp;.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;IF&nbsp;R2_1&nbsp;=&nbsp;'X'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;CHK_PCTX&nbsp;IN&nbsp;(&nbsp;''&nbsp;,&nbsp;'E'&nbsp;)&nbsp;.<br />
+*&nbsp;&nbsp;ELSEIF&nbsp;R2_2&nbsp;=&nbsp;'X'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;MATNR&nbsp;CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;TABLE&nbsp;LT_CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMMRP0210_BATCH&nbsp;.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;IF&nbsp;LT_CHARG[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LV_LINES&nbsp;=&nbsp;LINES(&nbsp;LT_CHARG[]&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'本次需要检查'&nbsp;&&&nbsp;LV_LINES&nbsp;&&&nbsp;'条批次信息，现在开始提取批次特性。'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ZSDRP0020_FM_01'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;LT_CHARG<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_CHARACTERS&nbsp;=&nbsp;LT_CHARACTERS.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MOVE-CORRESPONDING&nbsp;LT_CHARACTERS&nbsp;TO&nbsp;GT_BATCH&nbsp;.<br />
+*&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;GET&nbsp;TIME&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'没有需要检查的批次！'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*ENDFORM.<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_CHECK_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*FORM&nbsp;FRM_CHECK_DATA&nbsp;.<br />
+*&nbsp;&nbsp;DATA:&nbsp;LV_NUM_ALL&nbsp;TYPE&nbsp;I,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_NUM_ERR&nbsp;TYPE&nbsp;I,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGV1.<br />
+*<br />
+*&nbsp;&nbsp;IF&nbsp;GT_BATCH[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;LV_NUM_ALL&nbsp;=&nbsp;LINES(&nbsp;GT_BATCH&nbsp;)&nbsp;.<br />
+*&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'共有'&nbsp;&&&nbsp;LV_NUM_ALL&nbsp;&&&nbsp;'条批次需要检查!'&nbsp;.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'ZMM_BATCH_CHECK'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IM_IS_QC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;''<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BATCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_BATCH<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_BATCH_RIGHT&nbsp;=&nbsp;GT_BATCH_RIGHT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ET_BATCH_ERROR&nbsp;=&nbsp;GT_BATCH_ERROR.<br />
+*<br />
+*<br />
+*&nbsp;&nbsp;LV_NUM_ERR&nbsp;=&nbsp;LINES(&nbsp;GT_BATCH_ERROR&nbsp;)&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;IF&nbsp;LV_NUM_ERR&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'所有批次特性都正确！'&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+*&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'特性错误的批次条数：'&nbsp;&&&nbsp;LV_NUM_ERR&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*ENDFORM.<br />
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_ADD_LOG<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_TYPE&nbsp;&nbsp;TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_ID&nbsp;&nbsp;TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_NUMBER&nbsp;&nbsp;TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_MSGV1&nbsp;&nbsp;TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_MSGV2&nbsp;&nbsp;TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_MSGV3&nbsp;&nbsp;TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&gt;P_MSGV4&nbsp;&nbsp;TEXT<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_ADD_LOG  USING   P_TYPE  TYPE SY-MSGTY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_ID&nbsp;&nbsp;&nbsp;TYPE&nbsp;SY-MSGID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_NUMBER&nbsp;TYPE&nbsp;SY-MSGNO<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_MSGV1&nbsp;&nbsp;TYPE&nbsp;SY-MSGV1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_MSGV2&nbsp;&nbsp;TYPE&nbsp;SY-MSGV2<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_MSGV3&nbsp;&nbsp;TYPE&nbsp;SY-MSGV3<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P_MSGV4&nbsp;&nbsp;TYPE&nbsp;SY-MSGV4&nbsp;.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GS_LOG&nbsp;.<br />
+&nbsp;&nbsp;GS_LOG-TYPE&nbsp;=&nbsp;P_TYPE&nbsp;.<br />
+&nbsp;&nbsp;GS_LOG-ID&nbsp;&nbsp;&nbsp;=&nbsp;P_ID&nbsp;.<br />
+&nbsp;&nbsp;GS_LOG-NUMBER&nbsp;=&nbsp;P_NUMBER&nbsp;.<br />
+<br />
+&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;P_ID&nbsp;TYPE&nbsp;P_TYPE&nbsp;NUMBER&nbsp;P_NUMBER<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;GS_LOG-MESSAGE<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;P_MSGV1&nbsp;P_MSGV2&nbsp;P_MSGV3&nbsp;P_MSGV4&nbsp;.<br />
+&nbsp;&nbsp;GET&nbsp;TIME&nbsp;.<br />
+&nbsp;&nbsp;GS_LOG-MESSAGE&nbsp;=&nbsp;SY-DATUM&nbsp;&&&nbsp;'-'&nbsp;&&&nbsp;SY-UZEIT&nbsp;&&&nbsp;'：'&nbsp;&&&nbsp;GS_LOG-MESSAGE&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_LOG&nbsp;TO&nbsp;GT_LOG&nbsp;.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_SAVE_DATA<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_SAVE_DATA TABLES IT_BATCH TYPE TY_T_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BATCH_RIGHT&nbsp;TYPE&nbsp;TY_T_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_BATCH_ERROR&nbsp;TYPE&nbsp;TY_T_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHANGING&nbsp;IV_LINES_ERROR&nbsp;.<br />
+&nbsp;&nbsp;FIELD-SYMBOLS&nbsp;&lt;LS_BATCH&gt;&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LS_BATCH&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;IT_BATCH&nbsp;.<br />
+&nbsp;&nbsp;DATA:&nbsp;LV_NUM&nbsp;TYPE&nbsp;N&nbsp;LENGTH&nbsp;8,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ERR&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;1,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;TYPE&nbsp;SY-MSGV1.<br />
+<br />
+&nbsp;&nbsp;IF&nbsp;IT_BATCH[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CLEAR:&nbsp;LV_NUM,LV_ERR&nbsp;.<br />
+<br />
+&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;开始保存更新表ZMMRP0210_BATCH中的状态'&nbsp;.<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;1.&nbsp;更新有错误的批次到表&nbsp;ZMMRP0210_BATCH<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_BATCH_ERROR&nbsp;ASSIGNING&nbsp;&lt;LS_BATCH&gt;&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UPDATE&nbsp;&nbsp;ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;&nbsp;&nbsp;CHK_PCTX&nbsp;=&nbsp;'E'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;&lt;LS_BATCH&gt;-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;&lt;LS_BATCH&gt;-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ERR&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IV_LINES_ERROR&nbsp;=&nbsp;IV_LINES_ERROR&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;LS_BATCH&gt;-SEQ&nbsp;=&nbsp;IV_LINES_ERROR&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;LV_ERR&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;更新表ZMMRP0210_BATCH出错！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;2.&nbsp;更新正确的批次到表&nbsp;ZMMRP0210_BATCH<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;IT_BATCH_RIGHT&nbsp;INTO&nbsp;LS_BATCH&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;UPDATE&nbsp;&nbsp;ZMMRP0210_BATCH<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SET&nbsp;&nbsp;&nbsp;CHK_PCTX&nbsp;=&nbsp;'S'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;MATNR&nbsp;=&nbsp;LS_BATCH-MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;CHARG&nbsp;=&nbsp;LS_BATCH-CHARG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_ERR&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+&nbsp;&nbsp;IF&nbsp;LV_ERR&nbsp;=&nbsp;'E'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;更新表ZMMRP0210_BATCH出错！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;3.&nbsp;保存本次检查的错误批次信息到ZMM_BATCH_CHECK<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;IF&nbsp;IT_BATCH_ERROR[]&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;将错误批次保存到表ZMM_BATCH_CHECK'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MODIFY&nbsp;ZMM_BATCH_CHECK&nbsp;FROM&nbsp;TABLE&nbsp;IT_BATCH_ERROR&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROLLBACK&nbsp;WORK&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;更新表ZMM_BATCH_CHECK出错！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;LV_MSG&nbsp;=&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;请使用查询功能来查看错误的批次信息！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;FRM_ADD_LOG&nbsp;USING&nbsp;'I'&nbsp;'ZCB'&nbsp;'000'&nbsp;LV_MSG&nbsp;''&nbsp;''&nbsp;''&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;COMMIT&nbsp;WORK&nbsp;.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_WRITE_LOG<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_WRITE_LOG .<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_LOG&nbsp;INTO&nbsp;GS_LOG&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WRITE:&nbsp;GS_LOG-MESSAGE,&nbsp;/&nbsp;.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_SEND_MAIL<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_SEND_MAIL .<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;DATA:&nbsp;ls_head&nbsp;&nbsp;TYPE&nbsp;sodocchgi1,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mail&nbsp;title<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_contents_txt&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;solisti1&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_contents_txt&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;lt_contents_txt&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_packing_list&nbsp;&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;&nbsp;sopcklsti1&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_packing_list&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;lt_packing_list&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_adr6&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;adr6&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_adr6&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;lt_adr6&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lt_receivers&nbsp;TYPE&nbsp;TABLE&nbsp;OF&nbsp;somlreci1&nbsp;,&nbsp;"receivers<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_receivers&nbsp;LIKE&nbsp;LINE&nbsp;OF&nbsp;lt_receivers&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_lines&nbsp;TYPE&nbsp;i&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_sent_all&nbsp;TYPE&nbsp;c&nbsp;LENGTH&nbsp;1&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_text&nbsp;TYPE&nbsp;string&nbsp;,<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lv_tab&nbsp;TYPE&nbsp;c&nbsp;VALUE&nbsp;%_horizontal_tab.<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;Get&nbsp;receiver<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;persnumber&nbsp;addrnumber<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;ls_adr6<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;usr21<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;bname&nbsp;=&nbsp;sy-uname&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT&nbsp;SINGLE&nbsp;flgdefault&nbsp;smtp_addr<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;ls_adr6<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;adr6<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;addrnumber&nbsp;=&nbsp;ls_adr6-addrnumber<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;persnumber&nbsp;=&nbsp;ls_adr6-persnumber<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;flg_nouse&nbsp;&nbsp;=''.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;AND&nbsp;ls_adr6-smtp_addr&nbsp;IS&nbsp;NOT&nbsp;INITIAL&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_receivers-receiver&nbsp;=&nbsp;ls_adr6-smtp_addr.&nbsp;&nbsp;"Email&nbsp;Address<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_receivers-rec_type&nbsp;=&nbsp;'U'.&nbsp;&nbsp;&nbsp;&nbsp;"Internet&nbsp;address<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_receivers-com_type&nbsp;=&nbsp;'INT'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;ls_adr6-flgdefault&nbsp;EQ&nbsp;''.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_receivers-copy&nbsp;=&nbsp;'X'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_receivers&nbsp;TO&nbsp;lt_receivers&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;lt_receivers[]&nbsp;IS&nbsp;INITIAL&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'Cannot&nbsp;send&nbsp;email&nbsp;since&nbsp;user&nbsp;'&nbsp;sy-uname&nbsp;'&nbsp;doesn''t&nbsp;have&nbsp;email&nbsp;address.'&nbsp;INTO&nbsp;lv_text&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;write_log&nbsp;USING&nbsp;lv_text&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXIT&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;Mail&nbsp;head<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;sy-sysid&nbsp;'_ZMMTURN&nbsp;process&nbsp;notification_'&nbsp;gv_date&nbsp;'_'&nbsp;gv_time&nbsp;INTO&nbsp;ls_head-obj_descr.&nbsp;&nbsp;"Email&nbsp;Subject.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_head-priority&nbsp;=&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_head-obj_langu&nbsp;=&nbsp;sy-langu.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_head-obj_name&nbsp;=&nbsp;'ZMMTURN&nbsp;notification'.&nbsp;&nbsp;"Name&nbsp;of&nbsp;document..<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_head-sensitivty&nbsp;=&nbsp;'F'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Document&nbsp;sensitivity.<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;Mail&nbsp;content<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_contents_txt&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'Your&nbsp;reqest&nbsp;has&nbsp;been&nbsp;processed&nbsp;in'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sy-sysid&nbsp;INTO&nbsp;ls_contents_txt-line&nbsp;SEPARATED&nbsp;BY&nbsp;space&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;ls_contents_txt-line<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.&nbsp;Below&nbsp;is&nbsp;the&nbsp;status:'&nbsp;INTO&nbsp;ls_contents_txt-line&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_contents_txt&nbsp;TO&nbsp;lt_contents_txt&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_contents_txt&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'Status'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'Message'&nbsp;INTO&nbsp;ls_contents_txt-line&nbsp;SEPARATED&nbsp;BY&nbsp;lv_tab&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_contents_txt&nbsp;TO&nbsp;lt_contents_txt&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;gt_msg&nbsp;INTO&nbsp;gs_msg&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR:&nbsp;ls_contents_txt&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;gs_msg-typ<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs_msg-msg&nbsp;INTO&nbsp;ls_contents_txt-line&nbsp;SEPARATED&nbsp;BY&nbsp;lv_tab&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_contents_txt&nbsp;TO&nbsp;lt_contents_txt&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDLOOP.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;DESCRIBE&nbsp;TABLE&nbsp;lt_contents_txt&nbsp;LINES&nbsp;lv_lines.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;READ&nbsp;TABLE&nbsp;lt_contents_txt&nbsp;INTO&nbsp;ls_contents_txt&nbsp;INDEX&nbsp;lv_lines.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_head-doc_size&nbsp;=&nbsp;(&nbsp;lv_lines&nbsp;-&nbsp;1&nbsp;)&nbsp;*&nbsp;255&nbsp;+&nbsp;strlen(&nbsp;ls_contents_txt&nbsp;).<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;ls_packing_list&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_packing_list-transf_bin&nbsp;=&nbsp;''.&nbsp;&nbsp;&nbsp;&nbsp;"ASCII&nbsp;format/binary&nbsp;format<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_packing_list-head_start&nbsp;=&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_packing_list-head_num&nbsp;=&nbsp;0.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_packing_list-body_start&nbsp;=&nbsp;1.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_packing_list-body_num&nbsp;=&nbsp;lv_lines.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ls_packing_list-doc_type&nbsp;=&nbsp;'RAW'.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;APPEND&nbsp;ls_packing_list&nbsp;TO&nbsp;lt_packing_list&nbsp;.<br />
+*<br />
+**&nbsp;&nbsp;&nbsp;Send&nbsp;email<br />
+**&nbsp;&nbsp;&nbsp;Call&nbsp;the&nbsp;FM&nbsp;to&nbsp;post&nbsp;the&nbsp;message&nbsp;to&nbsp;SAPMAIL<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'SO_NEW_DOCUMENT_ATT_SEND_API1'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document_data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ls_head&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Attributes&nbsp;of&nbsp;new&nbsp;document<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put_in_outbox&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Flag:&nbsp;Move&nbsp;document&nbsp;to&nbsp;outbox&nbsp;after&nbsp;send<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit_work&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"An&nbsp;explicit&nbsp;COMMIT&nbsp;WORK&nbsp;is&nbsp;to&nbsp;be&nbsp;set<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sent_to_all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lv_sent_all<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packing_list&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_packing_list&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Information&nbsp;about&nbsp;structure&nbsp;of&nbsp;data&nbsp;tables<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;object_header&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;i_object_header<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents_hex&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;i_contents_hex<br />
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents_bin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;i_contents_bin<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents_txt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_contents_txt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"ASCII&nbsp;contents&nbsp;of&nbsp;object&nbsp;and&nbsp;attachments<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;receivers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;lt_receivers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Document&nbsp;recipients&nbsp;with&nbsp;send&nbsp;attributes<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;too_many_receivers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document_not_sent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document_type_not_exist&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operation_no_authorization&nbsp;=&nbsp;4<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;5<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;6<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enqueue_error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;7<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;99.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;sy-subrc&nbsp;=&nbsp;0&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;lv_text&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONCATENATE&nbsp;'Background&nbsp;job&nbsp;process&nbsp;notification&nbsp;has&nbsp;been&nbsp;sent&nbsp;to'<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ls_adr6-smtp_addr&nbsp;INTO&nbsp;lv_text&nbsp;SEPARATED&nbsp;BY&nbsp;space.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;write_log&nbsp;USING&nbsp;lv_text&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ELSE.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLEAR&nbsp;lv_text&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;sy-msgid&nbsp;TYPE&nbsp;sy-msgty&nbsp;NUMBER&nbsp;sy-msgno<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;sy-msgv1&nbsp;sy-msgv2&nbsp;sy-msgv3&nbsp;sy-msgv4<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;lv_text&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PERFORM&nbsp;write_log&nbsp;USING&nbsp;lv_text&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+   </div>
+   <div class="code">
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_DISPLAY<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_DISPLAY .<br />
+&nbsp;&nbsp;SELECT&nbsp;*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;CORRESPONDING&nbsp;FIELDS&nbsp;OF&nbsp;TABLE&nbsp;GT_BATCH_DISPLAY<br />
+&nbsp;&nbsp;&nbsp;&nbsp;FROM&nbsp;ZMM_BATCH_CHECK&nbsp;AS&nbsp;Z<br />
+&nbsp;&nbsp;&nbsp;&nbsp;INNER&nbsp;JOIN&nbsp;MAKT&nbsp;AS&nbsp;T&nbsp;ON&nbsp;T~MATNR&nbsp;=&nbsp;Z~MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHERE&nbsp;Z~MATNR&nbsp;IN&nbsp;S_MATNR<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND&nbsp;T~SPRAS&nbsp;=&nbsp;SY-LANGU&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;S000(ZCB)&nbsp;WITH&nbsp;'没有查询到数据！'&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RETURN&nbsp;.<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_FIELDCAT.&nbsp;&nbsp;&nbsp;"&nbsp;设置显示字段属性<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_BUILD_LAYOUT.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;设置屏幕布局<br />
+&nbsp;&nbsp;PERFORM&nbsp;FRM_ALV_DISPLAY.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"&nbsp;ALV显示<br />
+<br />
+ENDFORM.<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_FIELDCAT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置显示字段属性<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_FIELDCAT .<br />
+<br />
+&nbsp;&nbsp;REFRESH&nbsp;GT_FIELDCAT.<br />
+<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_FIELDCATALOG_MERGE'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_PROGRAM_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_INTERNAL_TABNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_STRUCTURE_NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'ZQC_BATCH'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CLIENT_NEVER_DISPLAY&nbsp;=&nbsp;''<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_INCLNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BYPASSING_BUFFER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_BUFFER_ACTIVE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;CHANGING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;EXCEPTIONS<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INCONSISTENT_INTERFACE&nbsp;=&nbsp;1<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROGRAM_ERROR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OTHERS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;3<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;.<br />
+&nbsp;&nbsp;IF&nbsp;SY-SUBRC&nbsp;&lt;&gt;&nbsp;0.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;Implement&nbsp;suitable&nbsp;error&nbsp;handling&nbsp;here<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'MAKTX'&nbsp;&nbsp;'款式名称'&nbsp;&nbsp;&nbsp;40&nbsp;.<br />
+<br />
+&nbsp;&nbsp;FIELD-SYMBOLS:&nbsp;&lt;GS_FIELDCAT&gt;&nbsp;LIKE&nbsp;GS_FIELDCAT&nbsp;.<br />
+&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_FIELDCAT&nbsp;ASSIGNING&nbsp;&lt;GS_FIELDCAT&gt;&nbsp;.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'SEQ'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'序号'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;10.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'MATNR'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'CHARG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'MAKTX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-COL_POS&nbsp;=&nbsp;4&nbsp;.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZJSZBM'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'检测站编码'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;20.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZCT1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'抽屉1'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;13.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZCT2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'抽屉2'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;13.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'SFLY'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'是否联营'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'CHKFLG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'检查标志'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'NEED_IMPORT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'是否需要导入'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;6.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ZZHAS_IMPORT'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'导入标志'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;4.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IF&nbsp;&lt;GS_FIELDCAT&gt;-FIELDNAME&nbsp;=&nbsp;'ERR_MSG'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-REPTEXT_DDIC&nbsp;=&nbsp;'错误消息'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-KEY&nbsp;=&nbsp;''.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;GS_FIELDCAT&gt;-OUTPUTLEN&nbsp;=&nbsp;60.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="codeComment">
+*<br />
+*<br />
+*&nbsp;&nbsp;REFRESH&nbsp;GT_FIELDCAT.<br />
+<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'WERKS'&nbsp;&nbsp;'地点'&nbsp;4.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'LGORT'&nbsp;&nbsp;'库存地点'&nbsp;4.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'BWART'&nbsp;&nbsp;'移动类型'&nbsp;3.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'MATNR'&nbsp;&nbsp;'商品'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'CHARG'&nbsp;&nbsp;'批次'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'LIFNR'&nbsp;&nbsp;'供应商'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'ZXSJS'&nbsp;&nbsp;'件数'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'ZXSKZ'&nbsp;&nbsp;'克重'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'AMOUNT'&nbsp;&nbsp;'金额'&nbsp;13.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'ERDAT'&nbsp;'上传日期'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'ERZET'&nbsp;'上传时间'&nbsp;8.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'ERNAM'&nbsp;'上传人'&nbsp;12.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'CHKFLG'&nbsp;'检查标志'&nbsp;8.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'ZZHAS_IMPORT'&nbsp;&nbsp;'导入标志'&nbsp;8.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'MENGE'&nbsp;&nbsp;'导入数量'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'MEINS'&nbsp;&nbsp;'单位'&nbsp;3.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'DMBTR'&nbsp;&nbsp;'导入金额'&nbsp;13.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'MBLNR'&nbsp;&nbsp;'商品凭证号'&nbsp;10.<br />
+*&nbsp;&nbsp;PERFORM&nbsp;SUB_SET_FIELDS&nbsp;USING&nbsp;'ERR_MSG'&nbsp;'错误消息'&nbsp;100.<br />
+   </div>
+   <div class="code">
+ENDFORM.                    " FRM_BUILD_FIELDCAT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;SUB_SET_FIELDS<br />
+*&---------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM SUB_SET_FIELDS USING I_FIELDNAME TYPE SLIS_FIELDNAME<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_REPTEXT&nbsp;TYPE&nbsp;DD03P-REPTEXT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_OUTPUTLEN&nbsp;TYPE&nbsp;DD03P-OUTPUTLEN.<br />
+&nbsp;&nbsp;GS_FIELDCAT-FIELDNAME&nbsp;=&nbsp;I_FIELDNAME.<br />
+&nbsp;&nbsp;GS_FIELDCAT-REPTEXT_DDIC&nbsp;=&nbsp;I_REPTEXT.<br />
+&nbsp;&nbsp;GS_FIELDCAT-NO_ZERO&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;GS_FIELDCAT-OUTPUTLEN&nbsp;=&nbsp;I_OUTPUTLEN.<br />
+&nbsp;&nbsp;IF&nbsp;I_FIELDNAME&nbsp;=&nbsp;'BOX'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-CHECKBOX&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;GS_FIELDCAT-EDIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'X'.<br />
+&nbsp;&nbsp;ENDIF.<br />
+&nbsp;&nbsp;GS_FIELDCAT-COL_POS&nbsp;=&nbsp;LINES(&nbsp;GT_FIELDCAT&nbsp;)&nbsp;+&nbsp;1&nbsp;.<br />
+&nbsp;&nbsp;APPEND&nbsp;GS_FIELDCAT&nbsp;TO&nbsp;GT_FIELDCAT.<br />
+&nbsp;&nbsp;CLEAR&nbsp;GS_FIELDCAT.<br />
+ENDFORM.                    "SUB_SET_FIELDS<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_BUILD_LAYOUT<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置屏幕布局<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_BUILD_LAYOUT .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;输出长度的最优化设计<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;GS_LAYOUT-COLWIDTH_OPTIMIZE&nbsp;=&nbsp;'X'.<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;gs_layout-box_fieldname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;'BOX'.<br />
+<br />
+   </div>
+   <div class="code">
+ENDFORM.                    " FRM_BUILD_LAYOUT<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_ALV_DISPLAY<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALV显示<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_ALV_DISPLAY .<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;调用ALV&nbsp;FUNCTION<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'REUSE_ALV_GRID_DISPLAY'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PROGRAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;SY-REPID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_PF_STATUS_SET&nbsp;=&nbsp;'FRM_PF_STATUS_SET'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_USER_COMMAND&nbsp;&nbsp;=&nbsp;'FRM_USER_COMMAND'<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I_CALLBACK_HTML_TOP_OF_PAGE&nbsp;=&nbsp;'HTML_TOP_OF_PAGE'<br />
+   </div>
+   <div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IS_LAYOUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GS_LAYOUT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IT_FIELDCAT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_FIELDCAT<br />
+&nbsp;&nbsp;&nbsp;&nbsp;TABLES<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T_OUTTAB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;GT_BATCH_DISPLAY.<br />
+<br />
+ENDFORM.                    " FRM_ALV_DISPLAY<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_PF_STATUS_SET<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设置状态栏<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_PF_STATUS_SET USING RT_EXTAB TYPE SLIS_T_EXTAB.<br />
+<br />
+&nbsp;&nbsp;SET&nbsp;PF-STATUS&nbsp;'STANDARD'.<br />
+<br />
+ENDFORM.                    " FRM_PF_STATUS_SET<br />
+   </div>
+   <div class="codeComment">
+*&---------------------------------------------------------------------*<br />
+*&&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Form&nbsp;&nbsp;FRM_USER_COMMAND<br />
+*&---------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;定义按钮功能<br />
+*----------------------------------------------------------------------*<br />
+*&nbsp;&nbsp;--&gt;&nbsp;&nbsp;p1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*&nbsp;&nbsp;&lt;--&nbsp;&nbsp;p2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text<br />
+*----------------------------------------------------------------------*<br />
+   </div>
+   <div class="code">
+FORM FRM_USER_COMMAND  USING R_UCOMM LIKE SY-UCOMM<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RS_SELFIELD&nbsp;TYPE&nbsp;SLIS_SELFIELD.<br />
+<br />
+&nbsp;&nbsp;DATA&nbsp;G_GRID&nbsp;TYPE&nbsp;REF&nbsp;TO&nbsp;CL_GUI_ALV_GRID.&nbsp;"&nbsp;刷新数据<br />
+&nbsp;&nbsp;CALL&nbsp;FUNCTION&nbsp;'GET_GLOBALS_FROM_SLVC_FULLSCR'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;IMPORTING<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E_GRID&nbsp;=&nbsp;G_GRID.<br />
+&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;CHECK_CHANGED_DATA.<br />
+&nbsp;&nbsp;IF&nbsp;NOT&nbsp;G_GRID&nbsp;IS&nbsp;INITIAL.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;G_GRID-&gt;REFRESH_TABLE_DISPLAY.&nbsp;"refresh&nbsp;alv<br />
+&nbsp;&nbsp;ENDIF.<br />
+<br />
+&nbsp;&nbsp;CASE&nbsp;R_UCOMM.<br />
+&nbsp;&nbsp;&nbsp;&nbsp;WHEN&nbsp;'SAVE'.<br />
+&nbsp;&nbsp;ENDCASE.<br />
+<br />
+&nbsp;&nbsp;RS_SELFIELD-REFRESH&nbsp;=&nbsp;'X'.<br />
+<br />
+ENDFORM.                    " FRM_USER_COMMAND<br />
+<br />
+FORM HTML_TOP_OF_PAGE USING CL_DD TYPE REF TO CL_DD_DOCUMENT.<br />
+&nbsp;&nbsp;DATA&nbsp;LV_TEXT&nbsp;TYPE&nbsp;C&nbsp;LENGTH&nbsp;255&nbsp;.<br />
+<br />
+   </div>
+   <div class="codeComment">
+*&nbsp;&nbsp;LOOP&nbsp;AT&nbsp;GT_MSG&nbsp;INTO&nbsp;GS_MSG&nbsp;.<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;MESSAGE&nbsp;ID&nbsp;GS_MSG-ID&nbsp;TYPE&nbsp;GS_MSG-TYPE&nbsp;NUMBER&nbsp;GS_MSG-NUMBER<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTO&nbsp;LV_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WITH&nbsp;GS_MSG-MESSAGE_V1&nbsp;GS_MSG-MESSAGE_V2&nbsp;GS_MSG-MESSAGE_V3&nbsp;GS_MSG-MESSAGE_V4&nbsp;&nbsp;.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;ADD_TEXT<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EXPORTING<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEXT&nbsp;=&nbsp;LV_TEXT.<br />
+*<br />
+*&nbsp;&nbsp;&nbsp;&nbsp;CALL&nbsp;METHOD&nbsp;CL_DD-&gt;NEW_LINE&nbsp;.<br />
+*&nbsp;&nbsp;ENDLOOP.<br />
+   </div>
+   <div class="code">
+ENDFORM .<br />
+            </div>
+          </td>
+        </tr>
+      </table>
+      </td>
+      </tr>
+   <tr>
+<td class="footer">www.bjcaibai.com.cn201609</td>
+   </tr>
+</table>
+</body>
+</html>
